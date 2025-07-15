@@ -1,0 +1,39 @@
+.toolbar {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f0f0f0;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 1;
+}
+
+.button {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  padding: 0;
+}
+
+.button:hover {
+    background-color: #e7e7e7;
+}
+
+.buttonActive {
+    background-color: #cce5ff;
+    border-color: #007bff;
+}

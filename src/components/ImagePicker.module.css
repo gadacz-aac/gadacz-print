@@ -1,0 +1,62 @@
+
+.imagePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.searchSection {
+  display: flex;
+  gap: 5px;
+}
+
+.searchInput {
+  flex-grow: 1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.searchButton {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.localFilePicker {
+  text-align: center;
+}
+
+.localPickerLabel {
+  cursor: pointer;
+  text-decoration: underline;
+  color: blue;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.resultImage {
+  width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.resultImage:hover {
+  border-color: #333;
+}

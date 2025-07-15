@@ -1,0 +1,39 @@
+.sidebar {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  left: 10px;
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.colorSquare {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ccc;
+  margin: 2px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 150px;
+}
+
+.strokeWidthButtons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.strokeWidthButton {
+  padding: 5px 10px;
+}
