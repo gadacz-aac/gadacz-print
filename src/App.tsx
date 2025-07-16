@@ -163,11 +163,13 @@ const App = () => {
       tabIndex={0}
       className={styles.container}
     >
-      <Sidebar
-        onStyleChange={(property, value) =>
-          styleSelectedSymbols(selectedIds, property, value)
-        }
-      />
+      {selectedIds.length > 0 && (
+        <Sidebar
+          onStyleChange={(property, value) =>
+            styleSelectedSymbols(selectedIds, property, value)
+          }
+        />
+      )}
       <Toolbar
         onAddSymbol={handleAddSymbol}
         onDownload={handleDownload}
