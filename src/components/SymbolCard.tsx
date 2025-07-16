@@ -1,8 +1,8 @@
 import { Group, Image, Rect } from "react-konva";
-import type { CommunicationSymbol } from "../App";
 import type Konva from "konva";
 import useImage from "use-image";
 import { useEffect, useState } from "react";
+import type { CommunicationSymbol } from "../types";
 
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
@@ -21,7 +21,7 @@ const SymbolCard = ({
   onTransformEnd,
   onClick,
 }: SymbolCardProps) => {
-  const [background] = useImage(symbol.image ?? "");
+  const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
 

@@ -8,15 +8,25 @@ import type * as CSS from "csstype";
 import { KeyCode } from "./consts/key_codes";
 import { useSymbols } from "./hooks/useSymbols";
 import { useSelection } from "./hooks/useSelection";
+import jsPDF from "jspdf";
+import { A4, PageAspectRatio } from "./consts/page_format";
+import { isStage } from "./helpers/konva";
+import PageBackground, { PageBreakName } from "./components/PageBackground";
+import styles from "./App.module.css";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
 
   const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
+  const [numberOfPages, setNumberOfPages] = useState(1);
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
+
+  const pageWidth = window.innerWidth - 40;
+  const pageHeight = pageWidth * PageAspectRatio;
 
   const {
     symbols,
@@ -71,7 +81,7 @@ const App = () => {
   };
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
-    if (evt.target !== evt.target.getStage()) {
+    if (isStage(evt)) {
       return;
     }
 
@@ -103,29 +113,79 @@ const App = () => {
     }
   }
 
+  function handleDownload(): void {
+    const A4Width = A4.landscape.width;
+    const A4Height = A4.landscape.height;
+
+    const pdf = new jsPDF("l", "px", [A4Width, A4Height]);
+
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    stage.find(`.${PageBreakName}`).forEach((e) => e.hide());
+
+    for (let i = 0; i < numberOfPages; i++) {
+      pdf.addImage(
+        stage.toDataURL({
+          pixelRatio: 2,
+          x: 0,
+          y: i * pageHeight,
+          width: pageWidth,
+          height: pageHeight,
+        }),
+        0,
+        0,
+        A4Width,
+        A4Height,
+      );
+
+      if (i !== numberOfPages - 1) {
+        pdf.addPage([A4Width, A4Height], "l");
+      }
+    }
+
+    pdf.save("canvas.pdf");
+    stage.find(`.${PageBreakName}`).forEach((e) => e.show());
+  }
+
   return (
     <div
       ref={containerRef}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      style={{ position: "relative" }}
+      className={styles.container}
     >
       <Sidebar
         onStyleChange={(property, value) =>
           styleSelectedSymbols(selectedIds, property, value)
         }
       />
-      <Toolbar onAddSymbol={handleAddSymbol} />
+      <Toolbar
+        onAddSymbol={handleAddSymbol}
+        onDownload={handleDownload}
+        insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
+      />
       <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
-        style={{ cursor }}
+        ref={stageRef}
+        width={pageWidth}
+        height={pageHeight * numberOfPages}
+        style={{
+          cursor,
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: "40px",
+        }}
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
         onClick={(evt) => handleStageClick(evt)}
       >
         <Layer>
+          <PageBackground
+            pageWidth={pageWidth}
+            pageHeight={pageHeight}
+            numberOfPages={numberOfPages}
+          />
           {symbols.map((e) => (
             <SymbolCard
               key={e.id}

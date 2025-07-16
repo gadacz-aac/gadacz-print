@@ -25,7 +25,7 @@ export const useSymbols = () => {
           height: 0,
           x: evt.evt.clientX,
           y: evt.evt.clientY,
-          stroke: "white",
+          stroke: "black",
           strokeWidth: 1,
           rotation: 0,
           name: "symbol",

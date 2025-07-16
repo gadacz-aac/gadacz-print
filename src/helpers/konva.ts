@@ -1,3 +1,6 @@
+import type Konva from "konva";
+import { PageBackgroundGroupName } from "../components/PageBackground";
+
 export const degToRad = (angle: number) => (angle / 180) * Math.PI;
 
 export const getCorner = (pivotX: number, pivotY: number, diffX: number, diffY: number, angle: number) => {
@@ -37,3 +40,7 @@ export const getClientRect = (
 		height: maxY - minY,
 	};
 };
+
+export function isStage(evt: Konva.KonvaEventObject<Event>) {
+	return evt.target.hasName(PageBackgroundGroupName);
+}

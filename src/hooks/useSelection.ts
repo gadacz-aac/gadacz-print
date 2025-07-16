@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Konva from "konva";
-import { getClientRect } from "../helpers/konva";
+import { getClientRect, isStage } from "../helpers/konva";
 import { type CommunicationSymbol } from "../types";
 
 export const useSelection = (symbols: CommunicationSymbol[]) => {
@@ -81,7 +81,7 @@ export const useSelection = (symbols: CommunicationSymbol[]) => {
       return;
     }
 
-    if (evt.target === evt.target.getStage()) {
+    if (isStage(evt)) {
       setSelectedIds([]);
       return;
     }

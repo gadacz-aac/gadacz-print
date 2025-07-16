@@ -1,0 +1,7 @@
+.container {
+  position: relative;
+}
+
+.container:focus {
+  outline: none;
+}
