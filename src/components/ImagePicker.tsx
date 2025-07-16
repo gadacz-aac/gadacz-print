@@ -2,9 +2,14 @@ import { useState } from "react";
 import type { onStyleChangeFn } from "./Sidebar";
 import styles from "./ImagePicker.module.css";
 
+type ArasaacPictogram = {
+  _id: number;
+  keywords: string[];
+};
+
 const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<[]>([]);
+  const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
 
   const handleSearch = async () => {
     if (!searchTerm) return;
@@ -64,7 +69,7 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
       <div className={styles.resultsGrid}>
         {searchResults.map((result) => (
           <img
-            key={result.id}
+            key={result._id}
             src={`https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`}
             alt={result.keywords.join(", ")}
             className={styles.resultImage}
