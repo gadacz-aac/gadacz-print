@@ -2,7 +2,9 @@ import {
   MdAdd,
   MdAutoAwesomeMosaic,
   MdDownload,
+  MdFileOpen,
   MdInsertPageBreak,
+  MdSaveAs,
 } from "react-icons/md";
 import styles from "./Toolbar.module.css";
 
@@ -11,6 +13,8 @@ type ToolbarProps = {
   onDownload: () => void;
   insertPageBreak: () => void;
   openLayoutsModal: () => void;
+  onSave: () => void;
+  onOpen: React.ChangeEventHandler<HTMLInputElement>;
 };
 
 const Toolbar = ({
@@ -18,6 +22,8 @@ const Toolbar = ({
   onDownload,
   insertPageBreak,
   openLayoutsModal,
+  onSave,
+  onOpen,
 }: ToolbarProps) => {
   return (
     <div className={styles.toolbar}>
@@ -29,6 +35,18 @@ const Toolbar = ({
       </button>
       <button onClick={insertPageBreak} className={styles.button}>
         <MdInsertPageBreak />
+      </button>
+      <hr />
+
+      <button className={styles.button}>
+        <label style={{ display: "inherit" }}>
+          <input style={{ display: "none" }} type="file" onChange={onOpen} />
+          <MdFileOpen />
+        </label>
+      </button>
+
+      <button onClick={onSave} className={styles.button}>
+        <MdSaveAs />
       </button>
       <button onClick={onDownload} className={styles.button}>
         <MdDownload />

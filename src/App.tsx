@@ -1,7 +1,7 @@
 import { Layer, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Sidebar from "./components/Sidebar";
 import Toolbar from "./components/Toolbar";
 import type * as CSS from "csstype";
@@ -33,6 +33,7 @@ const App = () => {
 
   const {
     symbols,
+    setSymbols,
     addSymbols,
     handleAddSymbolStart,
     handleAddSymbolResize,
@@ -157,6 +158,51 @@ const App = () => {
     hideTemporarly.forEach((e) => e.show());
   }
 
+  function onSave() {
+    const text = JSON.stringify({ symbols, numberOfPages });
+
+    const element = document.createElement("a");
+    element.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(text),
+    );
+    element.setAttribute("download", "board.gpb");
+
+    element.style.display = "none";
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+  function onOpen(evt: ChangeEvent<HTMLInputElement>) {
+    evt.preventDefault();
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const text = evt.target?.result;
+
+      if (typeof text !== "string") {
+        return alert("Invalid file");
+      }
+
+      try {
+        const state = await JSON.parse(text);
+
+        setSymbols(state["symbols"]);
+        setNumberOfPages(state["numberOfPages"]);
+      } catch {
+        return alert("Invalid file");
+      }
+    };
+
+    if (!evt.target.files) {
+      alert("No file was selected");
+    }
+
+    reader.readAsText(evt.target.files![0]);
+  }
+
   return (
     <div
       ref={containerRef}
@@ -176,6 +222,8 @@ const App = () => {
         onDownload={handleDownload}
         insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
         openLayoutsModal={() => setIsLayoutsModalOpen(true)}
+        onSave={onSave}
+        onOpen={onOpen}
       />
       <PredefinedLayoutsModal
         isOpen={isLayoutsModalOpen}

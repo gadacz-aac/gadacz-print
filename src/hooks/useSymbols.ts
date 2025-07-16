@@ -152,6 +152,7 @@ export const useSymbols = () => {
 
   return {
     symbols,
+    setSymbols,
     addSymbols,
     handleAddSymbolStart,
     handleAddSymbolResize,
