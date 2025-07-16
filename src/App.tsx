@@ -53,7 +53,7 @@ const App = () => {
     } else if (transformerRef.current) {
       transformerRef.current.nodes([]);
     }
-  }, [selectedIds]);
+  }, [selectedIds, symbols]);
 
   function handleAddSymbol(): void {
     setCursor("crosshair");
