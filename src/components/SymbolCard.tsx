@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
   isSelected: boolean;
+  ref: React.Ref<Konva.Group>;
+  onTransformEnd: (evt: Konva.KonvaEventObject<Event>) => void;
   onDragEnd: (evt: Konva.KonvaEventObject<DragEvent>, id: string) => void;
   onClick: (evt: Konva.KonvaEventObject<MouseEvent>, id: string) => void;
 };
@@ -14,10 +16,12 @@ type SymbolCardProps = {
 const SymbolCard = ({
   symbol,
   isSelected,
+  ref,
   onDragEnd,
+  onTransformEnd,
   onClick,
 }: SymbolCardProps) => {
-  const [background] = symbol.image ? useImage(symbol.image) : [null];
+  const [background] = useImage(symbol.image ?? "");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
 
@@ -29,12 +33,15 @@ const SymbolCard = ({
 
   return (
     <Group
+      id={symbol.id}
+      name={symbol.name}
       x={symbol.x}
       y={symbol.y}
       draggable
       onDragEnd={(e) => onDragEnd(e, symbol.id)}
       onClick={(e) => onClick(e, symbol.id)}
-      la
+      onTransformEnd={onTransformEnd}
+      ref={ref}
     >
       {isSelected && (
         <Rect
