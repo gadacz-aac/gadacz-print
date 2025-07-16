@@ -1,4 +1,4 @@
-import type { CommunicationSymbol } from "../App";
+import type { CommunicationSymbol } from "../types";
 import ImagePicker from "./ImagePicker";
 import { AacColors } from "../consts/colors.ts";
 import { FaSlash, FaSquare, FaSquareFull } from "react-icons/fa";
