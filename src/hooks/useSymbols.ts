@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { type CommunicationSymbol } from "../types";
 import { last } from "../helpers/lists";
 import Konva from "konva";
-
 
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);
@@ -62,7 +61,7 @@ export const useSymbols = () => {
     );
   };
 
-  const handleAddSymbolEnd = () => {
+  const handleAddSymbolEnd = (setSelectedIds: Dispatch<SetStateAction<string[]>>) => {
     if (last(symbols).width < 5 && last(symbols).height < 5) {
       setSymbols((prevSymbols) =>
         prevSymbols.map((e, idx) => {
@@ -76,6 +75,8 @@ export const useSymbols = () => {
         }),
       );
     }
+
+    setSelectedIds((prev) => [...prev, last(symbols).id]);
   };
 
   const handleDragEnd = (evt: Konva.KonvaEventObject<DragEvent>, id: string) => {
@@ -91,6 +92,8 @@ export const useSymbols = () => {
         return symbol;
       }),
     );
+
+
   };
 
   const handleDeleteSelectedSymbol = (selectedIds: string[]) => {

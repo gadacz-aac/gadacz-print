@@ -9,17 +9,13 @@ import { KeyCode } from "./consts/key_codes";
 import { useSymbols } from "./hooks/useSymbols";
 import { useSelection } from "./hooks/useSelection";
 import jsPDF from "jspdf";
-import { A4, PageAspectRatio } from "./consts/page_format";
+import { A4 } from "./consts/page_format";
 import { isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
 import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
-
-export function getPageSize() {
-  const width = window.innerWidth - 40;
-  return [width, width * PageAspectRatio];
-}
+import usePageSize from "./hooks/usePageSize";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +29,7 @@ const App = () => {
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
-  const [pageWidth, pageHeight] = getPageSize();
+  const [pageWidth, pageHeight] = usePageSize();
 
   const {
     symbols,
@@ -49,13 +45,14 @@ const App = () => {
 
   const {
     selectedIds,
+    setSelectedIds,
     selectionRectangle,
     handleSelect,
     startSelectionRectangle,
     resizeSelectionRectangle,
     hideSelectionRectangle,
     handleStageClick,
-  } = useSelection(symbols);
+  } = useSelection();
 
   useEffect(() => {
     containerRef?.current?.focus();
@@ -114,10 +111,10 @@ const App = () => {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setCursor("default");
-      handleAddSymbolEnd();
+      handleAddSymbolEnd(setSelectedIds);
     } else if (isSelecting.current) {
       isSelecting.current = false;
-      hideSelectionRectangle();
+      hideSelectionRectangle(symbols);
     }
   }
 
@@ -130,7 +127,11 @@ const App = () => {
     const stage = stageRef.current;
     if (!stage) return;
 
-    stage.find(`.${PageBreakName}`).forEach((e) => e.hide());
+    const hideTemporarly = [
+      ...stage.find(`.${PageBreakName}`),
+      ...stage.find("Transformer"),
+    ];
+    hideTemporarly.forEach((e) => e.hide());
 
     for (let i = 0; i < numberOfPages; i++) {
       pdf.addImage(
@@ -153,7 +154,7 @@ const App = () => {
     }
 
     pdf.save("canvas.pdf");
-    stage.find(`.${PageBreakName}`).forEach((e) => e.show());
+    hideTemporarly.forEach((e) => e.show());
   }
 
   return (

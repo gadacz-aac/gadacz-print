@@ -3,7 +3,7 @@ import Konva from "konva";
 import { getClientRect, isStage } from "../helpers/konva";
 import { type CommunicationSymbol } from "../types";
 
-export const useSelection = (symbols: CommunicationSymbol[]) => {
+export const useSelection = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [selectionRectangle, setSelectionRectangle] = useState({
@@ -54,7 +54,7 @@ export const useSelection = (symbols: CommunicationSymbol[]) => {
     });
   };
 
-  const hideSelectionRectangle = () => {
+  const hideSelectionRectangle = (symbols: CommunicationSymbol[]) => {
     setTimeout(() => {
       setSelectionRectangle({
         ...selectionRectangle,

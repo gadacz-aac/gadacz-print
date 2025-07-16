@@ -1,6 +1,6 @@
 import { Stage, Layer, Rect } from "react-konva";
 import { type CommunicationSymbol } from "../../types";
-import { getPageSize } from "../../App";
+import usePageSize from "../../hooks/usePageSize";
 
 interface LayoutPreviewProps {
   layout: CommunicationSymbol[];
@@ -9,7 +9,9 @@ interface LayoutPreviewProps {
 }
 
 const LayoutPreview = ({ layout, width, height }: LayoutPreviewProps) => {
-  const scale = width / getPageSize()[0];
+  const [pageWidth] = usePageSize();
+
+  const scale = width / pageWidth;
 
   return (
     <Stage width={width} height={height}>
