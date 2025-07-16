@@ -14,6 +14,13 @@ import { isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
+import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
+
+export function getPageSize() {
+  const width = window.innerWidth - 40;
+  return [width, width * PageAspectRatio];
+}
+
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
@@ -22,14 +29,15 @@ const App = () => {
 
   const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
   const [numberOfPages, setNumberOfPages] = useState(1);
+  const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
-  const pageWidth = window.innerWidth - 40;
-  const pageHeight = pageWidth * PageAspectRatio;
+  const [pageWidth, pageHeight] = getPageSize();
 
   const {
     symbols,
+    addSymbols,
     handleAddSymbolStart,
     handleAddSymbolResize,
     handleAddSymbolEnd,
@@ -164,6 +172,15 @@ const App = () => {
         onAddSymbol={handleAddSymbol}
         onDownload={handleDownload}
         insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
+        openLayoutsModal={() => setIsLayoutsModalOpen(true)}
+      />
+      <PredefinedLayoutsModal
+        isOpen={isLayoutsModalOpen}
+        onClose={() => setIsLayoutsModalOpen(false)}
+        onSelectLayout={(layout) => {
+          addSymbols(layout);
+          setIsLayoutsModalOpen(false);
+        }}
       />
       <Stage
         ref={stageRef}

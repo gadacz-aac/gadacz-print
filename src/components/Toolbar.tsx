@@ -10,19 +10,21 @@ type ToolbarProps = {
   onAddSymbol: () => void;
   onDownload: () => void;
   insertPageBreak: () => void;
+  openLayoutsModal: () => void;
 };
 
 const Toolbar = ({
   onAddSymbol,
   onDownload,
   insertPageBreak,
+  openLayoutsModal,
 }: ToolbarProps) => {
   return (
     <div className={styles.toolbar}>
       <button onClick={onAddSymbol} className={styles.button}>
         <MdAdd />
       </button>
-      <button className={styles.button}>
+      <button onClick={openLayoutsModal} className={styles.button}>
         <MdAutoAwesomeMosaic />
       </button>
       <button onClick={insertPageBreak} className={styles.button}>

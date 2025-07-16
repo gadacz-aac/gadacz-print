@@ -3,35 +3,50 @@ import { type CommunicationSymbol } from "../types";
 import { last } from "../helpers/lists";
 import Konva from "konva";
 
+
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);
 
-  const handleAddSymbolStart = (evt: Konva.KonvaEventObject<MouseEvent>) => {
-    setSymbols((prevSymbols) => {
-      const lastId = prevSymbols[prevSymbols.length - 1]?.id;
+  const getNexId = (lastId?: string) => {
+    let id = "symbol_";
+    if (lastId) {
+      id += Number(last(lastId.split("_"))) + 1;
+    } else {
+      id += "0";
+    }
 
-      let id = "symbol_";
-      if (lastId) {
-        id += Number(last(lastId.split("_"))) + 1;
-      } else {
-        id += "0";
-      }
+    return id;
+  }
+
+  const addSymbols = (symbols: Omit<CommunicationSymbol, "id">[]) => {
+    setSymbols((prevSymbols) => {
+      let nextId = getNexId(last(prevSymbols)?.id);
 
       return [
         ...prevSymbols,
-        {
-          id,
-          width: 0,
-          height: 0,
-          x: evt.evt.clientX,
-          y: evt.evt.clientY,
-          stroke: "black",
-          strokeWidth: 1,
-          rotation: 0,
-          name: "symbol",
-        },
+        ...symbols.map(e => {
+          const symbol = ({ ...e, id: nextId });
+          nextId = getNexId(nextId);
+
+          return symbol;
+        }),
       ];
     });
+  }
+
+  const handleAddSymbolStart = (evt: Konva.KonvaEventObject<MouseEvent>) => {
+    addSymbols(
+      [{
+        width: 0,
+        height: 0,
+        x: evt.evt.clientX,
+        y: evt.evt.clientY,
+        stroke: "black",
+        strokeWidth: 1,
+        rotation: 0,
+        name: "symbol",
+      }],
+    )
   };
 
   const handleAddSymbolResize = (evt: Konva.KonvaEventObject<MouseEvent>) => {
@@ -134,7 +149,7 @@ export const useSymbols = () => {
 
   return {
     symbols,
-    setSymbols,
+    addSymbols,
     handleAddSymbolStart,
     handleAddSymbolResize,
     handleAddSymbolEnd,
