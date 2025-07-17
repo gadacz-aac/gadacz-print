@@ -6,6 +6,7 @@ import styles from "./Sidebar.module.css";
 import { first } from "../helpers/lists.tsx";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
+import type { BrushData } from "../consts/brush.ts";
 
 function NameInput({
   name,
@@ -80,14 +81,32 @@ export type onStyleChangeFn = <T extends keyof CommunicationSymbol>(
 ) => void;
 
 type SidebarProps = {
+  brushData: BrushData;
   onStyleChange: onStyleChangeFn;
   selectedSymbols: CommunicationSymbol[];
 };
 
-const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
-  const name = selectedSymbols.length === 1 ? first(selectedSymbols).text : "";
+const Sidebar = ({
+  onStyleChange,
+  selectedSymbols,
+  brushData,
+}: SidebarProps) => {
+  const firstSymbol = first(selectedSymbols);
+  const name =
+    (selectedSymbols.length === 1 && firstSymbol.text) || brushData.text;
 
   const { t } = useTranslation();
+
+  function isActive<T extends keyof BrushData>(
+    property: T,
+    value: BrushData[T],
+  ) {
+    if (selectedSymbols.length === 0) return value === brushData[property];
+    if (selectedSymbols.length === 1 && firstSymbol[property] === value)
+      return true;
+
+    return false;
+  }
 
   return (
     <div className={styles.sidebar}>
@@ -108,10 +127,7 @@ const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
           <ColorSquare
             key={c}
             color={c}
-            isSelected={
-              selectedSymbols.length === 1 &&
-              first(selectedSymbols).stroke === c
-            }
+            isSelected={isActive("stroke", c)}
             onClick={() => onStyleChange("stroke", c)}
           />
         ))}
@@ -127,10 +143,7 @@ const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
           <ColorSquare
             key={c}
             color={c}
-            isSelected={
-              selectedSymbols.length === 1 &&
-              first(selectedSymbols).backgroundColor === c
-            }
+            isSelected={isActive("backgroundColor", c)}
             onClick={() => onStyleChange("backgroundColor", c)}
           />
         ))}
@@ -146,9 +159,7 @@ const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
           <button
             key={e}
             className={clsx(styles.button, {
-              [styles.active]:
-                selectedSymbols.length === 1 &&
-                first(selectedSymbols).strokeWidth === e,
+              [styles.active]: isActive("strokeWidth", e),
             })}
             onClick={() => onStyleChange("strokeWidth", e)}
           >

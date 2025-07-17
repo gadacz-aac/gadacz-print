@@ -4,9 +4,12 @@ import { last } from "../helpers/lists";
 import Konva from "konva";
 import useScale from "./useScale";
 import { defaultHeight, defaultWidth } from "../consts/symbol";
+import { defaultBrush, type BrushData } from "../consts/brush";
 
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);
+
+  const [brushData, _setBrushData] = useState<BrushData>(defaultBrush);
   const [isResizingNewlyAddedSymbol, setIsResizingNewlyAddedSymbol] =
     useState(false);
   const [scale] = useScale();
@@ -58,13 +61,11 @@ export const useSymbols = () => {
 
     addSymbols([
       {
-        text: "",
+        ...brushData,
         width: 0,
         height: 0,
         x: pos.x,
         y: pos.y,
-        stroke: "black",
-        strokeWidth: 1,
         rotation: 0,
         name: "symbol",
       },
@@ -133,6 +134,13 @@ export const useSymbols = () => {
     );
   };
 
+  const setBrushData = <T extends keyof CommunicationSymbol>(
+    property: T,
+    value: CommunicationSymbol[T],
+  ) => {
+    _setBrushData((prev) => ({ ...prev, [property]: value }));
+  };
+
   const styleSelectedSymbols = <T extends keyof CommunicationSymbol>(
     selectedIds: string[],
     property: T,
@@ -184,6 +192,8 @@ export const useSymbols = () => {
   return {
     symbols,
     isResizingNewlyAddedSymbol,
+    brushData,
+    setBrushData,
     setSymbols,
     addSymbols,
     handleAddSymbolStart,

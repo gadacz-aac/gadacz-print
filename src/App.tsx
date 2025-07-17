@@ -25,27 +25,11 @@ import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 
 const App = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<Konva.Stage>(null);
-  const transformerRef = useRef<Konva.Transformer>(null);
-  const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
-
-  const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
-  const [numberOfPages, setNumberOfPages] = useState(1);
-  const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
-  const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
-  const [tool, setTool] = useState<Tool>(PointerTool);
-  const isAddingSymbol = useRef(false);
-  const isSelecting = useRef(false);
-
-  const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const [, scale] = useScale();
-
-  const { t } = useTranslation();
-
   const {
     symbols,
     isResizingNewlyAddedSymbol,
+    brushData,
+    setBrushData,
     setSymbols,
     addSymbols,
     handleAddSymbolStart,
@@ -68,6 +52,24 @@ const App = () => {
     handleStageClick,
   } = useSelection();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
+
+  const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
+  const [numberOfPages, setNumberOfPages] = useState(1);
+  const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
+  const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
+  const [tool, setTool] = useState<Tool>(PointerTool);
+  const isAddingSymbol = useRef(false);
+  const isSelecting = useRef(false);
+
+  const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
+  const [, scale] = useScale();
+
+  const { t } = useTranslation();
+
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
   const [copiedSymbols, setCopiedSymbols] = useState<CommunicationSymbol[]>([]);
 
@@ -82,6 +84,8 @@ const App = () => {
   function setCursorIfDefault(cursor: CSS.Property.Cursor) {
     if (tool === PointerTool) setCursor(cursor);
   }
+
+  useEffect(() => {}, [brushData, selectedIds, symbols]);
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -178,6 +182,7 @@ const App = () => {
       handleAddSymbolEnd(setSelectedIds);
     } else if (isSelecting.current) {
       isSelecting.current = false;
+
       hideSelectionRectangle(symbols);
     }
   }
@@ -275,10 +280,31 @@ const App = () => {
     >
       <div style={{ width: sidebarWidth }}>
         <Sidebar
+          brushData={brushData}
           selectedSymbols={symbols.filter((e) => selectedIds.includes(e.id))}
-          onStyleChange={(property, value) =>
-            styleSelectedSymbols(selectedIds, property, value)
-          }
+          onStyleChange={(property, value) => {
+            if (selectedIds.length) {
+              return styleSelectedSymbols(selectedIds, property, value);
+            }
+
+            if (property === "image" && typeof value === "string") {
+              addSymbols([
+                {
+                  ...brushData,
+                  image: value,
+                  width: defaultWidth,
+                  height: defaultHeight,
+                  x: 0,
+                  y: 0,
+                  rotation: 0,
+                  name: "symbol",
+                },
+              ]);
+              return;
+            }
+
+            setBrushData(property, value);
+          }}
         />
       </div>
       <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
