@@ -37,7 +37,7 @@ const App = () => {
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
-  const [pageWidth, pageHeight] = usePageSize();
+  const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
   const [, scale] = useScale();
 
   const {
@@ -270,24 +270,26 @@ const App = () => {
       tabIndex={0}
       className={styles.container}
     >
-      {selectedIds.length > 0 && (
+      <div style={{ width: sidebarWidth }}>
         <Sidebar
           selectedSymbols={symbols.filter((e) => selectedIds.includes(e.id))}
           onStyleChange={(property, value) =>
             styleSelectedSymbols(selectedIds, property, value)
           }
         />
-      )}
-      <Toolbar
-        tool={tool}
-        onPointer={() => setTool(PointerTool)}
-        onAddSymbol={() => setTool(SymbolTool)}
-        onDownload={handleDownload}
-        insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
-        openLayoutsModal={() => setIsLayoutsModalOpen(true)}
-        onSave={onSave}
-        onOpen={onOpen}
-      />
+      </div>
+      <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
+        <Toolbar
+          tool={tool}
+          onPointer={() => setTool(PointerTool)}
+          onAddSymbol={() => setTool(SymbolTool)}
+          onDownload={handleDownload}
+          insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
+          openLayoutsModal={() => setIsLayoutsModalOpen(true)}
+          onSave={onSave}
+          onOpen={onOpen}
+        />
+      </div>
       <PredefinedLayoutsModal
         isOpen={isLayoutsModalOpen}
         onClose={() => setIsLayoutsModalOpen(false)}
@@ -304,7 +306,6 @@ const App = () => {
           cursor,
           display: "flex",
           justifyContent: "center",
-          paddingTop: "40px",
         }}
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}

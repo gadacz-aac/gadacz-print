@@ -1,8 +1,4 @@
 .sidebar {
-  position: fixed;
-  z-index: 1;
-  top: 20px;
-  left: 10px;
   background: #f0f0f0;
   padding: 10px;
   border-radius: 10px;

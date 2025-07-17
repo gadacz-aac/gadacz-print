@@ -84,6 +84,8 @@ input {
   font-size: 14px;
   background-color: #f8f9fa;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  width: 100%;
   color: black;
 }
 

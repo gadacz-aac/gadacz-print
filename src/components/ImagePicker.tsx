@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { onStyleChangeFn } from "./Sidebar";
 import styles from "./ImagePicker.module.css";
 
@@ -11,18 +11,28 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
 
-  const handleSearch = async () => {
-    if (!searchTerm) return;
-    try {
-      const response = await fetch(
-        `https://api.arasaac.org/v1/pictograms/en/search/${searchTerm}`,
-      );
-      const data = await response.json();
-      setSearchResults(data);
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  };
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const handler = setTimeout(async () => {
+      if (!searchTerm) return;
+      try {
+        const response = await fetch(
+          `https://api.arasaac.org/v1/pictograms/en/search/${searchTerm}`,
+          { signal: abortController.signal },
+        );
+        const data = await response.json();
+        setSearchResults(data);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+      abortController.abort();
+    };
+  }, [searchTerm]);
 
   const handleLocalImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,9 +59,6 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search for an image"
         />
-        <button onClick={handleSearch} className={styles.searchButton}>
-          Search
-        </button>
       </div>
       <div className={styles.localFilePicker}>
         <label htmlFor="local-image-picker" className={styles.localPickerLabel}>
@@ -65,22 +72,27 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
           style={{ display: "none" }}
         />
       </div>
-      <div className={styles.resultsGrid}>
-        {searchResults.map((result) => (
-          <img
-            key={result._id}
-            src={`https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`}
-            alt={result.keywords.join(", ")}
-            className={styles.resultImage}
-            onClick={() =>
-              onStyleChange(
-                "image",
-                `https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`,
-              )
-            }
-          />
-        ))}
-      </div>
+      {searchResults.length > 0 && (
+        <div className={styles.resultsGrid}>
+          {searchResults.map((result) => (
+            <img
+              key={result._id}
+              src={`https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`}
+              alt={result.keywords.join(", ")}
+              className={styles.resultImage}
+              onClick={() =>
+                onStyleChange(
+                  "image",
+                  `https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`,
+                )
+              }
+            />
+          ))}
+        </div>
+      )}
+      {searchResults.length === 0 && searchTerm.length !== 0 && (
+        <p style={{ textAlign: "center", margin: 0 }}>No result found</p>
+      )}
     </div>
   );
 };
