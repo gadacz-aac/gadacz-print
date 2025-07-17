@@ -2,11 +2,13 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import { type CommunicationSymbol } from "../types";
 import { last } from "../helpers/lists";
 import Konva from "konva";
+import useScale from "./useScale";
 
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);
+  const [scale] = useScale();
 
-  const getNexId = (lastId?: string) => {
+  const _getNexId = (lastId?: string) => {
     let id = "symbol_";
     if (lastId) {
       id += Number(last(lastId.split("_"))) + 1;
@@ -19,13 +21,20 @@ export const useSymbols = () => {
 
   const addSymbols = (symbols: Omit<CommunicationSymbol, "id">[]) => {
     setSymbols((prevSymbols) => {
-      let nextId = getNexId(last(prevSymbols)?.id);
+      let nextId = _getNexId(last(prevSymbols)?.id);
 
       return [
         ...prevSymbols,
         ...symbols.map((e) => {
-          const symbol = { ...e, id: nextId };
-          nextId = getNexId(nextId);
+          const symbol = {
+            ...e,
+            id: nextId,
+            width: e.width * scale,
+            height: e.height * scale,
+            x: e.x * scale,
+            y: e.y * scale,
+          };
+          nextId = _getNexId(nextId);
 
           return symbol;
         }),
@@ -61,8 +70,8 @@ export const useSymbols = () => {
         if (idx !== prevSymbols.length - 1) return e;
         return {
           ...e,
-          width: e.width + evt.evt.movementX,
-          height: e.height + evt.evt.movementY,
+          width: e.width + evt.evt.movementX * scale,
+          height: e.height + evt.evt.movementY * scale,
         };
       }),
     );
@@ -78,8 +87,8 @@ export const useSymbols = () => {
 
           return {
             ...e,
-            width: 100,
-            height: 100,
+            width: 100 * scale,
+            height: 100 * scale,
           };
         }),
       );
@@ -97,8 +106,8 @@ export const useSymbols = () => {
         if (symbol.id === id) {
           return {
             ...symbol,
-            x: evt.target.x(),
-            y: evt.target.y(),
+            x: evt.target.x() * scale,
+            y: evt.target.y() * scale,
           };
         }
         return symbol;
@@ -148,8 +157,8 @@ export const useSymbols = () => {
       if (index !== -1) {
         newRects[index] = {
           ...newRects[index],
-          x: node.x(),
-          y: node.y(),
+          x: node.x() * scale,
+          y: node.y() * scale,
           width: Math.max(5, newRects[index].width * scaleX),
           height: Math.max(5, newRects[index].height * scaleY),
           rotation: node.rotation(),

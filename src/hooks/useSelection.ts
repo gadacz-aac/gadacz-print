@@ -2,9 +2,11 @@ import { useState } from "react";
 import Konva from "konva";
 import { getClientRect, isStage } from "../helpers/konva";
 import { type CommunicationSymbol } from "../types";
+import useScale from "./useScale";
 
 export const useSelection = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [, scale] = useScale();
 
   const [selectionRectangle, setSelectionRectangle] = useState({
     visible: false,
@@ -14,7 +16,10 @@ export const useSelection = () => {
     y2: 0,
   });
 
-  const handleSelect = (evt: Konva.KonvaEventObject<MouseEvent>, id: string) => {
+  const handleSelect = (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    id: string,
+  ) => {
     if (selectedIds.includes(id)) {
       return setSelectedIds((prev) => prev.filter((e) => e !== id));
     }
@@ -24,9 +29,7 @@ export const useSelection = () => {
     } else setSelectedIds([id]);
   };
 
-  const startSelectionRectangle = (
-    evt: Konva.KonvaEventObject<MouseEvent>,
-  ) => {
+  const startSelectionRectangle = (evt: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = evt.target.getStage()?.getPointerPosition();
 
     if (!pos) return;
@@ -70,7 +73,16 @@ export const useSelection = () => {
     };
 
     const selected = symbols.filter((rect) => {
-      return Konva.Util.haveIntersection(selBox, getClientRect(rect));
+      return Konva.Util.haveIntersection(
+        selBox,
+        getClientRect({
+          width: rect.width * scale,
+          height: rect.height * scale,
+          rotation: rect.rotation,
+          x: rect.x * scale,
+          y: rect.y * scale,
+        }),
+      );
     });
 
     setSelectedIds(selected.map((rect) => rect.id));

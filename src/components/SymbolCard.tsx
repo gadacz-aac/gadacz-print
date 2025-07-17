@@ -3,6 +3,7 @@ import type Konva from "konva";
 import useImage from "use-image";
 import { useEffect, useState } from "react";
 import type { CommunicationSymbol } from "../types";
+import useScale from "../hooks/useScale";
 
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
@@ -24,6 +25,7 @@ const SymbolCard = ({
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [, scale] = useScale();
 
   useEffect(() => {
     if (background) {
@@ -35,8 +37,8 @@ const SymbolCard = ({
     <Group
       id={symbol.id}
       name={symbol.name}
-      x={symbol.x}
-      y={symbol.y}
+      x={symbol.x * scale}
+      y={symbol.y * scale}
       draggable
       onDragEnd={(e) => onDragEnd(e, symbol.id)}
       onClick={(e) => onClick(e, symbol.id)}
@@ -55,8 +57,8 @@ const SymbolCard = ({
       )}
 
       <Rect
-        width={symbol.width}
-        height={symbol.height}
+        width={symbol.width * scale}
+        height={symbol.height * scale}
         fill={symbol.backgroundColor}
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}

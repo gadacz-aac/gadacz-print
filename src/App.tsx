@@ -10,7 +10,7 @@ import { useSymbols } from "./hooks/useSymbols";
 import { useSelection } from "./hooks/useSelection";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
-import { isStage } from "./helpers/konva";
+import { getClientRect, isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
@@ -254,6 +254,7 @@ const App = () => {
             pageHeight={pageHeight}
             numberOfPages={numberOfPages}
           />
+
           {symbols.map((e) => (
             <SymbolCard
               key={e.id}
@@ -279,6 +280,26 @@ const App = () => {
               return newBox;
             }}
           />
+
+          {/*
+          {symbols.map((e) => {
+            const rect = getClientRect(e);
+            console.log(e);
+            console.log(rect);
+
+            return (
+              <Rect
+                key={e.id}
+                width={rect.width}
+                height={rect.height}
+                strokeWidth={4}
+                stroke="white"
+                x={rect.x}
+                y={rect.y}
+              />
+            );
+          })}
+          */}
 
           {selectionRectangle.visible && (
             <Rect
