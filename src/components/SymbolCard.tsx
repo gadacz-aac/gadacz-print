@@ -11,6 +11,8 @@ type SymbolCardProps = {
   onTransformEnd: (evt: Konva.KonvaEventObject<Event>) => void;
   onDragEnd: (evt: Konva.KonvaEventObject<DragEvent>, id: string) => void;
   onClick: (evt: Konva.KonvaEventObject<MouseEvent>, id: string) => void;
+  onMouseOver: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+  onMouseOut: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
 };
 
 const SymbolCard = ({
@@ -19,6 +21,8 @@ const SymbolCard = ({
   onDragEnd,
   onTransformEnd,
   onClick,
+  onMouseOut,
+  onMouseOver,
 }: SymbolCardProps) => {
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
@@ -46,6 +50,8 @@ const SymbolCard = ({
       draggable
       onDragEnd={(e) => onDragEnd(e, symbol.id)}
       onClick={(e) => onClick(e, symbol.id)}
+      onMouseOver={onMouseOver}
+      onMouseOut={onMouseOut}
       onTransformEnd={onTransformEnd}
       ref={ref}
     >

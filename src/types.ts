@@ -1,3 +1,5 @@
+import type * as CSS from "csstype";
+
 export type CommunicationSymbol = {
   id: string;
   x: number;
@@ -10,4 +12,8 @@ export type CommunicationSymbol = {
   strokeWidth: number;
   backgroundColor?: string;
   name: "symbol";
+};
+
+export type Tool = {
+  cursor: CSS.Property.Cursor;
 };

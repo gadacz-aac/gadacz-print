@@ -17,6 +17,8 @@ import styles from "./App.module.css";
 import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
 import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
+import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
+import { extension } from "./consts/extension";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +30,7 @@ const App = () => {
   const [numberOfPages, setNumberOfPages] = useState(1);
   const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
+  const [tool, setTool] = useState<Tool>(PointerTool);
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
@@ -62,8 +65,16 @@ const App = () => {
     cursor === "crosshair" && !isResizingNewlyAddedSymbol;
 
   useEffect(() => {
+    setCursor(tool.cursor);
+  }, [tool]);
+
+  useEffect(() => {
     containerRef?.current?.focus();
   }, []);
+
+  function setCursorIfDefault(cursor: CSS.Property.Cursor) {
+    if (tool === PointerTool) setCursor(cursor);
+  }
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -81,10 +92,6 @@ const App = () => {
 
     transformerRef.current.nodes(nodes);
   }, [selectedIds, symbols]);
-
-  function handleAddSymbol(): void {
-    setCursor("crosshair");
-  }
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (evt) => {
     switch (evt.key) {
@@ -125,7 +132,7 @@ const App = () => {
   function handleStageMouseUp() {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
-      setCursor("default");
+      setTool(PointerTool);
       handleAddSymbolEnd(setSelectedIds);
     } else if (isSelecting.current) {
       isSelecting.current = false;
@@ -168,7 +175,7 @@ const App = () => {
       }
     }
 
-    pdf.save("canvas.pdf");
+    pdf.save(`canvas.${extension}`);
     hideTemporarly.forEach((e) => e.show());
   }
 
@@ -232,7 +239,9 @@ const App = () => {
         />
       )}
       <Toolbar
-        onAddSymbol={handleAddSymbol}
+        tool={tool}
+        onPointer={() => setTool(PointerTool)}
+        onAddSymbol={() => setTool(SymbolTool)}
         onDownload={handleDownload}
         insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
         openLayoutsModal={() => setIsLayoutsModalOpen(true)}
@@ -276,6 +285,8 @@ const App = () => {
               onDragEnd={handleDragEnd}
               onTransformEnd={handleTransformEnd}
               onClick={handleSelect}
+              onMouseOver={() => setCursorIfDefault("move")}
+              onMouseOut={() => setCursorIfDefault("default")}
               ref={(node) => {
                 if (node) {
                   rectRefs.current.set(e.id, node);
