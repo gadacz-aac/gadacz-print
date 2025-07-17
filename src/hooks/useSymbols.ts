@@ -34,12 +34,19 @@ export const useSymbols = () => {
   };
 
   const handleAddSymbolStart = (evt: Konva.KonvaEventObject<MouseEvent>) => {
+    const pos = evt.target.getStage()?.getPointerPosition();
+
+    if (!pos) {
+      console.warn("POS is null");
+      return;
+    }
+
     addSymbols([
       {
         width: 0,
         height: 0,
-        x: evt.evt.clientX,
-        y: evt.evt.clientY,
+        x: pos.x,
+        y: pos.y,
         stroke: "black",
         strokeWidth: 1,
         rotation: 0,
