@@ -80,7 +80,10 @@ export const useSymbols = () => {
   const handleAddSymbolEnd = (
     setSelectedIds: Dispatch<SetStateAction<string[]>>,
   ) => {
-    if (last(symbols).width < 5 && last(symbols).height < 5) {
+    if (
+      Math.abs(last(symbols).width) < 5 &&
+      Math.abs(last(symbols).height) < 5
+    ) {
       setSymbols((prevSymbols) =>
         prevSymbols.map((e, idx) => {
           if (idx !== prevSymbols.length - 1) return e;
