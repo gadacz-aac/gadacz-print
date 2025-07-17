@@ -73,7 +73,7 @@ const SymbolCard = ({
         offsetY={-2}
         width={width}
         align="center"
-        fontSize={24}
+        fontSize={4 * scale}
         text={symbol.text}
       />
     </Group>
