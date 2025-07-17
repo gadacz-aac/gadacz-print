@@ -52,6 +52,7 @@ button {
   padding: 0;
   transition: background-color 0.2s ease;
   transition: border-color 0.25s;
+  color: #213547;
 }
 
 button:is(.active, :hover) {
@@ -71,4 +72,23 @@ canvas {
 
 svg {
   color: #213547;
+}
+
+/* input */
+
+input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f8f9fa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: black;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }

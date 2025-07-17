@@ -61,8 +61,7 @@ const App = () => {
     handleStageClick,
   } = useSelection();
 
-  const showPreviewSymbol =
-    cursor === "crosshair" && !isResizingNewlyAddedSymbol;
+  const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
 
   useEffect(() => {
     setCursor(tool.cursor);
@@ -109,7 +108,7 @@ const App = () => {
       return;
     }
 
-    if (cursor === "crosshair") {
+    if (SymbolTool === tool) {
       isAddingSymbol.current = true;
       handleAddSymbolStart(evt);
     } else {
@@ -233,6 +232,7 @@ const App = () => {
     >
       {selectedIds.length > 0 && (
         <Sidebar
+          selectedSymbols={symbols.filter((e) => selectedIds.includes(e.id))}
           onStyleChange={(property, value) =>
             styleSelectedSymbols(selectedIds, property, value)
           }

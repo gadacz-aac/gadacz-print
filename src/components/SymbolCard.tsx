@@ -1,4 +1,4 @@
-import { Group, Image, Rect } from "react-konva";
+import { Group, Image, Rect, Text } from "react-konva";
 import type Konva from "konva";
 import useImage from "use-image";
 import { useEffect, useState } from "react";
@@ -62,7 +62,20 @@ const SymbolCard = ({
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}
       />
-      <Image width={symbol.width} height={symbol.height} image={image} />
+      <Image
+        offsetX={-15}
+        offsetY={-25}
+        width={width - 30}
+        height={height - 30}
+        image={image}
+      />
+      <Text
+        offsetY={-2}
+        width={width}
+        align="center"
+        fontSize={24}
+        text={symbol.text}
+      />
     </Group>
   );
 };

@@ -3,17 +3,42 @@ import ImagePicker from "./ImagePicker";
 import { AacColors } from "../consts/colors.ts";
 import { FaSlash, FaSquare, FaSquareFull } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
+import { first } from "../helpers/lists.tsx";
+import clsx from "clsx";
+
+function NameInput({
+  name,
+  setName,
+}: {
+  name: string;
+  setName: (name: string) => void;
+}) {
+  return (
+    <div className={styles.searchSection}>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className={styles.searchInput}
+      />
+    </div>
+  );
+}
 
 const ColorSquare = ({
   color,
   onClick,
+  isSelected,
 }: {
   color: string;
   onClick: () => void;
+  isSelected: boolean;
 }) => {
   return (
     <button
-      className={styles.colorSquare}
+      className={clsx(styles.colorSwatch, {
+        [styles.active]: isSelected,
+      })}
       style={{
         backgroundColor: color,
       }}
@@ -55,12 +80,20 @@ export type onStyleChangeFn = <T extends keyof CommunicationSymbol>(
 
 type SidebarProps = {
   onStyleChange: onStyleChangeFn;
+  selectedSymbols: CommunicationSymbol[];
 };
 
-const Sidebar = ({ onStyleChange }: SidebarProps) => {
+const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
+  const name = selectedSymbols.length === 1 ? first(selectedSymbols).text : "";
+
   return (
     <div className={styles.sidebar}>
       <ImagePicker onStyleChange={onStyleChange} />
+
+      <div className={styles.sectionHeader}>
+        <h4>Text</h4>
+      </div>
+      <NameInput name={name} setName={(e) => onStyleChange("text", e)} />
 
       <div className={styles.sectionHeader}>
         <FaSquare style={{ marginRight: 5 }} />
@@ -72,6 +105,10 @@ const Sidebar = ({ onStyleChange }: SidebarProps) => {
           <ColorSquare
             key={c}
             color={c}
+            isSelected={
+              selectedSymbols.length === 1 &&
+              first(selectedSymbols).stroke === c
+            }
             onClick={() => onStyleChange("stroke", c)}
           />
         ))}
@@ -87,6 +124,10 @@ const Sidebar = ({ onStyleChange }: SidebarProps) => {
           <ColorSquare
             key={c}
             color={c}
+            isSelected={
+              selectedSymbols.length === 1 &&
+              first(selectedSymbols).backgroundColor === c
+            }
             onClick={() => onStyleChange("backgroundColor", c)}
           />
         ))}
@@ -97,11 +138,15 @@ const Sidebar = ({ onStyleChange }: SidebarProps) => {
         <h4>Stroke Width</h4>
       </div>
 
-      <div className={styles.strokeWidthButtons}>
+      <div className={styles.buttonGroup}>
         {strokeWidths.map((e) => (
           <button
             key={e}
-            className={styles.strokeWidthButton}
+            className={clsx(styles.button, {
+              [styles.active]:
+                selectedSymbols.length === 1 &&
+                first(selectedSymbols).strokeWidth === e,
+            })}
             onClick={() => onStyleChange("strokeWidth", e)}
           >
             {e}

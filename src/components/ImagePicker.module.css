@@ -1,34 +1,34 @@
-
 .imagePicker {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
+.sectionHeader h4 {
+  margin: 0;
+  font-weight: 600;
+  color: #222;
 }
 
 .searchSection {
   display: flex;
-  gap: 5px;
-}
-
-.searchInput {
-  flex-grow: 1;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  gap: 8px;
 }
 
 .searchButton {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background-color: #f0f0f0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  font-size: 14px;
   cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.searchButton:hover {
+  background-color: #0056b3;
 }
 
 .localFilePicker {
@@ -37,26 +37,34 @@
 
 .localPickerLabel {
   cursor: pointer;
+  color: #007bff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.localPickerLabel:hover {
   text-decoration: underline;
-  color: blue;
 }
 
 .resultsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 10px;
-  max-height: 300px;
+  max-height: 250px;
   overflow-y: auto;
+  padding-right: 5px;
 }
 
 .resultImage {
   width: 100%;
   height: auto;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  border: 2px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
 }
 
 .resultImage:hover {
-  border-color: #333;
+  transform: scale(1.05);
+  border-color: #007bff;
 }

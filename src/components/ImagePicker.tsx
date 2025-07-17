@@ -48,7 +48,6 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search for an image"
-          className={styles.searchInput}
         />
         <button onClick={handleSearch} className={styles.searchButton}>
           Search

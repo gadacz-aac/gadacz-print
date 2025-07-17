@@ -2,6 +2,8 @@ import type * as CSS from "csstype";
 
 export type CommunicationSymbol = {
   id: string;
+  name: "symbol";
+  text: string;
   x: number;
   y: number;
   rotation: number;
@@ -11,7 +13,6 @@ export type CommunicationSymbol = {
   stroke: string;
   strokeWidth: number;
   backgroundColor?: string;
-  name: "symbol";
 };
 
 export type Tool = {

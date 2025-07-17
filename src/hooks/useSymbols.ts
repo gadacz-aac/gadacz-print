@@ -55,6 +55,7 @@ export const useSymbols = () => {
 
     addSymbols([
       {
+        text: "",
         width: 0,
         height: 0,
         x: pos.x,

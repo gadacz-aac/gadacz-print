@@ -9,13 +9,6 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.colorSquare {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #ccc;
-  margin: 2px;
-}
-
 .sectionHeader {
   display: flex;
   align-items: center;
@@ -23,16 +16,41 @@
 }
 
 .colorGrid {
-  display: flex;
-  flex-wrap: wrap;
-  width: 150px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 5px;
 }
 
-.strokeWidthButtons {
-  display: flex;
-  justify-content: space-around;
+.colorSwatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
 }
 
-.strokeWidthButton {
-  padding: 5px 10px;
+.colorSwatch.active {
+  transform: scale(1.1);
+  border-color: #007bff;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 5px;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
 }
