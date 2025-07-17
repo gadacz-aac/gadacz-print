@@ -22,26 +22,29 @@ export const useSymbols = () => {
     return id;
   };
 
-  const addSymbols = (symbols: Omit<CommunicationSymbol, "id">[]) => {
+  const addSymbols = (
+    symbols: Omit<CommunicationSymbol, "id">[],
+    callback?: (newSymbols: CommunicationSymbol[]) => void,
+  ) => {
     setSymbols((prevSymbols) => {
       let nextId = _getNexId(last(prevSymbols)?.id);
+      const newSymbols = symbols.map((e) => {
+        const symbol = {
+          ...e,
+          id: nextId,
+          width: e.width * scale,
+          height: e.height * scale,
+          x: e.x * scale,
+          y: e.y * scale,
+        };
+        nextId = _getNexId(nextId);
 
-      return [
-        ...prevSymbols,
-        ...symbols.map((e) => {
-          const symbol = {
-            ...e,
-            id: nextId,
-            width: e.width * scale,
-            height: e.height * scale,
-            x: e.x * scale,
-            y: e.y * scale,
-          };
-          nextId = _getNexId(nextId);
+        return symbol;
+      });
 
-          return symbol;
-        }),
-      ];
+      callback?.(newSymbols);
+
+      return [...prevSymbols, ...newSymbols];
     });
   };
 

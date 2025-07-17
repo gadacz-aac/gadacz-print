@@ -19,6 +19,9 @@ import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
 import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
 import { extension } from "./consts/extension";
+import type { CommunicationSymbol } from "./types";
+import useScale from "./hooks/useScale";
+import { randomFromRange } from "./helpers/random";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,6 +38,7 @@ const App = () => {
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight] = usePageSize();
+  const [, scale] = useScale();
 
   const {
     symbols,
@@ -62,6 +66,7 @@ const App = () => {
   } = useSelection();
 
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
+  const [copiedSymbols, setCopiedSymbols] = useState<CommunicationSymbol[]>([]);
 
   useEffect(() => {
     setCursor(tool.cursor);
@@ -92,10 +97,45 @@ const App = () => {
     transformerRef.current.nodes(nodes);
   }, [selectedIds, symbols]);
 
+  function handleSymbolCopy() {
+    const dx = randomFromRange(-10, 10);
+    const dy = randomFromRange(-10, 10);
+    setCopiedSymbols(
+      symbols
+        .filter((e) => selectedIds.includes(e.id))
+        .map((e) => ({
+          ...e,
+          width: e.width * scale,
+          height: e.height * scale,
+          x: (e.x + dx) * scale,
+          y: (e.y + dy) * scale,
+        })),
+    );
+  }
+
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (evt) => {
+    if (evt.ctrlKey) {
+      switch (evt.key) {
+        case KeyCode.C:
+          handleSymbolCopy();
+          break;
+        case KeyCode.V:
+          addSymbols(copiedSymbols, (e) => setSelectedIds(e.map((e) => e.id)));
+          break;
+        case KeyCode.A:
+          setSelectedIds(symbols.map((e) => e.id));
+          break;
+        default:
+          return;
+      }
+
+      return;
+    }
+
     switch (evt.key) {
       case KeyCode.Delete:
         handleDeleteSelectedSymbol(selectedIds);
+        setSelectedIds([]);
         break;
       default:
         return;
