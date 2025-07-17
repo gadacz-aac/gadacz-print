@@ -16,6 +16,7 @@ import styles from "./App.module.css";
 
 import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
 import usePageSize from "./hooks/usePageSize";
+import { defaultHeight, defaultWidth } from "./consts/symbol";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,7 @@ const App = () => {
   const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
   const [numberOfPages, setNumberOfPages] = useState(1);
   const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
+  const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
@@ -33,6 +35,7 @@ const App = () => {
 
   const {
     symbols,
+    isResizingNewlyAddedSymbol,
     setSymbols,
     addSymbols,
     handleAddSymbolStart,
@@ -54,6 +57,9 @@ const App = () => {
     hideSelectionRectangle,
     handleStageClick,
   } = useSelection();
+
+  const showPreviewSymbol =
+    cursor === "crosshair" && !isResizingNewlyAddedSymbol;
 
   useEffect(() => {
     containerRef?.current?.focus();
@@ -106,6 +112,9 @@ const App = () => {
   }
 
   function handleStageMouseMove(evt: Konva.KonvaEventObject<MouseEvent>) {
+    const pos = evt.target.getStage()?.getPointerPosition();
+    if (pos) setPointerPosition(pos);
+
     if (isAddingSymbol.current) {
       handleAddSymbolResize(evt);
     } else if (isSelecting.current) {
@@ -264,7 +273,6 @@ const App = () => {
             <SymbolCard
               key={e.id}
               symbol={e}
-              isSelected={selectedIds.includes(e.id)}
               onDragEnd={handleDragEnd}
               onTransformEnd={handleTransformEnd}
               onClick={handleSelect}
@@ -286,25 +294,17 @@ const App = () => {
             }}
           />
 
-          {/*
-          {symbols.map((e) => {
-            const rect = getClientRect(e);
-            console.log(e);
-            console.log(rect);
-
-            return (
-              <Rect
-                key={e.id}
-                width={rect.width}
-                height={rect.height}
-                strokeWidth={4}
-                stroke="white"
-                x={rect.x}
-                y={rect.y}
-              />
-            );
-          })}
-          */}
+          {showPreviewSymbol && (
+            <Rect
+              width={defaultWidth}
+              height={defaultHeight}
+              x={pointerPosition.x}
+              y={pointerPosition.y}
+              rotation={0}
+              stroke="rgba(0, 0, 0, 0.2)"
+              strokeWidth={2}
+            />
+          )}
 
           {selectionRectangle.visible && (
             <Rect

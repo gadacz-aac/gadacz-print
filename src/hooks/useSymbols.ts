@@ -3,9 +3,12 @@ import { type CommunicationSymbol } from "../types";
 import { last } from "../helpers/lists";
 import Konva from "konva";
 import useScale from "./useScale";
+import { defaultHeight, defaultWidth } from "../consts/symbol";
 
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);
+  const [isResizingNewlyAddedSymbol, setIsResizingNewlyAddedSymbol] =
+    useState(false);
   const [scale] = useScale();
 
   const _getNexId = (lastId?: string) => {
@@ -65,6 +68,7 @@ export const useSymbols = () => {
   };
 
   const handleAddSymbolResize = (evt: Konva.KonvaEventObject<MouseEvent>) => {
+    setIsResizingNewlyAddedSymbol(true);
     setSymbols((prevSymbols) =>
       prevSymbols.map((e, idx) => {
         if (idx !== prevSymbols.length - 1) return e;
@@ -80,6 +84,7 @@ export const useSymbols = () => {
   const handleAddSymbolEnd = (
     setSelectedIds: Dispatch<SetStateAction<string[]>>,
   ) => {
+    setIsResizingNewlyAddedSymbol(false);
     if (
       Math.abs(last(symbols).width) < 5 &&
       Math.abs(last(symbols).height) < 5
@@ -90,8 +95,8 @@ export const useSymbols = () => {
 
           return {
             ...e,
-            width: 100 * scale,
-            height: 100 * scale,
+            width: defaultWidth * scale,
+            height: defaultHeight * scale,
           };
         }),
       );
@@ -174,6 +179,7 @@ export const useSymbols = () => {
 
   return {
     symbols,
+    isResizingNewlyAddedSymbol,
     setSymbols,
     addSymbols,
     handleAddSymbolStart,
