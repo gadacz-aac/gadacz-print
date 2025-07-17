@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { onStyleChangeFn } from "./Sidebar";
 import styles from "./ImagePicker.module.css";
+import { useTranslation } from "react-i18next";
 
 type ArasaacPictogram = {
   _id: number;
@@ -10,6 +11,7 @@ type ArasaacPictogram = {
 const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -50,19 +52,19 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
   return (
     <div className={styles.imagePicker}>
       <div className={styles.sectionHeader}>
-        <h4>Image</h4>
+        <h4>{t("Image")}</h4>
       </div>
       <div className={styles.searchSection}>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for an image"
+          placeholder={t("Search for an image")}
         />
       </div>
       <div className={styles.localFilePicker}>
         <label htmlFor="local-image-picker" className={styles.localPickerLabel}>
-          Or select a local file
+          {t("Or select a local file")}
         </label>
         <input
           id="local-image-picker"
@@ -91,7 +93,7 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
         </div>
       )}
       {searchResults.length === 0 && searchTerm.length !== 0 && (
-        <p style={{ textAlign: "center", margin: 0 }}>No result found</p>
+        <p style={{ textAlign: "center", margin: 0 }}>{t("No result found")}</p>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import type * as CSS from "csstype";
 export type CommunicationSymbol = {
   id: string;
   name: "symbol";
-  text: string;
+  text?: string;
   x: number;
   y: number;
   rotation: number;

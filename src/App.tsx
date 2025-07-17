@@ -22,6 +22,7 @@ import { extension } from "./consts/extension";
 import type { CommunicationSymbol } from "./types";
 import useScale from "./hooks/useScale";
 import { randomFromRange } from "./helpers/random";
+import { useTranslation } from "react-i18next";
 
 const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,8 @@ const App = () => {
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
   const [, scale] = useScale();
+
+  const { t } = useTranslation();
 
   const {
     symbols,
@@ -252,12 +255,12 @@ const App = () => {
         setSymbols(state["symbols"]);
         setNumberOfPages(state["numberOfPages"]);
       } catch {
-        return alert("Invalid file");
+        return alert(t("Text"));
       }
     };
 
     if (!evt.target.files) {
-      alert("No file was selected");
+      alert(t("No file was selected"));
     }
 
     reader.readAsText(evt.target.files![0]);

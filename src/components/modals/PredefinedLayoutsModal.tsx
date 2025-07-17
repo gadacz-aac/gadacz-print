@@ -3,6 +3,7 @@ import styles from "./PredefinedLayoutsModal.module.css";
 import { layouts } from "../../consts/layouts";
 import LayoutPreview from "./LayoutPreview";
 import { PageAspectRatio } from "../../consts/page_format";
+import { useTranslation } from "react-i18next";
 
 type PredefinedLayoutsModalProps = {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export default function PredefinedLayoutsModal({
   onClose,
   onSelectLayout,
 }: PredefinedLayoutsModalProps) {
+  const { t } = useTranslation();
+
   if (!isOpen) {
     return null;
   }
@@ -38,7 +41,7 @@ export default function PredefinedLayoutsModal({
             </div>
           ))}
         </div>
-        <button onClick={onClose}>Close</button>
+        <button onClick={onClose}>{t("Close")}</button>
       </div>
     </div>
   );

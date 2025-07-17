@@ -5,12 +5,13 @@ import { FaSlash, FaSquare, FaSquareFull } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { first } from "../helpers/lists.tsx";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 
 function NameInput({
   name,
   setName,
 }: {
-  name: string;
+  name?: string;
   setName: (name: string) => void;
 }) {
   return (
@@ -86,18 +87,20 @@ type SidebarProps = {
 const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
   const name = selectedSymbols.length === 1 ? first(selectedSymbols).text : "";
 
+  const { t } = useTranslation();
+
   return (
     <div className={styles.sidebar}>
       <ImagePicker onStyleChange={onStyleChange} />
 
       <div className={styles.sectionHeader}>
-        <h4>Text</h4>
+        <h4>{t("Text")}</h4>
       </div>
       <NameInput name={name} setName={(e) => onStyleChange("text", e)} />
 
       <div className={styles.sectionHeader}>
         <FaSquare style={{ marginRight: 5 }} />
-        <h4>Stroke</h4>
+        <h4>{t("Stroke")}</h4>
       </div>
 
       <div className={styles.colorGrid}>
@@ -116,7 +119,7 @@ const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
 
       <div className={styles.sectionHeader}>
         <FaSquareFull style={{ marginRight: 5 }} />
-        <h4>Background</h4>
+        <h4>{t("Background")}</h4>
       </div>
 
       <div className={styles.colorGrid}>
@@ -135,7 +138,7 @@ const Sidebar = ({ onStyleChange, selectedSymbols }: SidebarProps) => {
 
       <div className={styles.sectionHeader}>
         <FaSlash style={{ marginRight: 5 }} />
-        <h4>Stroke Width</h4>
+        <h4>{t("Stroke Width")}</h4>
       </div>
 
       <div className={styles.buttonGroup}>

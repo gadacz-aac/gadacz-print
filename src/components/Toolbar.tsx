@@ -8,7 +8,9 @@ import {
 } from "react-icons/md";
 import styles from "./Toolbar.module.css";
 import { PointerTool, SymbolTool, type Tool } from "../consts/tools";
+import { LanguagePicker } from "./LanguagePicker";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 import { extension } from "../consts/extension";
 
 type ToolbarProps = {
@@ -32,10 +34,12 @@ const Toolbar = ({
   onOpen,
   tool,
 }: ToolbarProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.toolbar}>
       <button
-        title="Selection"
+        title={t("Selection")}
         onClick={onPointer}
         className={clsx({
           active: tool === PointerTool,
@@ -52,7 +56,7 @@ const Toolbar = ({
         </svg>
       </button>
       <button
-        title="Add Symbol"
+        title={t("Add Symbol")}
         onClick={onAddSymbol}
         className={clsx({
           active: tool === SymbolTool,
@@ -60,15 +64,15 @@ const Toolbar = ({
       >
         <MdAdd />
       </button>
-      <button title="Insert layout" onClick={openLayoutsModal}>
+      <button title={t("Insert layout")} onClick={openLayoutsModal}>
         <MdAutoAwesomeMosaic />
       </button>
-      <button title="New page" onClick={insertPageBreak}>
+      <button title={t("New page")} onClick={insertPageBreak}>
         <MdInsertPageBreak />
       </button>
       <hr />
 
-      <button title="Open">
+      <button title={t("Open")}>
         <label style={{ display: "inherit" }}>
           <input
             style={{ display: "none" }}
@@ -80,12 +84,14 @@ const Toolbar = ({
         </label>
       </button>
 
-      <button title="Save" onClick={onSave}>
+      <button title={t("Save")} onClick={onSave}>
         <MdSave />
       </button>
-      <button title="Download" onClick={onDownload}>
+      <button title={t("Download")} onClick={onDownload}>
         <MdDownload />
       </button>
+      <hr />
+      <LanguagePicker />
     </div>
   );
 };
