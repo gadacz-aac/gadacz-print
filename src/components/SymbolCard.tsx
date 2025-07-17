@@ -7,7 +7,6 @@ import useScale from "../hooks/useScale";
 
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
-  isSelected: boolean;
   ref: React.Ref<Konva.Group>;
   onTransformEnd: (evt: Konva.KonvaEventObject<Event>) => void;
   onDragEnd: (evt: Konva.KonvaEventObject<DragEvent>, id: string) => void;
@@ -16,7 +15,6 @@ type SymbolCardProps = {
 
 const SymbolCard = ({
   symbol,
-  isSelected,
   ref,
   onDragEnd,
   onTransformEnd,
@@ -33,32 +31,27 @@ const SymbolCard = ({
     }
   }, [background]);
 
+  const width = symbol.width * scale;
+  const height = symbol.height * scale;
+
+  const x = symbol.x * scale;
+  const y = symbol.y * scale;
+
   return (
     <Group
       id={symbol.id}
       name={symbol.name}
-      x={symbol.x * scale}
-      y={symbol.y * scale}
+      x={x}
+      y={y}
       draggable
       onDragEnd={(e) => onDragEnd(e, symbol.id)}
       onClick={(e) => onClick(e, symbol.id)}
       onTransformEnd={onTransformEnd}
       ref={ref}
     >
-      {isSelected && (
-        <Rect
-          offsetY={4}
-          offsetX={4}
-          width={symbol.width + 8}
-          height={symbol.height + 8}
-          strokeWidth={1}
-          stroke="white"
-        />
-      )}
-
       <Rect
-        width={symbol.width * scale}
-        height={symbol.height * scale}
+        width={width}
+        height={height}
         fill={symbol.backgroundColor}
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}

@@ -10,7 +10,7 @@ import { useSymbols } from "./hooks/useSymbols";
 import { useSelection } from "./hooks/useSelection";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
-import { getClientRect, isStage } from "./helpers/konva";
+import { isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
@@ -60,15 +60,20 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedIds.length && transformerRef.current) {
-      const nodes = selectedIds
-        .map((id) => rectRefs.current.get(id))
-        .filter((node) => node !== undefined);
+    if (!transformerRef.current) return;
 
-      transformerRef.current.nodes(nodes);
-    } else if (transformerRef.current) {
+    transformerRef.current.padding(4);
+
+    if (!selectedIds.length) {
       transformerRef.current.nodes([]);
+      return;
     }
+
+    const nodes = selectedIds
+      .map((id) => rectRefs.current.get(id))
+      .filter((node) => node !== undefined);
+
+    transformerRef.current.nodes(nodes);
   }, [selectedIds, symbols]);
 
   function handleAddSymbol(): void {
