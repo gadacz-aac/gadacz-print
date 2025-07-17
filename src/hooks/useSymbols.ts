@@ -15,7 +15,7 @@ export const useSymbols = () => {
     }
 
     return id;
-  }
+  };
 
   const addSymbols = (symbols: Omit<CommunicationSymbol, "id">[]) => {
     setSymbols((prevSymbols) => {
@@ -23,19 +23,19 @@ export const useSymbols = () => {
 
       return [
         ...prevSymbols,
-        ...symbols.map(e => {
-          const symbol = ({ ...e, id: nextId });
+        ...symbols.map((e) => {
+          const symbol = { ...e, id: nextId };
           nextId = getNexId(nextId);
 
           return symbol;
         }),
       ];
     });
-  }
+  };
 
   const handleAddSymbolStart = (evt: Konva.KonvaEventObject<MouseEvent>) => {
-    addSymbols(
-      [{
+    addSymbols([
+      {
         width: 0,
         height: 0,
         x: evt.evt.clientX,
@@ -44,8 +44,8 @@ export const useSymbols = () => {
         strokeWidth: 1,
         rotation: 0,
         name: "symbol",
-      }],
-    )
+      },
+    ]);
   };
 
   const handleAddSymbolResize = (evt: Konva.KonvaEventObject<MouseEvent>) => {
@@ -61,7 +61,9 @@ export const useSymbols = () => {
     );
   };
 
-  const handleAddSymbolEnd = (setSelectedIds: Dispatch<SetStateAction<string[]>>) => {
+  const handleAddSymbolEnd = (
+    setSelectedIds: Dispatch<SetStateAction<string[]>>,
+  ) => {
     if (last(symbols).width < 5 && last(symbols).height < 5) {
       setSymbols((prevSymbols) =>
         prevSymbols.map((e, idx) => {
@@ -76,10 +78,13 @@ export const useSymbols = () => {
       );
     }
 
-    setSelectedIds((prev) => [...prev, last(symbols).id]);
+    setSelectedIds([last(symbols).id]);
   };
 
-  const handleDragEnd = (evt: Konva.KonvaEventObject<DragEvent>, id: string) => {
+  const handleDragEnd = (
+    evt: Konva.KonvaEventObject<DragEvent>,
+    id: string,
+  ) => {
     setSymbols(
       symbols.map((symbol) => {
         if (symbol.id === id) {
@@ -92,8 +97,6 @@ export const useSymbols = () => {
         return symbol;
       }),
     );
-
-
   };
 
   const handleDeleteSelectedSymbol = (selectedIds: string[]) => {
@@ -105,7 +108,7 @@ export const useSymbols = () => {
   const styleSelectedSymbols = <T extends keyof CommunicationSymbol>(
     selectedIds: string[],
     property: T,
-    value: CommunicationSymbol[T]
+    value: CommunicationSymbol[T],
   ) => {
     setSymbols((prevSymbols) =>
       prevSymbols.map((e) => {
