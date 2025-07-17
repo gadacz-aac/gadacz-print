@@ -4,7 +4,7 @@ import {
   MdDownload,
   MdFileOpen,
   MdInsertPageBreak,
-  MdSaveAs,
+  MdSave,
 } from "react-icons/md";
 import styles from "./Toolbar.module.css";
 
@@ -46,7 +46,7 @@ const Toolbar = ({
       </button>
 
       <button onClick={onSave} className={styles.button}>
-        <MdSaveAs />
+        <MdSave />
       </button>
       <button onClick={onDownload} className={styles.button}>
         <MdDownload />
