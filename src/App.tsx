@@ -1,4 +1,4 @@
-import { Layer, Rect, Stage, Transformer } from "react-konva";
+import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
@@ -23,6 +23,23 @@ import type { CommunicationSymbol } from "./types";
 import useScale from "./hooks/useScale";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
+
+type Snap = "center" | "end" | "start";
+
+type GuideLine = {
+  lineGuide: number;
+  offset: number;
+  orientation: "H" | "V";
+  snap: Snap;
+};
+
+type ObjectSnappingEdge = {
+  guide: number;
+  offset: number;
+  snap: Snap;
+};
+
+const GUIDELINE_OFFSET = 5;
 
 const App = () => {
   const {
@@ -51,6 +68,8 @@ const App = () => {
     hideSelectionRectangle,
     handleStageClick,
   } = useSelection();
+
+  const [guides, setGuides] = useState<GuideLine[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
@@ -82,7 +101,9 @@ const App = () => {
   }, []);
 
   function setCursorIfDefault(cursor: CSS.Property.Cursor) {
-    if (tool === PointerTool) setCursor(cursor);
+    if (tool === PointerTool) {
+      setCursor(cursor);
+    }
   }
 
   useEffect(() => {}, [brushData, selectedIds, symbols]);
@@ -271,6 +292,167 @@ const App = () => {
     reader.readAsText(evt.target.files![0]);
   }
 
+  // were can we snap our objects?
+  function getLineGuideStops(stage: Konva.Stage, skipShape: Konva.Shape) {
+    // we can snap to stage borders and the center of the stage
+    const vertical = [0, pageWidth / 2, pageWidth];
+    const horizontal = [0, pageHeight / 2, pageHeight];
+
+    // and we snap over edges and center of each object on the canvas
+    stage.find(".symbol").forEach((guideItem) => {
+      if (guideItem === skipShape) {
+        return;
+      }
+      const box = guideItem.getClientRect();
+      // and we can snap to all edges of shapes
+      vertical.push(box.x, box.x + box.width, box.x + box.width / 2);
+      horizontal.push(box.y, box.y + box.height, box.y + box.height / 2);
+    });
+
+    return {
+      vertical: vertical,
+      horizontal: horizontal,
+    };
+  }
+
+  // what points of the object will trigger to snapping?
+  // it can be just center of the object
+  // but we will enable all edges and center
+  function getObjectSnappingEdges(node: Konva.Shape) {
+    const box = node.getClientRect();
+    const absPos = node.absolutePosition();
+
+    return {
+      vertical: [
+        {
+          guide: Math.round(box.x),
+          offset: Math.round(absPos.x - box.x),
+          snap: "start",
+        },
+        {
+          guide: Math.round(box.x + box.width / 2),
+          offset: Math.round(absPos.x - box.x - box.width / 2),
+          snap: "center",
+        },
+        {
+          guide: Math.round(box.x + box.width),
+          offset: Math.round(absPos.x - box.x - box.width),
+          snap: "end",
+        },
+      ],
+      horizontal: [
+        {
+          guide: Math.round(box.y),
+          offset: Math.round(absPos.y - box.y),
+          snap: "start",
+        },
+        {
+          guide: Math.round(box.y + box.height / 2),
+          offset: Math.round(absPos.y - box.y - box.height / 2),
+          snap: "center",
+        },
+        {
+          guide: Math.round(box.y + box.height),
+          offset: Math.round(absPos.y - box.y - box.height),
+          snap: "end",
+        },
+      ],
+    } satisfies {
+      vertical: ObjectSnappingEdge[];
+      horizontal: ObjectSnappingEdge[];
+    };
+  }
+
+  // find all snapping possibilities
+  function getGuides(
+    lineGuideStops: ReturnType<typeof getLineGuideStops>,
+    itemBounds: ReturnType<typeof getObjectSnappingEdges>,
+  ) {
+    let minV: GuideLine | null = null;
+    let minH: GuideLine | null = null;
+
+    const minVDiff: number | null = null;
+    const minHDiff: number | null = null;
+
+    lineGuideStops.vertical.forEach((lineGuide) => {
+      itemBounds.vertical.forEach((itemBound) => {
+        const diff = Math.abs(lineGuide - itemBound.guide);
+        // if the distance between guild line and object snap point is close we can consider this for snapping
+        if (diff >= GUIDELINE_OFFSET) return;
+        if (minVDiff !== null && diff > minVDiff) return;
+
+        minV = {
+          lineGuide: lineGuide,
+          offset: itemBound.offset,
+          orientation: "V",
+          snap: itemBound.snap,
+        };
+      });
+    });
+
+    lineGuideStops.horizontal.forEach((lineGuide) => {
+      itemBounds.horizontal.forEach((itemBound) => {
+        const diff = Math.abs(lineGuide - itemBound.guide);
+        if (diff >= GUIDELINE_OFFSET) return;
+        if (minHDiff !== null && diff > minHDiff) return;
+        minH = {
+          lineGuide: lineGuide,
+          orientation: "H",
+          snap: itemBound.snap,
+          offset: itemBound.offset,
+        };
+      });
+    });
+
+    const guides: GuideLine[] = [];
+
+    if (minV) guides.push(minV);
+    if (minH) guides.push(minH);
+
+    return guides;
+  }
+
+  function handleLayerDragMove(e: Konva.KonvaEventObject<DragEvent>) {
+    // clear all previous lines on the screen
+    // layer.find(".guid-line").forEach((l) => l.destroy());
+
+    if (e.target instanceof Konva.Stage) return;
+
+    const stage = e.target.getStage();
+
+    if (stage === null) return;
+
+    // find possible snapping lines
+    const lineGuideStops = getLineGuideStops(stage, e.target);
+    // find snapping points of current object
+    const itemBounds = getObjectSnappingEdges(e.target);
+
+    // now find where can we snap current object
+    const guides = getGuides(lineGuideStops, itemBounds);
+
+    setGuides(guides);
+
+    const absPos = e.target.absolutePosition();
+    // now force object position
+    guides.forEach((lg) => {
+      switch (lg.orientation) {
+        case "V": {
+          absPos.x = lg.lineGuide + lg.offset;
+          break;
+        }
+        case "H": {
+          absPos.y = lg.lineGuide + lg.offset;
+          break;
+        }
+      }
+    });
+    e.target.absolutePosition(absPos);
+  }
+
+  function handleLayerDragEnd() {
+    setGuides([]);
+  }
+
   return (
     <div
       ref={containerRef}
@@ -341,7 +523,7 @@ const App = () => {
         onMouseUp={handleStageMouseUp}
         onClick={(evt) => handleStageClick(evt)}
       >
-        <Layer>
+        <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
           <PageBackground
             pageWidth={pageWidth}
             pageHeight={pageHeight}
@@ -396,6 +578,32 @@ const App = () => {
               fill="rgba(0,0,255,0.5)"
             />
           )}
+
+          {guides.map((lg) => {
+            const data =
+              lg.orientation === "H"
+                ? {
+                    points: [-6000, 0, 6000, 0],
+                    x: 0,
+                    y: lg.lineGuide,
+                  }
+                : {
+                    points: [0, -6000, 0, 6000],
+                    x: lg.lineGuide,
+                    y: 0,
+                  };
+
+            return (
+              <Line
+                key={lg.orientation + lg.lineGuide}
+                {...data}
+                stroke="rgb(0, 161, 255)"
+                strokeWidth={1}
+                name="guid-line"
+                dash={[4, 6]}
+              />
+            );
+          })}
         </Layer>
       </Stage>
     </div>
