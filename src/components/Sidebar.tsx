@@ -7,6 +7,7 @@ import { first } from "../helpers/lists.tsx";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import type { BrushData } from "../consts/brush.ts";
+import { SiElectronfiddle } from "react-icons/si";
 
 function NameInput({
   name,
@@ -105,7 +106,7 @@ const Sidebar = ({
     if (selectedSymbols.length === 1 && firstSymbol[property] === value)
       return true;
 
-    return false;
+    return selectedSymbols.every((e) => e[property] === value);
   }
 
   return (
