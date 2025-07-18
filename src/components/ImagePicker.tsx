@@ -11,16 +11,17 @@ type ArasaacPictogram = {
 const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const abortController = new AbortController();
 
     const handler = setTimeout(async () => {
       if (!searchTerm) return;
+
       try {
         const response = await fetch(
-          `https://api.arasaac.org/v1/pictograms/en/search/${searchTerm}`,
+          `https://api.arasaac.org/v1/pictograms/${i18n.language}/search/${searchTerm}`,
           { signal: abortController.signal },
         );
         const data = await response.json();
@@ -34,7 +35,7 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
       clearTimeout(handler);
       abortController.abort();
     };
-  }, [searchTerm]);
+  }, [i18n, searchTerm]);
 
   const handleLocalImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
