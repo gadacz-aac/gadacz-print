@@ -111,8 +111,6 @@ const App = () => {
   useEffect(() => {
     if (!transformerRef.current) return;
 
-    transformerRef.current.padding(4);
-
     if (!selectedIds.length) {
       transformerRef.current.nodes([]);
       return;
