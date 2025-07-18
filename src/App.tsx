@@ -255,7 +255,7 @@ const App = () => {
       "href",
       "data:text/plain;charset=utf-8," + encodeURIComponent(text),
     );
-    element.setAttribute("download", "board.gpb");
+    element.setAttribute("download", `board${extension}`);
 
     element.style.display = "none";
     document.body.appendChild(element);
