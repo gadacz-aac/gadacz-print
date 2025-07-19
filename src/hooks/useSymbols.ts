@@ -1,10 +1,13 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { type CommunicationSymbol } from "../types";
+import {
+  defaultBrush,
+  type BrushData,
+  type CommunicationSymbol,
+} from "../types";
 import { last } from "../helpers/lists";
 import Konva from "konva";
 import useScale from "./useScale";
 import { defaultHeight, defaultWidth } from "../consts/symbol";
-import { defaultBrush, type BrushData } from "../consts/brush";
 
 export const useSymbols = () => {
   const [symbols, setSymbols] = useState<CommunicationSymbol[]>([]);

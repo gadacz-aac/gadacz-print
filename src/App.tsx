@@ -1,4 +1,4 @@
-import { Layer, Text, Line, Rect, Stage, Transformer } from "react-konva";
+import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
@@ -19,8 +19,7 @@ import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
 import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
 import { extension } from "./consts/extension";
-import type { CommunicationSymbol } from "./types";
-import useScale from "./hooks/useScale";
+import { type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 
@@ -85,7 +84,6 @@ const App = () => {
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const { WidthToA4 } = useScale();
 
   const { t } = useTranslation();
 
@@ -557,13 +555,15 @@ const App = () => {
 
           {showPreviewSymbol && (
             <Rect
-              width={defaultWidth * WidthToA4}
-              height={defaultHeight * WidthToA4}
               x={pointerPosition.x}
               y={pointerPosition.y}
               rotation={0}
-              stroke="rgba(0, 0, 0, 0.2)"
-              strokeWidth={2}
+              opacity={0.2}
+              width={brushData.width}
+              height={brushData.height}
+              fill={brushData.backgroundColor}
+              strokeWidth={brushData.strokeWidth}
+              stroke={brushData.stroke}
             />
           )}
 

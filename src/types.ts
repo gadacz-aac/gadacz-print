@@ -1,3 +1,16 @@
+import { AacColors } from "./consts/colors";
+import { defaultHeight, defaultWidth } from "./consts/symbol";
+
+export type BrushData = {
+  text: string;
+  image?: string;
+  stroke: string;
+  strokeWidth: number;
+  backgroundColor: string;
+  width: number;
+  height: number;
+};
+
 export type CommunicationSymbol = {
   id: string;
   name: "symbol";
@@ -5,10 +18,13 @@ export type CommunicationSymbol = {
   x: number;
   y: number;
   rotation: number;
-  width: number;
-  height: number;
-  image?: string;
-  stroke: string;
-  strokeWidth: number;
-  backgroundColor?: string;
+} & BrushData;
+
+export const defaultBrush: BrushData = {
+  text: "",
+  backgroundColor: AacColors.negationRed,
+  stroke: AacColors.adjectiveBlue,
+  strokeWidth: 1,
+  width: defaultWidth,
+  height: defaultHeight,
 };
