@@ -6,6 +6,8 @@
   gap: 20px;
   padding: var(--padding);
   height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .container:focus {
@@ -21,5 +23,6 @@
 }
 
 .sidebar {
-  height: calc(100vh - 2 * var(--padding));
+  height: 100%;
+  box-sizing: border-box;
 }

@@ -3,6 +3,8 @@
   padding: 10px;
   border-radius: 10px;
   height: 100%;
+  box-sizing: border-box;
+
   overflow-y: auto;
 }
 
