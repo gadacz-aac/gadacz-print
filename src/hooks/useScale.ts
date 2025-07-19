@@ -9,7 +9,5 @@ export default function useScale() {
   return {
     A4ToWidth,
     WidthToA4,
-    min: Math.min(A4ToWidth, WidthToA4),
-    max: Math.max(A4ToWidth, WidthToA4),
   };
 }

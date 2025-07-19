@@ -202,6 +202,48 @@ export const useSymbols = () => {
     });
   };
 
+  const modifiedPositionByAxisAndGap = (
+    selected: CommunicationSymbol[],
+    gap: number,
+    axis: "x" | "y",
+  ) => {
+    selected
+      .sort((a, b) => a[axis] - b[axis])
+      .forEach((cur, idx, array) => {
+        if (idx === 0) return;
+
+        const prev = array[idx - 1];
+
+        selected[idx] = {
+          ...cur,
+          [axis]:
+            Math.floor(prev[axis]) +
+            Math.floor(prev[axis === "x" ? "width" : "height"]) +
+            Math.floor(gap),
+        };
+      });
+  };
+
+  const handleGapChange = (selectedIds: string[], x?: number, y?: number) => {
+    setSymbols((prev) => {
+      const notSelected = prev.filter((e) => !selectedIds.includes(e.id));
+
+      const selected = prev.filter((e) => selectedIds.includes(e.id));
+
+      if (x !== undefined) {
+        modifiedPositionByAxisAndGap(selected, x, "x");
+      }
+
+      if (y !== undefined) {
+        modifiedPositionByAxisAndGap(selected, y, "y");
+      }
+
+      return [...selected, ...notSelected].sort(
+        (a, b) => Number(last(a.id.split("_"))) - Number(last(b.id.split("_"))),
+      );
+    });
+  };
+
   return {
     symbols,
     isResizingNewlyAddedSymbol,
@@ -209,6 +251,7 @@ export const useSymbols = () => {
     setBrushData,
     setSymbols,
     addSymbols,
+    handleGapChange,
     handleAddSymbolStart,
     handleAddSymbolResize,
     handleAddSymbolEnd,

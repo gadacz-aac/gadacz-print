@@ -49,6 +49,7 @@ const App = () => {
     setBrushData,
     setSymbols,
     addSymbols,
+    handleGapChange,
     handleAddSymbolStart,
     handleAddSymbolResize,
     handleAddSymbolEnd,
@@ -462,6 +463,7 @@ const App = () => {
         <Sidebar
           brushData={brushData}
           selectedSymbols={symbols.filter((e) => selectedIds.includes(e.id))}
+          onGapChange={(gap) => handleGapChange(selectedIds, gap.x, gap.y)}
           onStyleChange={(property, value) => {
             if (selectedIds.length) {
               return styleSelectedSymbols(selectedIds, property, value);

@@ -1,29 +1,100 @@
 import type { BrushData, CommunicationSymbol } from "../../types";
 import ImagePicker from "./ImagePicker";
 import { AacColors } from "../../consts/colors.ts";
-import { FaSlash, FaSquare, FaSquareFull } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { first } from "../../helpers/lists.tsx";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import Section from "./Section.tsx";
+import { getGap } from "../../helpers/konva.ts";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FocusEvent,
+  type KeyboardEvent,
+} from "react";
+import { KeyCode } from "../../consts/key_codes.ts";
 
 function Input({
-  value,
-  setValue,
+  label,
+  defaultValue,
+  onChange,
+  onBlur,
 }: {
-  value: string;
-  setValue: (name: string) => void;
+  label?: string;
+  defaultValue: string | number | undefined;
+  onChange?: (val: string) => void;
+  onBlur?: (val: string) => void;
 }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    if (defaultValue === undefined) {
+      return setValue("");
+    }
+
+    if (typeof defaultValue === "number") {
+      return setValue(defaultValue.toFixed(0));
+    }
+
+    setValue(String(defaultValue));
+  }, [defaultValue]);
+
+  let inputProps = {};
+
+  if (typeof defaultValue === "number") {
+    inputProps = {
+      pattern: "-?[0-9]+",
+    };
+  }
+
+  function handleChange(evt: ChangeEvent<HTMLInputElement>) {
+    setValue(evt.target.value);
+
+    if (!onChange) return;
+
+    if (Number.isNaN(Number(evt.target.value))) {
+      return;
+    }
+
+    onChange(evt.target.value);
+  }
+
+  function handleBlur(evt: FocusEvent<HTMLInputElement>) {
+    if (!onBlur) return;
+
+    if (Number.isNaN(Number(evt.target.value))) {
+      return;
+    }
+
+    onBlur(evt.target.value);
+  }
+
+  function handleKeyDown(evt: KeyboardEvent<HTMLInputElement>) {
+    if (ref.current === null) return;
+
+    if (evt.key !== KeyCode.Enter) return;
+
+    ref.current.blur();
+  }
+
   return (
-    <div>
+    <label>
+      {label}
       <input
+        {...inputProps}
+        ref={ref}
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         className={styles.searchInput}
       />
-    </div>
+    </label>
   );
 }
 
@@ -70,21 +141,22 @@ export type onStyleChangeFn = <T extends keyof CommunicationSymbol>(
 
 type SidebarProps = {
   brushData: BrushData;
-  onStyleChange: onStyleChangeFn;
   selectedSymbols: CommunicationSymbol[];
+  onStyleChange: onStyleChangeFn;
+  onGapChange: (gap: { x?: number; y?: number }) => void;
 };
 
 const Sidebar = ({
   onStyleChange,
   selectedSymbols,
   brushData,
+  onGapChange,
 }: SidebarProps) => {
   const firstSymbol = first(selectedSymbols);
   const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
-  const width =
-    selectedSymbols.length === 1 ? firstSymbol.width.toFixed(0) : 100;
-  const height =
-    selectedSymbols.length === 1 ? firstSymbol.height.toFixed(0) : 100;
+  const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
+  const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
+  const gap = getGap(selectedSymbols);
 
   const { t } = useTranslation();
 
@@ -117,35 +189,45 @@ const Sidebar = ({
       <ImagePicker onStyleChange={onStyleChange} />
 
       <Section title={t("Properties")}>
-        <Input value={name} setValue={(e) => onStyleChange("text", e)} />
-        <Input
-          value={width.toString()}
-          setValue={(e) => onStyleChange("width", Number(e))}
-        />
-        <Input
-          value={height.toString()}
-          setValue={(e) => onStyleChange("height", Number(e))}
-        />
+        <Input defaultValue={name} onChange={(e) => onStyleChange("text", e)} />
       </Section>
 
-      <Section
-        title={t("Stroke")}
-        icon={<FaSquare style={{ marginRight: 5 }} />}
-      >
-        {renderColorGrid("stroke")}
+      <Section title={t("Layout")} grid>
+        <Input
+          label={t("Width")}
+          defaultValue={width}
+          onChange={(e) => onStyleChange("width", Number(e))}
+        />
+        <Input
+          label={t("Height")}
+          defaultValue={height}
+          onChange={(e) => onStyleChange("height", Number(e))}
+        />
+
+        {selectedSymbols.length >= 2 && (
+          <Input
+            label={t("Gap.horizontal")}
+            defaultValue={gap?.x}
+            onBlur={(e) => onGapChange({ x: Number(e) })}
+          />
+        )}
+
+        {selectedSymbols.length >= 2 && (
+          <Input
+            label={t("Gap.vertical")}
+            defaultValue={gap?.y}
+            onBlur={(e) => onGapChange({ y: Number(e) })}
+          />
+        )}
       </Section>
 
-      <Section
-        title={t("Background")}
-        icon={<FaSquareFull style={{ marginRight: 5 }} />}
-      >
+      <Section title={t("Stroke")}>{renderColorGrid("stroke")}</Section>
+
+      <Section title={t("Background")}>
         {renderColorGrid("backgroundColor")}
       </Section>
 
-      <Section
-        title={t("Stroke Width")}
-        icon={<FaSlash style={{ marginRight: 5 }} />}
-      >
+      <Section title={t("Stroke Width")}>
         <div className={styles.buttonGroup}>
           {strokeWidths.map((e) => (
             <button

@@ -15,9 +15,17 @@
 }
 
 .section>div {
+  gap: 3px;
+}
+
+.section:is(.sectionGrid)>div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.section:is(:not(.sectionGrid))>div {
   display: flex;
   flex-direction: column;
-  gap: 3px;
 }
 
 .section:last-child {
@@ -32,8 +40,18 @@
   margin-bottom: .25rem;
   font-size: .75rem;
   color: #1b1b1f;
-  font-weight: 400;
+  font-weight: 500;
   display: block;
+}
+
+label:has(.searchInput) {
+  font-size: 9px;
+  line-height: 14px;
+  letter-spacing: 0.27px;
+}
+
+label>.searchInput {
+  margin-top: 2px;
 }
 
 .searchInput {

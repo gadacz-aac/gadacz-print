@@ -1,6 +1,13 @@
 import { AacColors } from "./consts/colors";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
 
+export type Positionable = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type BrushData = {
   text: string;
   image?: string;
@@ -15,10 +22,9 @@ export type CommunicationSymbol = {
   id: string;
   name: "symbol";
   text?: string;
-  x: number;
-  y: number;
   rotation: number;
-} & BrushData;
+} & BrushData &
+  Positionable;
 
 export const defaultBrush: BrushData = {
   text: "",

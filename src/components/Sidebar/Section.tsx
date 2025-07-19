@@ -1,20 +1,24 @@
 import { type ReactNode } from "react";
 import styles from "./Sidebar.module.css";
+import clsx from "clsx";
 
-function Section({
+export default function Section({
   title,
   children,
+  grid = false,
 }: {
   title: string;
-  icon?: ReactNode;
   children: ReactNode;
+  grid?: boolean;
 }) {
   return (
-    <div className={styles.section}>
+    <div
+      className={clsx(styles.section, {
+        [styles.sectionGrid]: grid,
+      })}
+    >
       <h4 className={styles.sectionHeader}>{title}</h4>
       <div>{children}</div>
     </div>
   );
 }
-
-export default Section;

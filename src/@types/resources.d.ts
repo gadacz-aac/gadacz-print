@@ -20,7 +20,14 @@ interface Resources {
     "Select a Predefined Layout": "Select a Predefined Layout",
     "Close": "Close",
     "symbol": "symbol",
-    "Properties": "Properties"
+    "Properties": "Properties",
+    "Layout": "Layout",
+    "Width": "Width",
+    "Height": "Height",
+    "Gap": {
+      "horizontal": "Odstępy (poziome)",
+      "vertical": "Odstępy (pionowe)"
+    }
   }
 }
 

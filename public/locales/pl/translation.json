@@ -19,5 +19,12 @@
   "Select a Predefined Layout": "Wybierz predefiniowany układ",
   "Close": "Zamknij",
   "symbol": "symbol",
-  "Properties": "Właściwości"
+  "Properties": "Właściwości",
+  "Layout": "Układ"
+  "Width": "Szerokość",
+  "Height": "Wysokość",
+  "Gap": {
+    "horizontal" : "Gap (horizontal)",
+    "vertical": "Gap (vertical)"
+  }
 }
