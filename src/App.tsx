@@ -456,7 +456,7 @@ const App = () => {
       tabIndex={0}
       className={styles.container}
     >
-      <div style={{ width: sidebarWidth }}>
+      <div className={styles.sidebar} style={{ width: sidebarWidth }}>
         <Sidebar
           brushData={brushData}
           selectedSymbols={symbols.filter((e) => selectedIds.includes(e.id))}

@@ -1,8 +1,11 @@
 .container {
+  --padding: 10px;
+
   position: relative;
   display: flex;
   gap: 20px;
-  padding: 10px;
+  padding: var(--padding);
+  height: 100vh;
 }
 
 .container:focus {
@@ -15,4 +18,8 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
+}
+
+.sidebar {
+  height: calc(100vh - 2 * var(--padding));
 }
