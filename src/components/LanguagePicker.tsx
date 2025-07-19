@@ -4,6 +4,7 @@ import styles from "./LanguagePicker.module.css";
 const LANGUAGES = [
   { code: "en", name: "English" },
   { code: "pl", name: "Polski" },
+  { code: "uk", name: "Українська" },
 ];
 
 export const LanguagePicker = () => {
@@ -27,4 +28,3 @@ export const LanguagePicker = () => {
     </div>
   );
 };
-

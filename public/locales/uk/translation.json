@@ -1,0 +1,31 @@
+{
+  "Selection": "Виділення",
+  "Add Symbol": "Додати символ",
+  "Insert layout": "Додати макет",
+  "New page": "Нова сторінка",
+  "Open": "Відкрити",
+  "Save": "Зберегти",
+  "Download": "Завантажити",
+  "Invalid file": "Недійсний файл",
+  "No file was selected": "Файл не вибрано",
+  "Text": "Текст",
+  "Stroke": "Обведення",
+  "Background": "Фон",
+  "Stroke Width": "Товщина обведення",
+  "Image": "Зображення",
+  "Search for an image": "Пошук зображення",
+  "Or select a local file": "Або виберіть файл на пристрої",
+  "No result found": "Нічого не знайдено",
+  "Select a Predefined Layout": "Виберіть готовий макет",
+  "Close": "Закрити",
+  "symbol": "Символ",
+  "Properties": "Властивості",
+  "Layout": "Макет",
+  "Width": "Ширина",
+  "Height": "Висота",
+  "Gap": {
+    "horizontal": "Горизонтальний інтервал",
+    "vertical": "Вертикальний інтервал"
+  }
+}
+
