@@ -81,8 +81,10 @@ const Sidebar = ({
 }: SidebarProps) => {
   const firstSymbol = first(selectedSymbols);
   const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
-  const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
-  const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
+  const width =
+    selectedSymbols.length === 1 ? firstSymbol.width.toFixed(0) : 100;
+  const height =
+    selectedSymbols.length === 1 ? firstSymbol.height.toFixed(0) : 100;
 
   const { t } = useTranslation();
 
