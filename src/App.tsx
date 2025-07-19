@@ -22,6 +22,7 @@ import { extension } from "./consts/extension";
 import { type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
+import useScale from "./hooks/useScale";
 
 type Snap = "center" | "end" | "start";
 
@@ -84,6 +85,7 @@ const App = () => {
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
+  const { WidthToA4 } = useScale();
 
   const { t } = useTranslation();
 
@@ -559,8 +561,8 @@ const App = () => {
               y={pointerPosition.y}
               rotation={0}
               opacity={0.2}
-              width={brushData.width}
-              height={brushData.height}
+              width={brushData.width * WidthToA4}
+              height={brushData.height * WidthToA4}
               fill={brushData.backgroundColor}
               strokeWidth={brushData.strokeWidth}
               stroke={brushData.stroke}
