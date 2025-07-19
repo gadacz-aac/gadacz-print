@@ -2,7 +2,7 @@ import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
 import type * as CSS from "csstype";
 import { KeyCode } from "./consts/key_codes";

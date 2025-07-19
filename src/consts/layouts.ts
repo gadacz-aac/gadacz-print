@@ -1,4 +1,5 @@
 import { type CommunicationSymbol } from "../types";
+import { AacColors } from "./colors";
 
 export const layouts: CommunicationSymbol[][] = [
   [
@@ -12,6 +13,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
     {
       id: "symbol_1",
@@ -23,6 +26,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
   ],
   [
@@ -36,6 +41,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
     {
       id: "symbol_1",
@@ -47,6 +54,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
     {
       id: "symbol_2",
@@ -58,6 +67,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
     {
       id: "symbol_3",
@@ -69,6 +80,8 @@ export const layouts: CommunicationSymbol[][] = [
       strokeWidth: 1,
       rotation: 0,
       name: "symbol",
+      text: "",
+      backgroundColor: AacColors.noColorWhite,
     },
   ],
 ];

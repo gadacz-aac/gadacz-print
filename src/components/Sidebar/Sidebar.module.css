@@ -1,31 +1,60 @@
 .sidebar {
-  background: #f0f0f0;
+  background: #f6f6f9;
   padding: 10px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   height: 100%;
   overflow-y: auto;
 }
 
-.sectionHeader {
+.section {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.section>div {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionHeader {
+  margin: 0;
+  margin-bottom: 0px;
+  margin-bottom: .25rem;
+  font-size: .75rem;
+  color: #1b1b1f;
+  font-weight: 400;
+  display: block;
+}
+
+.searchInput {
+  padding: 5px;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .colorGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 5px;
 }
 
 .colorSwatch {
-  width: 30px;
-  height: 30px;
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: 4px;
   border: 1px solid #ccc;
   cursor: pointer;
   transition: transform 0.1s ease-in-out;
+  font-size: 0.7rem;
 }
 
 .colorSwatch.active {

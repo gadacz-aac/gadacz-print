@@ -19,7 +19,8 @@ interface Resources {
     "No result found": "No result found",
     "Select a Predefined Layout": "Select a Predefined Layout",
     "Close": "Close",
-    "symbol": "symbol"
+    "symbol": "symbol",
+    "Properties": "Properties"
   }
 }
 
