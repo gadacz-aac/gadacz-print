@@ -1,4 +1,4 @@
-import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
+import { Layer, Text, Line, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
@@ -85,7 +85,7 @@ const App = () => {
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const [, scale] = useScale();
+  const { WidthToA4 } = useScale();
 
   const { t } = useTranslation();
 
@@ -131,10 +131,10 @@ const App = () => {
         .filter((e) => selectedIds.includes(e.id))
         .map((e) => ({
           ...e,
-          width: e.width * scale,
-          height: e.height * scale,
-          x: (e.x + dx) * scale,
-          y: (e.y + dy) * scale,
+          width: e.width,
+          height: e.height,
+          x: e.x + dx,
+          y: e.y + dy,
         })),
     );
   }
@@ -194,11 +194,11 @@ const App = () => {
     }
   }
 
-  function handleStageMouseUp() {
+  function handleStageMouseUp(evt: Konva.KonvaEventObject<MouseEvent>) {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setTool(PointerTool);
-      handleAddSymbolEnd(setSelectedIds);
+      handleAddSymbolEnd(evt, setSelectedIds);
     } else if (isSelecting.current) {
       isSelecting.current = false;
 
@@ -557,8 +557,8 @@ const App = () => {
 
           {showPreviewSymbol && (
             <Rect
-              width={defaultWidth}
-              height={defaultHeight}
+              width={defaultWidth * WidthToA4}
+              height={defaultHeight * WidthToA4}
               x={pointerPosition.x}
               y={pointerPosition.y}
               rotation={0}

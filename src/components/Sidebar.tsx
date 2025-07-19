@@ -7,21 +7,20 @@ import { first } from "../helpers/lists.tsx";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import type { BrushData } from "../consts/brush.ts";
-import { SiElectronfiddle } from "react-icons/si";
 
-function NameInput({
-  name,
-  setName,
+function Input({
+  value,
+  setValue,
 }: {
-  name?: string;
-  setName: (name: string) => void;
+  value: string;
+  setValue: (name: string) => void;
 }) {
   return (
     <div className={styles.searchSection}>
       <input
         type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         className={styles.searchInput}
       />
     </div>
@@ -93,8 +92,9 @@ const Sidebar = ({
   brushData,
 }: SidebarProps) => {
   const firstSymbol = first(selectedSymbols);
-  const name =
-    (selectedSymbols.length === 1 && firstSymbol.text) || brushData.text;
+  const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
+  const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
+  const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
 
   const { t } = useTranslation();
 
@@ -116,7 +116,16 @@ const Sidebar = ({
       <div className={styles.sectionHeader}>
         <h4>{t("Text")}</h4>
       </div>
-      <NameInput name={name} setName={(e) => onStyleChange("text", e)} />
+      <Input value={name} setValue={(e) => onStyleChange("text", e)} />
+
+      <Input
+        value={width.toString()}
+        setValue={(e) => onStyleChange("width", Number(e))}
+      />
+      <Input
+        value={height.toString()}
+        setValue={(e) => onStyleChange("height", Number(e))}
+      />
 
       <div className={styles.sectionHeader}>
         <FaSquare style={{ marginRight: 5 }} />

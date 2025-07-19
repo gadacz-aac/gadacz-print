@@ -6,7 +6,7 @@ import useScale from "./useScale";
 
 export const useSelection = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [, scale] = useScale();
+  const { WidthToA4: scale } = useScale();
 
   const [selectionRectangle, setSelectionRectangle] = useState({
     visible: false,

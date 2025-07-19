@@ -27,7 +27,7 @@ const SymbolCard = ({
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
-  const [, scale] = useScale();
+  const { WidthToA4: scale } = useScale();
 
   useEffect(() => {
     if (background) {

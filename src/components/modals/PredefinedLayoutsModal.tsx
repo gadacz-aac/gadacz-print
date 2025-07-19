@@ -23,9 +23,11 @@ export default function PredefinedLayoutsModal({
   }
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modal}>
-        <h2>Select a Predefined Layout</h2>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>{t("Select a Predefined Layout")}</h2>
+        </div>
         <div className={styles.layouts}>
           {layouts.map((layout, index) => (
             <div
@@ -41,7 +43,11 @@ export default function PredefinedLayoutsModal({
             </div>
           ))}
         </div>
-        <button onClick={onClose}>{t("Close")}</button>
+        <div className={styles.modalFooter}>
+          <button onClick={onClose} className={styles.closeButton}>
+            {t("Close")}
+          </button>
+        </div>
       </div>
     </div>
   );

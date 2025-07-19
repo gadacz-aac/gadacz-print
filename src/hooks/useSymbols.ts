@@ -12,7 +12,7 @@ export const useSymbols = () => {
   const [brushData, _setBrushData] = useState<BrushData>(defaultBrush);
   const [isResizingNewlyAddedSymbol, setIsResizingNewlyAddedSymbol] =
     useState(false);
-  const [scale] = useScale();
+  const { A4ToWidth } = useScale();
 
   const _getNexId = (lastId?: string) => {
     let id = "symbol_";
@@ -35,10 +35,10 @@ export const useSymbols = () => {
         const symbol = {
           ...e,
           id: nextId,
-          width: e.width * scale,
-          height: e.height * scale,
-          x: e.x * scale,
-          y: e.y * scale,
+          width: e.width,
+          height: e.height,
+          x: e.x,
+          y: e.y,
         };
         nextId = _getNexId(nextId);
 
@@ -79,14 +79,15 @@ export const useSymbols = () => {
         if (idx !== prevSymbols.length - 1) return e;
         return {
           ...e,
-          width: e.width + evt.evt.movementX * scale,
-          height: e.height + evt.evt.movementY * scale,
+          width: e.width + evt.evt.movementX * A4ToWidth,
+          height: e.height + evt.evt.movementY * A4ToWidth,
         };
       }),
     );
   };
 
   const handleAddSymbolEnd = (
+    evt: Konva.KonvaEventObject<MouseEvent>,
     setSelectedIds: Dispatch<SetStateAction<string[]>>,
   ) => {
     setIsResizingNewlyAddedSymbol(false);
@@ -98,10 +99,19 @@ export const useSymbols = () => {
         prevSymbols.map((e, idx) => {
           if (idx !== prevSymbols.length - 1) return e;
 
+          const pos = evt.currentTarget.getStage()?.getPointerPosition();
+
+          if (!pos) {
+            console.warn("POS is null");
+            return e;
+          }
+
           return {
             ...e,
-            width: defaultWidth * scale,
-            height: defaultHeight * scale,
+            x: pos.x * A4ToWidth,
+            y: pos.y * A4ToWidth,
+            width: defaultWidth,
+            height: defaultHeight,
           };
         }),
       );
@@ -119,8 +129,8 @@ export const useSymbols = () => {
         if (symbol.id === id) {
           return {
             ...symbol,
-            x: evt.target.x() * scale,
-            y: evt.target.y() * scale,
+            x: evt.target.x() * A4ToWidth,
+            y: evt.target.y() * A4ToWidth,
           };
         }
         return symbol;
@@ -177,8 +187,8 @@ export const useSymbols = () => {
       if (index !== -1) {
         newRects[index] = {
           ...newRects[index],
-          x: node.x() * scale,
-          y: node.y() * scale,
+          x: node.x() * A4ToWidth,
+          y: node.y() * A4ToWidth,
           width: Math.max(5, newRects[index].width * scaleX),
           height: Math.max(5, newRects[index].height * scaleY),
           rotation: node.rotation(),

@@ -1,6 +1,6 @@
 import { Stage, Layer, Rect } from "react-konva";
 import { type CommunicationSymbol } from "../../types";
-import usePageSize from "../../hooks/usePageSize";
+import { A4 } from "../../consts/page_format";
 
 interface LayoutPreviewProps {
   layout: CommunicationSymbol[];
@@ -9,9 +9,7 @@ interface LayoutPreviewProps {
 }
 
 const LayoutPreview = ({ layout, width, height }: LayoutPreviewProps) => {
-  const [pageWidth] = usePageSize();
-
-  const scale = width / pageWidth;
+  const scale = width / A4.landscape.width;
 
   return (
     <Stage width={width} height={height}>
