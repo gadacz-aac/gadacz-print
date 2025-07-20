@@ -160,6 +160,12 @@ const App = () => {
     }
 
     switch (evt.key) {
+      case KeyCode.Num1:
+        setTool(PointerTool);
+        break;
+      case KeyCode.Num2:
+        setTool(SymbolTool);
+        break;
       case KeyCode.Delete:
         handleDeleteSelectedSymbol(selectedIds);
         setSelectedIds([]);
