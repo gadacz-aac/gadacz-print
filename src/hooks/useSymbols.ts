@@ -1,6 +1,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   defaultBrush,
+  defaultFontData,
   type BrushData,
   type CommunicationSymbol,
 } from "../types";
@@ -65,6 +66,7 @@ export const useSymbols = () => {
     addSymbols([
       {
         ...brushData,
+        ...defaultFontData,
         width: 0,
         height: 0,
         x: pos.x,

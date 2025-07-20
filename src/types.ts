@@ -8,6 +8,13 @@ export type Positionable = {
   height: number;
 };
 
+export type FontData = {
+  fontStyle: string;
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+};
+
 export type BrushData = {
   text: string;
   image?: string;
@@ -24,7 +31,8 @@ export type CommunicationSymbol = {
   text?: string;
   rotation: number;
 } & BrushData &
-  Positionable;
+  Positionable &
+  FontData;
 
 export const defaultBrush: BrushData = {
   text: "",
@@ -33,4 +41,11 @@ export const defaultBrush: BrushData = {
   strokeWidth: 1,
   width: defaultWidth,
   height: defaultHeight,
+};
+
+export const defaultFontData: FontData = {
+  fontStyle: "400",
+  fontSize: 20,
+  letterSpacing: 1,
+  lineHeight: 1,
 };

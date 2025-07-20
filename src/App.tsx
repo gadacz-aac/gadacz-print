@@ -19,7 +19,7 @@ import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
 import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
 import { extension } from "./consts/extension";
-import { type CommunicationSymbol } from "./types";
+import { defaultFontData, type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 import useScale from "./hooks/useScale";
@@ -480,6 +480,7 @@ const App = () => {
                   y: 0,
                   rotation: 0,
                   name: "symbol",
+                  ...defaultFontData,
                 },
               ]);
               return;
