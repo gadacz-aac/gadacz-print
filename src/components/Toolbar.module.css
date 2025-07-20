@@ -7,3 +7,14 @@
   flex-direction: row;
   gap: 8px;
 }
+
+button:has(.shortcut) {
+  position: relative;
+}
+
+button .shortcut {
+  position: absolute;
+  font-size: 8px;
+  bottom: 4px;
+  right: 4px;
+}

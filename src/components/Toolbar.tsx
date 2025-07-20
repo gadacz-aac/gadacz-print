@@ -54,6 +54,8 @@ const Toolbar = ({
         >
           <path d="m320-410 79-110h170L320-716v306ZM551-80 406-392 240-160v-720l560 440H516l144 309-109 51ZM399-520Z" />
         </svg>
+
+        <span className={styles.shortcut}>1</span>
       </button>
       <button
         title={t("Add Symbol")}
@@ -63,6 +65,7 @@ const Toolbar = ({
         })}
       >
         <MdAdd />
+        <span className={styles.shortcut}>2</span>
       </button>
       <button title={t("Insert layout")} onClick={openLayoutsModal}>
         <MdAutoAwesomeMosaic />
