@@ -9,14 +9,18 @@ import type Konva from "konva";
 import type { Scale } from "../hooks/useScale";
 import { last } from "../helpers/lists";
 import { defaultHeight, defaultWidth } from "../consts/symbol";
+import type { SelectionSlice } from "./selection_slice";
+import { type CustomSet } from "../helpers/zustand";
 
-interface ElementsSlice {
+export interface ElementsSlice {
   elements: CommunicationSymbol[];
   lastId: number;
   brushData: BrushData;
   isResizingNewlyAddedSymbol: boolean;
-  selectedIds: string[];
-  addSymbols: (symbols: Omit<CommunicationSymbol, "id">[]) => void;
+  addSymbols: (
+    symbols: Omit<CommunicationSymbol, "id">[],
+    callback?: (newSymbols: CommunicationSymbol[]) => void,
+  ) => void;
   handleAddSymbolStart: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   handleAddSymbolResize: (
     evt: Konva.KonvaEventObject<MouseEvent>,
@@ -51,10 +55,11 @@ interface ElementsSlice {
     axis: "x" | "y",
   ) => void;
   handleGapChange: (selectedIds: string[], x?: number, y?: number) => void;
+  setElements: CustomSet<CommunicationSymbol[]>;
 }
 
 export const createElementsSlice: StateCreator<
-  ElementsSlice,
+  ElementsSlice & SelectionSlice,
   [],
   [],
   ElementsSlice
@@ -64,12 +69,14 @@ export const createElementsSlice: StateCreator<
   brushData: defaultBrush,
   selectedIds: [],
   isResizingNewlyAddedSymbol: false,
-  addSymbols: (symbols: Omit<CommunicationSymbol, "id">[]) =>
+  addSymbols: (symbols, callback) =>
     set(({ lastId, elements }) => {
+      let localLastId = lastId;
+
       const newElements = symbols.map((e) => {
         const symbol = {
           ...e,
-          id: "symbol_" + String(lastId++),
+          id: "symbol_" + String(localLastId++),
           width: e.width,
           height: e.height,
           x: e.x,
@@ -79,7 +86,10 @@ export const createElementsSlice: StateCreator<
         return symbol;
       });
 
+      callback?.(newElements);
+
       return {
+        lastId: localLastId,
         elements: [...elements, ...newElements],
       };
     }),
@@ -259,5 +269,11 @@ export const createElementsSlice: StateCreator<
         elements: [...selected, ...notSelected],
       };
     });
+  },
+  setElements: (customSetter) => {
+    set(({ elements }) => ({
+      elements:
+        typeof customSetter === "function" ? customSetter(elements) : elements,
+    }));
   },
 });

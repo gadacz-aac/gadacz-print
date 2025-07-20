@@ -6,8 +6,6 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
 import type * as CSS from "csstype";
 import { KeyCode } from "./consts/key_codes";
-import { useSymbols } from "./hooks/useSymbols";
-import { useSelection } from "./hooks/useSelection";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
 import { isStage } from "./helpers/konva";
@@ -23,6 +21,7 @@ import { defaultFontData, type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 import useScale from "./hooks/useScale";
+import { useAppStore } from "./store/store";
 
 type Snap = "center" | "end" | "start";
 
@@ -38,37 +37,33 @@ type ObjectSnappingEdge = {
   offset: number;
   snap: Snap;
 };
-
 const GUIDELINE_OFFSET = 5;
 
 const App = () => {
-  const {
-    symbols,
-    isResizingNewlyAddedSymbol,
-    brushData,
-    setBrushData,
-    setSymbols,
-    addSymbols,
-    handleGapChange,
-    handleAddSymbolStart,
-    handleAddSymbolResize,
-    handleAddSymbolEnd,
-    handleDragEnd,
-    handleDeleteSelectedSymbol,
-    styleSelectedSymbols,
-    handleTransformEnd,
-  } = useSymbols();
-
-  const {
-    selectedIds,
-    setSelectedIds,
-    selectionRectangle,
-    handleSelect,
-    startSelectionRectangle,
-    resizeSelectionRectangle,
-    hideSelectionRectangle,
-    handleStageClick,
-  } = useSelection();
+  const symbols = useAppStore.use.elements();
+  const isResizingNewlyAddedSymbol =
+    useAppStore.use.isResizingNewlyAddedSymbol();
+  const brushData = useAppStore.use.brushData();
+  const setBrushData = useAppStore.use.setBrushData();
+  const setSymbols = useAppStore.use.setElements();
+  const addSymbols = useAppStore.use.addSymbols();
+  const handleGapChange = useAppStore.use.handleGapChange();
+  const handleAddSymbolStart = useAppStore.use.handleAddSymbolStart();
+  const handleAddSymbolResize = useAppStore.use.handleAddSymbolResize();
+  const handleAddSymbolEnd = useAppStore.use.handleAddSymbolEnd();
+  const handleDragEnd = useAppStore.use.handleDragEnd();
+  const handleDeleteSelectedSymbol =
+    useAppStore.use.handleDeleteSelectedSymbol();
+  const styleSelectedSymbols = useAppStore.use.styleSelectedSymbols();
+  const handleTransformEnd = useAppStore.use.handleTransformEnd();
+  const selectedIds = useAppStore.use.selectedIds();
+  const setSelectedIds = useAppStore.use.setSelectedIds();
+  const selectionRectangle = useAppStore.use.selectionRectangle();
+  const handleSelect = useAppStore.use.handleSelect();
+  const startSelectionRectangle = useAppStore.use.startSelectionRectangle();
+  const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
+  const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
+  const handleStageClick = useAppStore.use.handleStageClick();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -86,7 +81,7 @@ const App = () => {
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const { WidthToA4 } = useScale();
+  const scale = useScale();
 
   const { t } = useTranslation();
 
@@ -106,8 +101,6 @@ const App = () => {
       setCursor(cursor);
     }
   }
-
-  useEffect(() => {}, [brushData, selectedIds, symbols]);
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -167,7 +160,7 @@ const App = () => {
         setTool(SymbolTool);
         break;
       case KeyCode.Delete:
-        handleDeleteSelectedSymbol(selectedIds);
+        handleDeleteSelectedSymbol();
         setSelectedIds([]);
         break;
       default:
@@ -195,7 +188,7 @@ const App = () => {
     if (pos) setPointerPosition(pos);
 
     if (isAddingSymbol.current) {
-      handleAddSymbolResize(evt);
+      handleAddSymbolResize(evt, scale);
     } else if (isSelecting.current) {
       resizeSelectionRectangle(evt);
     }
@@ -205,11 +198,11 @@ const App = () => {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setTool(PointerTool);
-      handleAddSymbolEnd(evt, setSelectedIds);
+      handleAddSymbolEnd(evt, scale);
     } else if (isSelecting.current) {
       isSelecting.current = false;
 
-      hideSelectionRectangle(symbols);
+      hideSelectionRectangle(scale);
     }
   }
 
@@ -541,8 +534,8 @@ const App = () => {
             <SymbolCard
               key={e.id}
               symbol={e}
-              onDragEnd={handleDragEnd}
-              onTransformEnd={handleTransformEnd}
+              onDragEnd={(evt, id) => handleDragEnd(evt, id, scale)}
+              onTransformEnd={(evt) => handleTransformEnd(evt, scale)}
               onClick={handleSelect}
               onMouseOver={() => setCursorIfDefault("move")}
               onMouseOut={() => setCursorIfDefault("default")}
@@ -570,8 +563,8 @@ const App = () => {
               y={pointerPosition.y}
               rotation={0}
               opacity={0.2}
-              width={brushData.width * WidthToA4}
-              height={brushData.height * WidthToA4}
+              width={brushData.width * scale.WidthToA4}
+              height={brushData.height * scale.WidthToA4}
               fill={brushData.backgroundColor}
               strokeWidth={brushData.strokeWidth}
               stroke={brushData.stroke}
