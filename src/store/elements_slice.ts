@@ -1,0 +1,318 @@
+import {
+  defaultBrush,
+  defaultFontData,
+  type BrushData,
+  type CommunicationSymbol,
+} from "../types";
+import type Konva from "konva";
+import type { Scale } from "../hooks/useScale";
+import { last } from "../helpers/lists";
+import { defaultHeight, defaultWidth } from "../consts/symbol";
+import { type CustomSet } from "../helpers/zustand";
+import type { AppStateCreator } from "./store";
+
+export interface ElementsSlice {
+  elements: CommunicationSymbol[];
+  lastId: number;
+  brushData: BrushData;
+  isResizingNewlyAddedSymbol: boolean;
+  addSymbols: (
+    symbols: Omit<CommunicationSymbol, "id">[],
+    callback?: (newSymbols: CommunicationSymbol[]) => void,
+  ) => void;
+  handleAddSymbolStart: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    scale: Scale,
+  ) => void;
+  handleAddSymbolResize: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    scale: Scale,
+  ) => void;
+  handleAddSymbolEnd: () => void;
+  handleDragEnd: (
+    evt: Konva.KonvaEventObject<DragEvent>,
+    id: string,
+    scale: Scale,
+  ) => void;
+  handleDeleteSelectedSymbol: () => void;
+  setBrushData: <T extends keyof CommunicationSymbol>(
+    property: T,
+    value: CommunicationSymbol[T],
+  ) => void;
+  styleSelectedSymbols: <T extends keyof CommunicationSymbol>(
+    selectedIds: string[],
+    property: T,
+    value: CommunicationSymbol[T],
+  ) => void;
+  handleTransformEnd: (
+    evt: Konva.KonvaEventObject<Event>,
+    id: string,
+    scale: Scale,
+  ) => void;
+  modifiedPositionByAxisAndGap: (
+    selected: CommunicationSymbol[],
+    gap: number,
+    axis: "x" | "y",
+  ) => void;
+  handleGapChange: (selectedIds: string[], x?: number, y?: number) => void;
+  setElements: CustomSet<CommunicationSymbol[]>;
+}
+
+export const createElementsSlice: AppStateCreator<ElementsSlice> = (
+  set,
+  get,
+) => ({
+  elements: [],
+  lastId: 0,
+  brushData: defaultBrush,
+  selectedIds: [],
+  isResizingNewlyAddedSymbol: false,
+  addSymbols: (symbols, callback) =>
+    set(
+      ({ lastId, elements }) => {
+        let localLastId = lastId;
+
+        const newElements = symbols.map((e) => {
+          const symbol = {
+            ...e,
+            id: "symbol_" + String(localLastId++),
+            width: e.width,
+            height: e.height,
+            x: e.x,
+            y: e.y,
+          };
+
+          return symbol;
+        });
+
+        callback?.(newElements);
+
+        return {
+          lastId: localLastId,
+          elements: [...elements, ...newElements],
+        };
+      },
+      undefined,
+      "elements/addSymbols",
+    ),
+  handleAddSymbolStart: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    { A4ToWidth },
+  ) => {
+    const pos = evt.target.getStage()?.getPointerPosition();
+
+    if (!pos) {
+      console.warn("POS is null");
+      return;
+    }
+
+    get().addSymbols([
+      {
+        ...get().brushData,
+        ...defaultFontData,
+        width: 0,
+        height: 0,
+        x: pos.x * A4ToWidth,
+        y: pos.y * A4ToWidth,
+        rotation: 0,
+        name: "symbol",
+      },
+    ]);
+  },
+  handleAddSymbolResize: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    { A4ToWidth }: Scale,
+  ) => {
+    set(
+      ({ elements }) => ({
+        isResizingNewlyAddedSymbol: true,
+        elements: elements.map((e, idx) => {
+          if (idx !== elements.length - 1) return e;
+          return {
+            ...e,
+            width: e.width + evt.evt.movementX * A4ToWidth,
+            height: e.height + evt.evt.movementY * A4ToWidth,
+          };
+        }),
+      }),
+      undefined,
+      "elements/handleAddSymbolResize",
+    );
+  },
+  handleAddSymbolEnd: () => {
+    set(
+      ({ elements }) => {
+        const newElements = elements.map((e, idx, { length }) => {
+          if (idx !== length - 1) return e;
+
+          if (e.width < 0) {
+            e.width = Math.abs(e.width);
+            e.x -= e.width;
+          }
+
+          if (e.height < 0) {
+            e.height = Math.abs(e.height);
+            e.y -= e.height;
+          }
+
+          if (e.width < 5 && e.height < 5) {
+            e.width = defaultWidth;
+            e.height = defaultHeight;
+          }
+
+          return { ...e };
+        });
+
+        return {
+          selectedIds: [last(elements).id],
+          elements: newElements,
+          isResizingNewlyAddedSymbol: false,
+        };
+      },
+      undefined,
+      "elements/handleAddSymbolEnd",
+    );
+  },
+  handleDragEnd: (evt, id, { A4ToWidth }) =>
+    set(
+      ({ elements }) => ({
+        elements: elements.map((symbol) => {
+          if (symbol.id === id) {
+            return {
+              ...symbol,
+              x: evt.target.x() * A4ToWidth,
+              y: evt.target.y() * A4ToWidth,
+            };
+          }
+          return symbol;
+        }),
+      }),
+      undefined,
+      "elements/handleDragEnd",
+    ),
+  handleDeleteSelectedSymbol: () => {
+    set(
+      ({ elements, selectedIds }) => ({
+        elements: elements.filter((e) => !selectedIds.includes(e.id)),
+        selectedIds: [],
+      }),
+      undefined,
+      "elements/handleDeleteSelectedSymbol",
+    );
+  },
+  setBrushData: (property, value) => {
+    set(
+      ({ brushData }) => ({
+        brushData: {
+          ...brushData,
+          [property]: value,
+        },
+      }),
+      undefined,
+      "elements/setBrushData",
+    );
+  },
+  styleSelectedSymbols: (selectedIds, property, value) => {
+    set(
+      ({ elements }) => ({
+        elements: elements.map((e) => {
+          if (selectedIds.includes(e.id)) {
+            return { ...e, [property]: value };
+          }
+
+          return e;
+        }),
+      }),
+      undefined,
+      "elements/styleSelectedSymbols",
+    );
+  },
+  handleTransformEnd: (evt, id, { A4ToWidth }) => {
+    const node = evt.target;
+
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+
+    if (scaleX === 1 && scaleY === 1) return;
+
+    node.scaleX(1);
+    node.scaleY(1);
+
+    set(
+      ({ elements }) => {
+        const newRects = [...elements];
+
+        const index = newRects.findIndex((r) => r.id === id);
+
+        if (index !== -1) {
+          newRects[index] = {
+            ...newRects[index],
+            x: node.x() * A4ToWidth,
+            y: node.y() * A4ToWidth,
+            width: Math.max(5, newRects[index].width * scaleX),
+            height: Math.max(5, newRects[index].height * scaleY),
+            rotation: node.rotation(),
+          };
+        }
+
+        return {
+          elements: newRects,
+        };
+      },
+      undefined,
+      "elements/handleTranformEnd",
+    );
+  },
+  modifiedPositionByAxisAndGap: (selected, gap, axis) => {
+    selected
+      .sort((a, b) => a[axis] - b[axis])
+      .forEach((cur, idx, array) => {
+        if (idx === 0) return;
+
+        const prev = array[idx - 1];
+
+        selected[idx] = {
+          ...cur,
+          [axis]:
+            Math.floor(prev[axis]) +
+            Math.floor(prev[axis === "x" ? "width" : "height"]) +
+            Math.floor(gap),
+        };
+      });
+  },
+  handleGapChange: (selectedIds, x, y) => {
+    set(
+      ({ elements }) => {
+        const notSelected = elements.filter((e) => !selectedIds.includes(e.id));
+
+        const selected = elements.filter((e) => selectedIds.includes(e.id));
+
+        if (x !== undefined) {
+          get().modifiedPositionByAxisAndGap(selected, x, "x");
+        }
+
+        if (y !== undefined) {
+          get().modifiedPositionByAxisAndGap(selected, y, "y");
+        }
+
+        return {
+          elements: [...selected, ...notSelected],
+        };
+      },
+      undefined,
+      "elements/handleGapChange",
+    );
+  },
+  setElements: (customSetter) => {
+    set(
+      ({ elements }) => ({
+        elements:
+          typeof customSetter === "function"
+            ? customSetter(elements)
+            : elements,
+      }),
+      undefined,
+      "elements/setElements",
+    );
+  },
+});

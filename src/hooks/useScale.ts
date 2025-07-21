@@ -11,3 +11,5 @@ export default function useScale() {
     WidthToA4,
   };
 }
+
+export type Scale = ReturnType<typeof useScale>;

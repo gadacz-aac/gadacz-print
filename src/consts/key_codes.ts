@@ -8,4 +8,6 @@ export class KeyCode {
   static readonly A = "a";
   static readonly C = "c";
   static readonly V = "v";
+  static readonly Num1 = "1";
+  static readonly Num2 = "2";
 }

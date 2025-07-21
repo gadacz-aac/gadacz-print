@@ -4,25 +4,23 @@ import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
-import type * as CSS from "csstype";
 import { KeyCode } from "./consts/key_codes";
-import { useSymbols } from "./hooks/useSymbols";
-import { useSelection } from "./hooks/useSelection";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
-import { isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
 import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
 import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
-import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
+import { PointerTool, SymbolTool } from "./consts/tools";
 import { extension } from "./consts/extension";
-import { type CommunicationSymbol } from "./types";
+import { defaultFontData, type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 import useScale from "./hooks/useScale";
+import { useAppStore } from "./store/store";
+import useCursor from "./hooks/useCursor";
 
 type Snap = "center" | "end" | "start";
 
@@ -38,37 +36,35 @@ type ObjectSnappingEdge = {
   offset: number;
   snap: Snap;
 };
-
 const GUIDELINE_OFFSET = 5;
 
 const App = () => {
-  const {
-    symbols,
-    isResizingNewlyAddedSymbol,
-    brushData,
-    setBrushData,
-    setSymbols,
-    addSymbols,
-    handleGapChange,
-    handleAddSymbolStart,
-    handleAddSymbolResize,
-    handleAddSymbolEnd,
-    handleDragEnd,
-    handleDeleteSelectedSymbol,
-    styleSelectedSymbols,
-    handleTransformEnd,
-  } = useSymbols();
-
-  const {
-    selectedIds,
-    setSelectedIds,
-    selectionRectangle,
-    handleSelect,
-    startSelectionRectangle,
-    resizeSelectionRectangle,
-    hideSelectionRectangle,
-    handleStageClick,
-  } = useSelection();
+  const symbols = useAppStore.use.elements();
+  const isResizingNewlyAddedSymbol =
+    useAppStore.use.isResizingNewlyAddedSymbol();
+  const brushData = useAppStore.use.brushData();
+  const setBrushData = useAppStore.use.setBrushData();
+  const setSymbols = useAppStore.use.setElements();
+  const addSymbols = useAppStore.use.addSymbols();
+  const handleGapChange = useAppStore.use.handleGapChange();
+  const handleAddSymbolStart = useAppStore.use.handleAddSymbolStart();
+  const handleAddSymbolResize = useAppStore.use.handleAddSymbolResize();
+  const handleAddSymbolEnd = useAppStore.use.handleAddSymbolEnd();
+  const handleDragEnd = useAppStore.use.handleDragEnd();
+  const handleDeleteSelectedSymbol =
+    useAppStore.use.handleDeleteSelectedSymbol();
+  const styleSelectedSymbols = useAppStore.use.styleSelectedSymbols();
+  const handleTransformEnd = useAppStore.use.handleTransformEnd();
+  const selectedIds = useAppStore.use.selectedIds();
+  const setSelectedIds = useAppStore.use.setSelectedIds();
+  const selectionRectangle = useAppStore.use.selectionRectangle();
+  const startSelectionRectangle = useAppStore.use.startSelectionRectangle();
+  const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
+  const handleElementClick = useAppStore.use.handleElementClick();
+  const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
+  const handleStageClick = useAppStore.use.handleStageClick();
+  const tool = useAppStore.use.tool();
+  const setTool = useAppStore.use.setTool();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -77,37 +73,25 @@ const App = () => {
   const transformerRef = useRef<Konva.Transformer>(null);
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
 
-  const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
   const [numberOfPages, setNumberOfPages] = useState(1);
   const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
-  const [tool, setTool] = useState<Tool>(PointerTool);
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const { WidthToA4 } = useScale();
+  const scale = useScale();
 
   const { t } = useTranslation();
 
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
   const [copiedSymbols, setCopiedSymbols] = useState<CommunicationSymbol[]>([]);
 
-  useEffect(() => {
-    setCursor(tool.cursor);
-  }, [tool]);
+  const [cursor, setCursor] = useCursor();
 
   useEffect(() => {
     containerRef?.current?.focus();
   }, []);
-
-  function setCursorIfDefault(cursor: CSS.Property.Cursor) {
-    if (tool === PointerTool) {
-      setCursor(cursor);
-    }
-  }
-
-  useEffect(() => {}, [brushData, selectedIds, symbols]);
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -141,6 +125,10 @@ const App = () => {
   }
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (evt) => {
+    if (isFinite(Number(evt.key))) {
+      setTool(Number(evt.key));
+    }
+
     if (evt.ctrlKey) {
       switch (evt.key) {
         case KeyCode.C:
@@ -161,7 +149,7 @@ const App = () => {
 
     switch (evt.key) {
       case KeyCode.Delete:
-        handleDeleteSelectedSymbol(selectedIds);
+        handleDeleteSelectedSymbol();
         setSelectedIds([]);
         break;
       default:
@@ -171,16 +159,15 @@ const App = () => {
   };
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
-    if (isStage(evt)) {
-      return;
-    }
-
-    if (SymbolTool === tool) {
-      isAddingSymbol.current = true;
-      handleAddSymbolStart(evt);
-    } else {
-      isSelecting.current = true;
-      startSelectionRectangle(evt);
+    switch (tool) {
+      case SymbolTool:
+        isAddingSymbol.current = true;
+        handleAddSymbolStart(evt, scale);
+        break;
+      case PointerTool:
+        isSelecting.current = true;
+        startSelectionRectangle(evt);
+        break;
     }
   }
 
@@ -189,21 +176,21 @@ const App = () => {
     if (pos) setPointerPosition(pos);
 
     if (isAddingSymbol.current) {
-      handleAddSymbolResize(evt);
+      handleAddSymbolResize(evt, scale);
     } else if (isSelecting.current) {
       resizeSelectionRectangle(evt);
     }
   }
 
-  function handleStageMouseUp(evt: Konva.KonvaEventObject<MouseEvent>) {
+  function handleStageMouseUp() {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setTool(PointerTool);
-      handleAddSymbolEnd(evt, setSelectedIds);
+      handleAddSymbolEnd();
     } else if (isSelecting.current) {
       isSelecting.current = false;
 
-      hideSelectionRectangle(symbols);
+      hideSelectionRectangle(scale);
     }
   }
 
@@ -480,6 +467,7 @@ const App = () => {
                   y: 0,
                   rotation: 0,
                   name: "symbol",
+                  ...defaultFontData,
                 },
               ]);
               return;
@@ -491,9 +479,6 @@ const App = () => {
       </div>
       <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
         <Toolbar
-          tool={tool}
-          onPointer={() => setTool(PointerTool)}
-          onAddSymbol={() => setTool(SymbolTool)}
           onDownload={handleDownload}
           insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
           openLayoutsModal={() => setIsLayoutsModalOpen(true)}
@@ -521,7 +506,7 @@ const App = () => {
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
-        onClick={(evt) => handleStageClick(evt)}
+        onClick={handleStageClick}
       >
         <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
           <PageBackground
@@ -536,9 +521,9 @@ const App = () => {
               symbol={e}
               onDragEnd={handleDragEnd}
               onTransformEnd={handleTransformEnd}
-              onClick={handleSelect}
-              onMouseOver={() => setCursorIfDefault("move")}
-              onMouseOut={() => setCursorIfDefault("default")}
+              onMouseOver={() => setCursor("move")}
+              onMouseOut={() => setCursor("default")}
+              onClick={handleElementClick}
               ref={(node) => {
                 if (node) {
                   rectRefs.current.set(e.id, node);
@@ -563,8 +548,8 @@ const App = () => {
               y={pointerPosition.y}
               rotation={0}
               opacity={0.2}
-              width={brushData.width * WidthToA4}
-              height={brushData.height * WidthToA4}
+              width={brushData.width * scale.WidthToA4}
+              height={brushData.height * scale.WidthToA4}
               fill={brushData.backgroundColor}
               strokeWidth={brushData.strokeWidth}
               stroke={brushData.stroke}

@@ -20,43 +20,53 @@ import { KeyCode } from "../../consts/key_codes.ts";
 function Input({
   label,
   defaultValue,
+  allowEmpty = false,
   onChange,
   onBlur,
 }: {
   label?: string;
+  allowEmpty?: boolean;
   defaultValue: string | number | undefined;
   onChange?: (val: string) => void;
   onBlur?: (val: string) => void;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
+  const numberRegex = new RegExp(/^-?[0-9]*$/);
 
   useEffect(() => {
+    setValue(convert(defaultValue));
+  }, [defaultValue]);
+
+  function convert(defaultValue: string | undefined | number) {
     if (defaultValue === undefined) {
-      return setValue("");
+      return "";
     }
 
     if (typeof defaultValue === "number") {
-      return setValue(defaultValue.toFixed(0));
+      return defaultValue.toFixed(0);
     }
 
-    setValue(String(defaultValue));
-  }, [defaultValue]);
+    return String(defaultValue);
+  }
 
-  let inputProps = {};
-
-  if (typeof defaultValue === "number") {
-    inputProps = {
-      pattern: "-?[0-9]+",
-    };
+  function assertIsValid(value: string) {
+    return typeof defaultValue === "number" && Number.isNaN(Number(value));
   }
 
   function handleChange(evt: ChangeEvent<HTMLInputElement>) {
+    if (
+      typeof defaultValue === "number" &&
+      !numberRegex.test(evt.target.value)
+    ) {
+      return;
+    }
+
     setValue(evt.target.value);
 
     if (!onChange) return;
 
-    if (Number.isNaN(Number(evt.target.value))) {
+    if (assertIsValid(evt.target.value)) {
       return;
     }
 
@@ -64,9 +74,19 @@ function Input({
   }
 
   function handleBlur(evt: FocusEvent<HTMLInputElement>) {
+    if (!allowEmpty && evt.target.value.trim() === "") {
+      const resetValue = convert(defaultValue);
+
+      onBlur?.(resetValue);
+      onChange?.(resetValue);
+      setValue(resetValue);
+
+      return;
+    }
+
     if (!onBlur) return;
 
-    if (Number.isNaN(Number(evt.target.value))) {
+    if (assertIsValid(evt.target.value)) {
       return;
     }
 
@@ -76,16 +96,16 @@ function Input({
   function handleKeyDown(evt: KeyboardEvent<HTMLInputElement>) {
     if (ref.current === null) return;
 
-    if (evt.key !== KeyCode.Enter) return;
-
-    ref.current.blur();
+    switch (evt.key) {
+      case KeyCode.Enter:
+        return ref.current.blur();
+    }
   }
 
   return (
     <label>
       {label}
       <input
-        {...inputProps}
         ref={ref}
         type="text"
         value={value}
@@ -156,6 +176,13 @@ const Sidebar = ({
   const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
   const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
   const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
+
+  const fontSize = selectedSymbols.length === 1 && firstSymbol.fontSize;
+  const fontWeight = selectedSymbols.length === 1 && firstSymbol.fontStyle;
+  const letterSpacing =
+    selectedSymbols.length === 1 && firstSymbol.letterSpacing;
+  const lineHeight = selectedSymbols.length === 1 && firstSymbol.lineHeight;
+
   const gap = getGap(selectedSymbols);
 
   const { t } = useTranslation();
@@ -188,20 +215,53 @@ const Sidebar = ({
     <div className={styles.sidebar}>
       <ImagePicker onStyleChange={onStyleChange} />
 
-      <Section title={t("Properties")}>
-        <Input defaultValue={name} onChange={(e) => onStyleChange("text", e)} />
+      <Section title={t("Text")}>
+        <Input
+          allowEmpty
+          defaultValue={name}
+          onChange={(e) => onStyleChange("text", e)}
+        />
       </Section>
+
+      {fontWeight !== false &&
+        fontSize !== false &&
+        lineHeight !== false &&
+        letterSpacing !== false && (
+          <Section title={t("Typography")} grid>
+            <Input
+              label={t("Font Style")}
+              defaultValue={fontWeight}
+              onBlur={(e) => onStyleChange("fontStyle", e)}
+            />
+            <Input
+              label={t("Font Size")}
+              defaultValue={fontSize}
+              onBlur={(e) => onStyleChange("fontSize", Number(e))}
+            />
+
+            <Input
+              label={t("Line Height")}
+              defaultValue={lineHeight}
+              onBlur={(e) => onStyleChange("lineHeight", Number(e))}
+            />
+            <Input
+              label={t("Letter Spacing")}
+              defaultValue={letterSpacing}
+              onBlur={(e) => onStyleChange("letterSpacing", Number(e))}
+            />
+          </Section>
+        )}
 
       <Section title={t("Layout")} grid>
         <Input
           label={t("Width")}
           defaultValue={width}
-          onChange={(e) => onStyleChange("width", Number(e))}
+          onBlur={(e) => onStyleChange("width", Number(e))}
         />
         <Input
           label={t("Height")}
           defaultValue={height}
-          onChange={(e) => onStyleChange("height", Number(e))}
+          onBlur={(e) => onStyleChange("height", Number(e))}
         />
 
         {selectedSymbols.length >= 2 && (

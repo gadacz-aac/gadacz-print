@@ -1,5 +1,4 @@
 import {
-  MdAdd,
   MdAutoAwesomeMosaic,
   MdDownload,
   MdFileOpen,
@@ -7,16 +6,14 @@ import {
   MdSave,
 } from "react-icons/md";
 import styles from "./Toolbar.module.css";
-import { PointerTool, SymbolTool, type Tool } from "../consts/tools";
+import { tools } from "../consts/tools";
 import { LanguagePicker } from "./LanguagePicker";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 import { extension } from "../consts/extension";
+import { useAppStore } from "../store/store";
 
 type ToolbarProps = {
-  tool: Tool;
-  onPointer: () => void;
-  onAddSymbol: () => void;
   onDownload: () => void;
   insertPageBreak: () => void;
   openLayoutsModal: () => void;
@@ -25,45 +22,32 @@ type ToolbarProps = {
 };
 
 const Toolbar = ({
-  onPointer,
-  onAddSymbol,
   onDownload,
   insertPageBreak,
   openLayoutsModal,
   onSave,
   onOpen,
-  tool,
 }: ToolbarProps) => {
   const { t } = useTranslation();
+  const currentTool = useAppStore.use.tool();
+  const setTool = useAppStore.use.setTool();
 
   return (
     <div className={styles.toolbar}>
-      <button
-        title={t("Selection")}
-        onClick={onPointer}
-        className={clsx({
-          active: tool === PointerTool,
-        })}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="1rem"
-          viewBox="0 -960 960 960"
-          width="1rem"
-          fill="currentColor"
+      {tools.map((tool, idx) => (
+        <button
+          key={tool.title}
+          title={t(tool.title as never)}
+          onClick={() => setTool(tool)}
+          className={clsx({
+            active: currentTool === tool,
+          })}
         >
-          <path d="m320-410 79-110h170L320-716v306ZM551-80 406-392 240-160v-720l560 440H516l144 309-109 51ZM399-520Z" />
-        </svg>
-      </button>
-      <button
-        title={t("Add Symbol")}
-        onClick={onAddSymbol}
-        className={clsx({
-          active: tool === SymbolTool,
-        })}
-      >
-        <MdAdd />
-      </button>
+          {tool.icon()}
+
+          <span className={styles.shortcut}>{idx + 1}</span>
+        </button>
+      ))}
       <button title={t("Insert layout")} onClick={openLayoutsModal}>
         <MdAutoAwesomeMosaic />
       </button>
