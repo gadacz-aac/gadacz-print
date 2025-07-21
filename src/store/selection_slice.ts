@@ -1,9 +1,8 @@
-import type { StateCreator } from "zustand";
-import type { ElementsSlice } from "./elements_slice";
 import Konva from "konva";
 import { getClientRect, isStage } from "../helpers/konva";
 import type { Scale } from "../hooks/useScale";
 import type { CustomSet } from "../helpers/zustand";
+import type { AppStateCreator } from "./store";
 
 export interface SelectionSlice {
   selectedIds: string[];
@@ -22,12 +21,10 @@ export interface SelectionSlice {
   setSelectedIds: CustomSet<string[]>;
 }
 
-export const createSelectionSlice: StateCreator<
-  ElementsSlice & SelectionSlice,
-  [],
-  [],
-  SelectionSlice
-> = (set, get) => ({
+export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
+  set,
+  get,
+) => ({
   selectedIds: [],
   selectionRectangle: {
     visible: false,
@@ -37,57 +34,72 @@ export const createSelectionSlice: StateCreator<
     y2: 0,
   },
   handleSelect: (evt, id) => {
-    set(({ selectedIds }) => {
-      if (selectedIds.includes(id)) {
-        return { selectedIds: selectedIds.filter((e) => e !== id) };
-      }
+    set(
+      ({ selectedIds }) => {
+        if (selectedIds.includes(id)) {
+          return { selectedIds: selectedIds.filter((e) => e !== id) };
+        }
 
-      if (evt.evt.ctrlKey || evt.evt.shiftKey) {
-        return { selectedIds: [...selectedIds, id] };
-      }
+        if (evt.evt.ctrlKey || evt.evt.shiftKey) {
+          return { selectedIds: [...selectedIds, id] };
+        }
 
-      return {
-        selectedIds: [id],
-      };
-    });
+        return {
+          selectedIds: [id],
+        };
+      },
+      undefined,
+      "selection/handleSelect",
+    );
   },
-
   startSelectionRectangle: (evt) => {
     const pos = evt.target.getStage()?.getPointerPosition();
 
     if (!pos) return;
 
-    set(() => ({
-      selectionRectangle: {
-        visible: true,
-        x1: pos.x,
-        y1: pos.y,
-        x2: pos.x,
-        y2: pos.y,
-      },
-    }));
+    set(
+      () => ({
+        selectionRectangle: {
+          visible: true,
+          x1: pos.x,
+          y1: pos.y,
+          x2: pos.x,
+          y2: pos.y,
+        },
+      }),
+      undefined,
+      "selection/startSelectionRectangle",
+    );
   },
   resizeSelectionRectangle: (evt) => {
     const pos = evt.target.getStage()?.getPointerPosition();
 
     if (!pos) return;
 
-    set(({ selectionRectangle }) => ({
-      selectionRectangle: {
-        ...selectionRectangle,
-        x2: pos.x,
-        y2: pos.y,
-      },
-    }));
+    set(
+      ({ selectionRectangle }) => ({
+        selectionRectangle: {
+          ...selectionRectangle,
+          x2: pos.x,
+          y2: pos.y,
+        },
+      }),
+      undefined,
+      "selection/resizeSelectionRectangle",
+    );
   },
   hideSelectionRectangle: ({ WidthToA4 }) => {
     setTimeout(() => {
-      set(({ selectionRectangle }) => ({
-        selectionRectangle: {
-          ...selectionRectangle,
-          visible: false,
-        },
-      }));
+      set(
+        ({ selectionRectangle }) => ({
+          selectionRectangle: {
+            ...selectionRectangle,
+            visible: false,
+          },
+        }),
+        undefined,
+        "selection/hideSelectionRectangle",
+      );
     });
 
     const selectionRectangle = get().selectionRectangle;
@@ -112,9 +124,13 @@ export const createSelectionSlice: StateCreator<
       );
     });
 
-    set(() => ({
-      selectedIds: selected.map((rect) => rect.id),
-    }));
+    set(
+      () => ({
+        selectedIds: selected.map((rect) => rect.id),
+      }),
+      undefined,
+      "selection/hideSelectionRectangle",
+    );
   },
   handleStageClick: (evt) => {
     if (get().selectionRectangle.visible) {
@@ -122,9 +138,13 @@ export const createSelectionSlice: StateCreator<
     }
 
     if (isStage(evt)) {
-      set(() => ({
-        selectedIds: [],
-      }));
+      set(
+        () => ({
+          selectedIds: [],
+        }),
+        undefined,
+        "selection/handleStageClick",
+      );
       return;
     }
 
@@ -137,34 +157,42 @@ export const createSelectionSlice: StateCreator<
     const metaPressed = evt.evt.shiftKey || evt.evt.ctrlKey || evt.evt.metaKey;
     const isSelected = get().selectedIds.includes(clickedId);
 
-    set(({ selectedIds }) => {
-      if (!metaPressed && !isSelected) {
-        return {
-          selectedIds: [clickedId],
-        };
-      }
+    set(
+      ({ selectedIds }) => {
+        if (!metaPressed && !isSelected) {
+          return {
+            selectedIds: [clickedId],
+          };
+        }
 
-      if (metaPressed && isSelected) {
-        return {
-          selectedIds: selectedIds.filter((id) => id !== clickedId),
-        };
-      }
+        if (metaPressed && isSelected) {
+          return {
+            selectedIds: selectedIds.filter((id) => id !== clickedId),
+          };
+        }
 
-      if (metaPressed && !isSelected) {
-        return {
-          selectedIds: [...selectedIds, clickedId],
-        };
-      }
+        if (metaPressed && !isSelected) {
+          return {
+            selectedIds: [...selectedIds, clickedId],
+          };
+        }
 
-      return {};
-    });
+        return {};
+      },
+      undefined,
+      "selection/handleStageClick",
+    );
   },
   setSelectedIds: (customSetter) => {
-    set(({ selectedIds }) => ({
-      selectedIds:
-        typeof customSetter === "function"
-          ? customSetter(selectedIds)
-          : customSetter,
-    }));
+    set(
+      ({ selectedIds }) => ({
+        selectedIds:
+          typeof customSetter === "function"
+            ? customSetter(selectedIds)
+            : customSetter,
+      }),
+      undefined,
+      "selection/setSelectedIds",
+    );
   },
 });

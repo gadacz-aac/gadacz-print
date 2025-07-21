@@ -19,6 +19,7 @@ function PageBackground({
       {[...Array(numberOfPages)].map((_, idx) => (
         <Group name={PageBackgroundGroupName} key={idx}>
           <Rect
+            name={PageBackgroundGroupName}
             fill="white"
             y={pageHeight * idx}
             width={pageWidth}

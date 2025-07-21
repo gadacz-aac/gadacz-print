@@ -64,6 +64,8 @@ const App = () => {
   const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
   const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
   const handleStageClick = useAppStore.use.handleStageClick();
+  const tool = useAppStore.use.tool();
+  const setTool = useAppStore.use.setTool();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -76,7 +78,6 @@ const App = () => {
   const [numberOfPages, setNumberOfPages] = useState(1);
   const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
-  const [tool, setTool] = useState<Tool>(PointerTool);
   const isAddingSymbol = useRef(false);
   const isSelecting = useRef(false);
 
@@ -134,6 +135,10 @@ const App = () => {
   }
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (evt) => {
+    if (isFinite(Number(evt.key))) {
+      setTool(Number(evt.key));
+    }
+
     if (evt.ctrlKey) {
       switch (evt.key) {
         case KeyCode.C:
@@ -153,12 +158,6 @@ const App = () => {
     }
 
     switch (evt.key) {
-      case KeyCode.Num1:
-        setTool(PointerTool);
-        break;
-      case KeyCode.Num2:
-        setTool(SymbolTool);
-        break;
       case KeyCode.Delete:
         handleDeleteSelectedSymbol();
         setSelectedIds([]);
@@ -170,16 +169,19 @@ const App = () => {
   };
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
-    if (isStage(evt)) {
+    if (!isStage(evt)) {
       return;
     }
 
-    if (SymbolTool === tool) {
-      isAddingSymbol.current = true;
-      handleAddSymbolStart(evt);
-    } else {
-      isSelecting.current = true;
-      startSelectionRectangle(evt);
+    switch (tool) {
+      case SymbolTool:
+        isAddingSymbol.current = true;
+        handleAddSymbolStart(evt);
+        break;
+      case PointerTool:
+        isSelecting.current = true;
+        startSelectionRectangle(evt);
+        break;
     }
   }
 
@@ -491,9 +493,6 @@ const App = () => {
       </div>
       <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
         <Toolbar
-          tool={tool}
-          onPointer={() => setTool(PointerTool)}
-          onAddSymbol={() => setTool(SymbolTool)}
           onDownload={handleDownload}
           insertPageBreak={() => setNumberOfPages((prev) => prev + 1)}
           openLayoutsModal={() => setIsLayoutsModalOpen(true)}

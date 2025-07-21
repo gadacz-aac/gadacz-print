@@ -1,4 +1,3 @@
-import type { StateCreator } from "zustand";
 import {
   defaultBrush,
   defaultFontData,
@@ -9,8 +8,8 @@ import type Konva from "konva";
 import type { Scale } from "../hooks/useScale";
 import { last } from "../helpers/lists";
 import { defaultHeight, defaultWidth } from "../consts/symbol";
-import type { SelectionSlice } from "./selection_slice";
 import { type CustomSet } from "../helpers/zustand";
+import type { AppStateCreator } from "./store";
 
 export interface ElementsSlice {
   elements: CommunicationSymbol[];
@@ -58,12 +57,10 @@ export interface ElementsSlice {
   setElements: CustomSet<CommunicationSymbol[]>;
 }
 
-export const createElementsSlice: StateCreator<
-  ElementsSlice & SelectionSlice,
-  [],
-  [],
-  ElementsSlice
-> = (set, get) => ({
+export const createElementsSlice: AppStateCreator<ElementsSlice> = (
+  set,
+  get,
+) => ({
   elements: [],
   lastId: 0,
   brushData: defaultBrush,
@@ -177,10 +174,14 @@ export const createElementsSlice: StateCreator<
       }),
     })),
   handleDeleteSelectedSymbol: () => {
-    set(({ elements, selectedIds }) => ({
-      elements: elements.filter((e) => !selectedIds.includes(e.id)),
-      selectedIds: [],
-    }));
+    set(
+      ({ elements, selectedIds }) => ({
+        elements: elements.filter((e) => !selectedIds.includes(e.id)),
+        selectedIds: [],
+      }),
+      undefined,
+      "elements/handleDeleteSelectedSymbol",
+    );
   },
   setBrushData: (property, value) => {
     set(({ brushData }) => ({
