@@ -19,6 +19,9 @@ i18n
     backend: {
       loadPath: "/locales/{{lng}}/{{ns}}.json",
     },
+    detection: {
+      convertDetectedLanguage: (lng: string) => lng.split("-")[0],
+    },
   });
 
 export default i18n;
