@@ -1,7 +1,13 @@
 import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
 import SymbolCard from "./components/SymbolCard";
 import Konva from "konva";
-import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
 import { KeyCode } from "./consts/key_codes";
@@ -124,7 +130,13 @@ const App = () => {
     );
   }
 
-  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (evt) => {
+  const handleKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
+    if (
+      "nodeName" in evt.target &&
+      typeof evt.target.nodeName === "string" &&
+      evt.target.nodeName.toUpperCase() === "INPUT"
+    )
+      return;
     if (isFinite(Number(evt.key))) {
       setTool(Number(evt.key));
     }

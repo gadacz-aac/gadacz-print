@@ -82,6 +82,7 @@ const SymbolCard = ({
         width={width}
         align="center"
         fontStyle={symbol.fontStyle}
+        fontFamily={symbol.fontFamily}
         fontSize={symbol.fontSize * scale.WidthToA4}
         text={symbol.text}
         lineHeight={symbol.lineHeight}

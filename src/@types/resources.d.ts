@@ -21,13 +21,20 @@ interface Resources {
     "Close": "Close",
     "symbol": "symbol",
     "Typography": "Typography",
-    "Font Style": "Font Style",
     "Font Size": "Font Size",
     "Line Height": "Line Height",
     "Letter Spacing": "Letter Spacing",
     "Layout": "Layout",
     "Width": "Width",
     "Height": "Height",
+    "Normal": "Normal",
+    "Font Style": {
+      "Font Style": "Font Style",
+      "Normal": "Normal",
+      "Bold": "Bold",
+      "Italic": "Italic",
+      "Bold italic": "Bold italic"
+    },
     "Gap": {
       "horizontal": "Odstępy (poziome)",
       "vertical": "Odstępy (pionowe)"

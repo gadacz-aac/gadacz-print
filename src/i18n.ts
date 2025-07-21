@@ -10,7 +10,7 @@ i18n
   .use(LanguageDetector)
   .use(HttpApi)
   .init({
-    debug: true,
+    // debug: true,
     fallbackLng: "en",
     interpolation: {
       escapeValue: false,
@@ -18,6 +18,9 @@ i18n
     defaultNS,
     backend: {
       loadPath: "/locales/{{lng}}/{{ns}}.json",
+    },
+    detection: {
+      convertDetectedLanguage: (lng: string) => lng.split("-")[0],
     },
   });
 

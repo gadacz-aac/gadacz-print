@@ -12,7 +12,8 @@ export type FontData = {
   fontStyle: string;
   fontSize: number;
   lineHeight: number;
-  letterSpacing: number;
+  letterSpacing?: number;
+  fontFamily: string;
 };
 
 export type BrushData = {
@@ -44,8 +45,8 @@ export const defaultBrush: BrushData = {
 };
 
 export const defaultFontData: FontData = {
+  fontFamily: "Arial",
   fontStyle: "400",
   fontSize: 20,
-  letterSpacing: 1,
   lineHeight: 1,
 };
