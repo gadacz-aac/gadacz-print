@@ -20,13 +20,20 @@
   "Close": "Zamknij",
   "symbol": "symbol",
   "Typography": "Czcionka",
-  "Font Style": "Styl",
   "Font Size": "Rozmiar",
   "Line Height": "Interlinia",
   "Letter Spacing": "Tracking",
   "Layout": "Układ",
   "Width": "Szerokość",
   "Height": "Wysokość",
+  "Normal": "Normalne",
+  "Font Style": {
+    "Font Style": "Styl",
+    "Normal": "Normalna",
+    "Bold": "Pogrubiona",
+    "Italic": "Kursywa",
+    "Bold italic": "Pogrubiona Kursywa"
+  },
   "Gap": {
     "horizontal" : "Gap (horizontal)",
     "vertical": "Gap (vertical)"

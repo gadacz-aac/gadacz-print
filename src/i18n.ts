@@ -10,7 +10,7 @@ i18n
   .use(LanguageDetector)
   .use(HttpApi)
   .init({
-    debug: true,
+    // debug: true,
     fallbackLng: "en",
     interpolation: {
       escapeValue: false,

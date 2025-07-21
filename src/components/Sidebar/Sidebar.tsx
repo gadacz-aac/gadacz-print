@@ -16,17 +16,21 @@ import {
   type KeyboardEvent,
 } from "react";
 import { KeyCode } from "../../consts/key_codes.ts";
+import Select from "./Select.tsx";
+import FontPicker from "./FontPicker.tsx";
 
 function Input({
   label,
   defaultValue,
   allowEmpty = false,
+  placeholder,
   onChange,
   onBlur,
 }: {
   label?: string;
   allowEmpty?: boolean;
   defaultValue: string | number | undefined;
+  placeholder?: string;
   onChange?: (val: string) => void;
   onBlur?: (val: string) => void;
 }) {
@@ -109,6 +113,7 @@ function Input({
         ref={ref}
         type="text"
         value={value}
+        placeholder={placeholder}
         onChange={handleChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
@@ -177,6 +182,7 @@ const Sidebar = ({
   const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
   const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
 
+  const fontFamily = selectedSymbols.length === 1 && firstSymbol.fontFamily;
   const fontSize = selectedSymbols.length === 1 && firstSymbol.fontSize;
   const fontWeight = selectedSymbols.length === 1 && firstSymbol.fontStyle;
   const letterSpacing =
@@ -186,6 +192,13 @@ const Sidebar = ({
   const gap = getGap(selectedSymbols);
 
   const { t } = useTranslation();
+
+  const fontStyles = {
+    normal: t("Font Style.Normal"),
+    bold: t("Font Style.Bold"),
+    italic: t("Font Style.Italic"),
+    "bold italic": t("Font Style.Bold italic"),
+  };
 
   function isActive<T extends keyof BrushData>(
     property: T,
@@ -228,10 +241,17 @@ const Sidebar = ({
         lineHeight !== false &&
         letterSpacing !== false && (
           <Section title={t("Typography")} grid>
-            <Input
-              label={t("Font Style")}
-              defaultValue={fontWeight}
-              onBlur={(e) => onStyleChange("fontStyle", e)}
+            <div style={{ gridColumn: "1/3" }}>
+              <FontPicker
+                onStyleChange={onStyleChange}
+                currentFont={fontFamily || undefined}
+              />
+            </div>
+            <Select
+              label={t("Font Style.Font Style")}
+              options={fontStyles}
+              value={fontWeight ?? undefined}
+              onChange={(e) => onStyleChange("fontStyle", e)}
             />
             <Input
               label={t("Font Size")}
@@ -247,7 +267,10 @@ const Sidebar = ({
             <Input
               label={t("Letter Spacing")}
               defaultValue={letterSpacing}
-              onBlur={(e) => onStyleChange("letterSpacing", Number(e))}
+              placeholder={t("Normal")}
+              onBlur={(e) =>
+                onStyleChange("letterSpacing", e === "" ? undefined : Number(e))
+              }
             />
           </Section>
         )}
