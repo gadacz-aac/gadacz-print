@@ -167,7 +167,7 @@ const App = () => {
     switch (tool) {
       case SymbolTool:
         isAddingSymbol.current = true;
-        handleAddSymbolStart(evt);
+        handleAddSymbolStart(evt, scale);
         break;
       case PointerTool:
         isSelecting.current = true;
@@ -191,7 +191,7 @@ const App = () => {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setTool(PointerTool);
-      handleAddSymbolEnd(evt, scale);
+      handleAddSymbolEnd(evt);
     } else if (isSelecting.current) {
       isSelecting.current = false;
 

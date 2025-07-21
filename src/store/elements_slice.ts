@@ -20,15 +20,15 @@ export interface ElementsSlice {
     symbols: Omit<CommunicationSymbol, "id">[],
     callback?: (newSymbols: CommunicationSymbol[]) => void,
   ) => void;
-  handleAddSymbolStart: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+  handleAddSymbolStart: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    scale: Scale,
+  ) => void;
   handleAddSymbolResize: (
     evt: Konva.KonvaEventObject<MouseEvent>,
     scale: Scale,
   ) => void;
-  handleAddSymbolEnd: (
-    evt: Konva.KonvaEventObject<MouseEvent>,
-    scale: Scale,
-  ) => void;
+  handleAddSymbolEnd: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   handleDragEnd: (
     evt: Konva.KonvaEventObject<DragEvent>,
     id: string,
@@ -90,7 +90,10 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         elements: [...elements, ...newElements],
       };
     }),
-  handleAddSymbolStart: (evt: Konva.KonvaEventObject<MouseEvent>) => {
+  handleAddSymbolStart: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    { A4ToWidth },
+  ) => {
     const pos = evt.target.getStage()?.getPointerPosition();
 
     if (!pos) {
@@ -104,8 +107,8 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         ...defaultFontData,
         width: 0,
         height: 0,
-        x: pos.x,
-        y: pos.y,
+        x: pos.x * A4ToWidth,
+        y: pos.y * A4ToWidth,
         rotation: 0,
         name: "symbol",
       },
@@ -127,7 +130,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       }),
     }));
   },
-  handleAddSymbolEnd: (evt, { A4ToWidth }) => {
+  handleAddSymbolEnd: (evt) => {
     set(({ elements }) => {
       if (
         Math.abs(last(elements).width) < 5 &&
@@ -145,8 +148,6 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
 
           return {
             ...e,
-            x: pos.x * A4ToWidth,
-            y: pos.y * A4ToWidth,
             width: defaultWidth,
             height: defaultHeight,
           };
