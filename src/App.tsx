@@ -7,7 +7,6 @@ import Toolbar from "./components/Toolbar";
 import { KeyCode } from "./consts/key_codes";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
-import { isStage } from "./helpers/konva";
 import PageBackground, { PageBreakName } from "./components/PageBackground";
 import styles from "./App.module.css";
 
@@ -59,9 +58,9 @@ const App = () => {
   const selectedIds = useAppStore.use.selectedIds();
   const setSelectedIds = useAppStore.use.setSelectedIds();
   const selectionRectangle = useAppStore.use.selectionRectangle();
-  const handleSelect = useAppStore.use.handleSelect();
   const startSelectionRectangle = useAppStore.use.startSelectionRectangle();
   const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
+  const handleElementClick = useAppStore.use.handleElementClick();
   const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
   const handleStageClick = useAppStore.use.handleStageClick();
   const tool = useAppStore.use.tool();
@@ -160,10 +159,6 @@ const App = () => {
   };
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
-    if (!isStage(evt)) {
-      return;
-    }
-
     switch (tool) {
       case SymbolTool:
         isAddingSymbol.current = true;
@@ -187,11 +182,11 @@ const App = () => {
     }
   }
 
-  function handleStageMouseUp(evt: Konva.KonvaEventObject<MouseEvent>) {
+  function handleStageMouseUp() {
     if (isAddingSymbol.current) {
       isAddingSymbol.current = false;
       setTool(PointerTool);
-      handleAddSymbolEnd(evt);
+      handleAddSymbolEnd();
     } else if (isSelecting.current) {
       isSelecting.current = false;
 
@@ -511,7 +506,7 @@ const App = () => {
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
-        onClick={(evt) => handleStageClick(evt)}
+        onClick={handleStageClick}
       >
         <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
           <PageBackground
@@ -524,11 +519,11 @@ const App = () => {
             <SymbolCard
               key={e.id}
               symbol={e}
-              onDragEnd={(evt, id) => handleDragEnd(evt, id, scale)}
-              onTransformEnd={(evt) => handleTransformEnd(evt, scale)}
-              onClick={handleSelect}
+              onDragEnd={handleDragEnd}
+              onTransformEnd={handleTransformEnd}
               onMouseOver={() => setCursor("move")}
               onMouseOut={() => setCursor("default")}
+              onClick={handleElementClick}
               ref={(node) => {
                 if (node) {
                   rectRefs.current.set(e.id, node);

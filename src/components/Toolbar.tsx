@@ -6,7 +6,7 @@ import {
   MdSave,
 } from "react-icons/md";
 import styles from "./Toolbar.module.css";
-import { PointerTool, tools } from "../consts/tools";
+import { tools } from "../consts/tools";
 import { LanguagePicker } from "./LanguagePicker";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";

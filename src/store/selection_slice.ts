@@ -13,11 +13,14 @@ export interface SelectionSlice {
     x2: number;
     y2: number;
   };
-  handleSelect: (evt: Konva.KonvaEventObject<MouseEvent>, id: string) => void;
   startSelectionRectangle: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   resizeSelectionRectangle: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   hideSelectionRectangle: (scale: Scale) => void;
   handleStageClick: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+  handleElementClick: (
+    evt: Konva.KonvaEventObject<MouseEvent>,
+    id: string,
+  ) => void;
   setSelectedIds: CustomSet<string[]>;
 }
 
@@ -33,25 +36,6 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
     x2: 0,
     y2: 0,
   },
-  handleSelect: (evt, id) => {
-    set(
-      ({ selectedIds }) => {
-        if (selectedIds.includes(id)) {
-          return { selectedIds: selectedIds.filter((e) => e !== id) };
-        }
-
-        if (evt.evt.ctrlKey || evt.evt.shiftKey) {
-          return { selectedIds: [...selectedIds, id] };
-        }
-
-        return {
-          selectedIds: [id],
-        };
-      },
-      undefined,
-      "selection/handleSelect",
-    );
-  },
   startSelectionRectangle: (evt) => {
     const pos = evt.target.getStage()?.getPointerPosition();
 
@@ -60,7 +44,7 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
     set(
       () => ({
         selectionRectangle: {
-          visible: true,
+          visible: false,
           x1: pos.x,
           y1: pos.y,
           x2: pos.x,
@@ -80,6 +64,7 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
       ({ selectionRectangle }) => ({
         selectionRectangle: {
           ...selectionRectangle,
+          visible: true,
           x2: pos.x,
           y2: pos.y,
         },
@@ -89,6 +74,7 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
     );
   },
   hideSelectionRectangle: ({ WidthToA4 }) => {
+    if (!get().selectionRectangle.visible) return;
     setTimeout(() => {
       set(
         ({ selectionRectangle }) => ({
@@ -147,13 +133,8 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
       );
       return;
     }
-
-    if (!evt.target.hasName("symbol")) {
-      return;
-    }
-
-    const clickedId = evt.target.id();
-
+  },
+  handleElementClick: (evt, clickedId) => {
     const metaPressed = evt.evt.shiftKey || evt.evt.ctrlKey || evt.evt.metaKey;
     const isSelected = get().selectedIds.includes(clickedId);
 
