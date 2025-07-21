@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import Section from "./Section.tsx";
 import { getGap } from "../../helpers/konva.ts";
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -23,12 +24,14 @@ function Input({
   label,
   defaultValue,
   allowEmpty = false,
+  allowFloats = false,
   placeholder,
   onChange,
   onBlur,
 }: {
   label?: string;
   allowEmpty?: boolean;
+  allowFloats?: boolean;
   defaultValue: string | number | undefined;
   placeholder?: string;
   onChange?: (val: string) => void;
@@ -37,32 +40,39 @@ function Input({
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const numberRegex = new RegExp(/^-?[0-9]*$/);
+  const floatRegex = new RegExp(/^-?[0-9]*(\.)?([0-9]{1,2})?$/);
+
+  const convert = useCallback(
+    (defaultValue: string | undefined | number) => {
+      if (defaultValue === undefined) {
+        return "";
+      }
+
+      if (typeof defaultValue === "number") {
+        return defaultValue.toFixed(allowFloats ? 2 : 0);
+      }
+
+      return String(defaultValue);
+    },
+    [allowFloats],
+  );
 
   useEffect(() => {
     setValue(convert(defaultValue));
-  }, [defaultValue]);
-
-  function convert(defaultValue: string | undefined | number) {
-    if (defaultValue === undefined) {
-      return "";
-    }
-
-    if (typeof defaultValue === "number") {
-      return defaultValue.toFixed(0);
-    }
-
-    return String(defaultValue);
-  }
+  }, [defaultValue, convert]);
 
   function assertIsValid(value: string) {
     return typeof defaultValue === "number" && Number.isNaN(Number(value));
   }
 
+  function validateChangeForNumberInput(evt: ChangeEvent<HTMLInputElement>) {
+    const regex = allowFloats ? floatRegex : numberRegex;
+
+    return typeof defaultValue === "number" && !regex.test(evt.target.value);
+  }
+
   function handleChange(evt: ChangeEvent<HTMLInputElement>) {
-    if (
-      typeof defaultValue === "number" &&
-      !numberRegex.test(evt.target.value)
-    ) {
+    if (validateChangeForNumberInput(evt)) {
       return;
     }
 
@@ -140,7 +150,7 @@ const ColorSquare = ({
       style={{
         backgroundColor: color,
       }}
-      onClick={() => onClick()}
+      onClick={onClick}
     />
   );
 };
@@ -261,8 +271,12 @@ const Sidebar = ({
 
             <Input
               label={t("Line Height")}
+              allowFloats
               defaultValue={lineHeight}
-              onBlur={(e) => onStyleChange("lineHeight", Number(e))}
+              onBlur={(e) => {
+                console.log(e);
+                onStyleChange("lineHeight", Number(e));
+              }}
             />
             <Input
               label={t("Letter Spacing")}
