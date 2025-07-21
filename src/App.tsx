@@ -4,7 +4,6 @@ import Konva from "konva";
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
-import type * as CSS from "csstype";
 import { KeyCode } from "./consts/key_codes";
 import jsPDF from "jspdf";
 import { A4 } from "./consts/page_format";
@@ -15,13 +14,14 @@ import styles from "./App.module.css";
 import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
 import usePageSize from "./hooks/usePageSize";
 import { defaultHeight, defaultWidth } from "./consts/symbol";
-import { PointerTool, SymbolTool, type Tool } from "./consts/tools";
+import { PointerTool, SymbolTool } from "./consts/tools";
 import { extension } from "./consts/extension";
 import { defaultFontData, type CommunicationSymbol } from "./types";
 import { randomFromRange } from "./helpers/random";
 import { useTranslation } from "react-i18next";
 import useScale from "./hooks/useScale";
 import { useAppStore } from "./store/store";
+import useCursor from "./hooks/useCursor";
 
 type Snap = "center" | "end" | "start";
 
@@ -74,7 +74,6 @@ const App = () => {
   const transformerRef = useRef<Konva.Transformer>(null);
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
 
-  const [cursor, setCursor] = useState<CSS.Property.Cursor>("default");
   const [numberOfPages, setNumberOfPages] = useState(1);
   const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
@@ -89,19 +88,11 @@ const App = () => {
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
   const [copiedSymbols, setCopiedSymbols] = useState<CommunicationSymbol[]>([]);
 
-  useEffect(() => {
-    setCursor(tool.cursor);
-  }, [tool]);
+  const [cursor, setCursor] = useCursor();
 
   useEffect(() => {
     containerRef?.current?.focus();
   }, []);
-
-  function setCursorIfDefault(cursor: CSS.Property.Cursor) {
-    if (tool === PointerTool) {
-      setCursor(cursor);
-    }
-  }
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -536,8 +527,8 @@ const App = () => {
               onDragEnd={(evt, id) => handleDragEnd(evt, id, scale)}
               onTransformEnd={(evt) => handleTransformEnd(evt, scale)}
               onClick={handleSelect}
-              onMouseOver={() => setCursorIfDefault("move")}
-              onMouseOut={() => setCursorIfDefault("default")}
+              onMouseOver={() => setCursor("move")}
+              onMouseOut={() => setCursor("default")}
               ref={(node) => {
                 if (node) {
                   rectRefs.current.set(e.id, node);
