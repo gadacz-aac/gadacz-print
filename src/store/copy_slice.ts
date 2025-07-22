@@ -26,7 +26,7 @@ export const createCopySlice: AppStateCreator<CopySlice> = (set, get) => ({
     }));
   },
   paste: () => {
-    get().addSymbols(get().copied, (e) =>
+    get().addElements(get().copied, (e) =>
       set(() => ({
         selectedIds: e.map((e) => e.id),
       })),
