@@ -8,7 +8,7 @@ export default function Select({
 }: {
   label?: string;
   options: { [key: string]: string } | string[];
-  value: string;
+  value: string | undefined;
   onChange: (value: string) => void;
 }) {
   if (Array.isArray(options)) {

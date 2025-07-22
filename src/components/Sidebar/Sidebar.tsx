@@ -1,4 +1,4 @@
-import type { BrushData, CommunicationSymbol } from "../../types";
+import { type BrushData, type CanvasShape, type FontData } from "../../types";
 import ImagePicker from "./ImagePicker";
 import { AacColors } from "../../consts/colors.ts";
 import styles from "./Sidebar.module.css";
@@ -19,6 +19,9 @@ import {
 import { KeyCode } from "../../consts/key_codes.ts";
 import Select from "./Select.tsx";
 import FontPicker from "./FontPicker.tsx";
+import { useAppStore } from "../../store/store.ts";
+import useSelectedSymbols from "../../hooks/useSelectedSymbols.ts";
+import useStyle from "../../hooks/useStyle.ts";
 
 function Input({
   label,
@@ -169,35 +172,37 @@ const aacColors = [
 
 const strokeWidths = [1, 2, 3];
 
-export type onStyleChangeFn = <T extends keyof CommunicationSymbol>(
-  property: T,
-  value: CommunicationSymbol[T],
-) => void;
+const Sidebar = () => {
+  const selectedSymbols = useSelectedSymbols();
+  const brushData = useAppStore.use.brushData();
+  const fontData = useAppStore.use.fontData();
+  const handleGapChange = useAppStore.use.handleGapChange();
+  const styleSelected = useAppStore.use.styleSelected();
+  const setBrushData = useAppStore.use.setBrushData();
+  const setFontData = useAppStore.use.setFontData();
 
-type SidebarProps = {
-  brushData: BrushData;
-  selectedSymbols: CommunicationSymbol[];
-  onStyleChange: onStyleChangeFn;
-  onGapChange: (gap: { x?: number; y?: number }) => void;
-};
-
-const Sidebar = ({
-  onStyleChange,
-  selectedSymbols,
-  brushData,
-  onGapChange,
-}: SidebarProps) => {
   const firstSymbol = first(selectedSymbols);
   const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
-  const width = selectedSymbols.length === 1 ? firstSymbol.width : 100;
-  const height = selectedSymbols.length === 1 ? firstSymbol.height : 100;
+  const width = useStyle(selectedSymbols, "width", brushData.width);
+  const height = useStyle(selectedSymbols, "height", brushData.height);
 
-  const fontFamily = selectedSymbols.length === 1 && firstSymbol.fontFamily;
-  const fontSize = selectedSymbols.length === 1 && firstSymbol.fontSize;
-  const fontWeight = selectedSymbols.length === 1 && firstSymbol.fontStyle;
-  const letterSpacing =
-    selectedSymbols.length === 1 && firstSymbol.letterSpacing;
-  const lineHeight = selectedSymbols.length === 1 && firstSymbol.lineHeight;
+  const fontFamily = useStyle(
+    selectedSymbols,
+    "fontFamily",
+    fontData.fontFamily,
+  );
+  const fontSize = useStyle(selectedSymbols, "fontSize", fontData.fontSize);
+  const fontWeight = useStyle(selectedSymbols, "fontStyle", fontData.fontStyle);
+  const letterSpacing = useStyle(
+    selectedSymbols,
+    "letterSpacing",
+    fontData.letterSpacing,
+  );
+  const lineHeight = useStyle(
+    selectedSymbols,
+    "lineHeight",
+    fontData.lineHeight,
+  );
 
   const gap = getGap(selectedSymbols);
 
@@ -210,33 +215,47 @@ const Sidebar = ({
     "bold italic": t("Font Style.Bold italic"),
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onStyleChange = (property: string, value: any) => {
+    if (useAppStore.getState().selectedIds.length > 0) {
+      return styleSelected(property as keyof CanvasShape, value);
+    }
+
+    setFontData(property as keyof FontData, value);
+    setBrushData(property as keyof BrushData, value);
+  };
+
   function isActive<T extends keyof BrushData>(
     property: T,
     value: BrushData[T],
   ) {
     if (selectedSymbols.length === 0) return value === brushData[property];
-    if (selectedSymbols.length === 1 && firstSymbol[property] === value)
+    if (
+      selectedSymbols.length === 1 &&
+      (firstSymbol as BrushData)[property] === value
+    )
       return true;
 
-    return selectedSymbols.every((e) => e[property] === value);
+    return selectedSymbols.every((e) => (e as BrushData)[property] === value);
   }
 
-  const renderColorGrid = (property: "stroke" | "backgroundColor") => (
-    <div className={styles.colorGrid}>
-      {aacColors.map((c) => (
-        <ColorSquare
-          key={c}
-          color={c}
-          isSelected={isActive(property, c)}
-          onClick={() => onStyleChange(property, c)}
-        />
-      ))}
-    </div>
-  );
+  const renderColorGrid = (property: "stroke" | "backgroundColor") =>
+    selectedSymbols.every((e) => e.name === "symbol") && (
+      <div className={styles.colorGrid}>
+        {aacColors.map((c) => (
+          <ColorSquare
+            key={c}
+            color={c}
+            isSelected={isActive(property, c)}
+            onClick={() => onStyleChange(property, c)}
+          />
+        ))}
+      </div>
+    );
 
   return (
     <div className={styles.sidebar}>
-      <ImagePicker onStyleChange={onStyleChange} />
+      <ImagePicker />
 
       <Section title={t("Text")}>
         <Input
@@ -246,48 +265,39 @@ const Sidebar = ({
         />
       </Section>
 
-      {fontWeight !== false &&
-        fontSize !== false &&
-        lineHeight !== false &&
-        letterSpacing !== false && (
-          <Section title={t("Typography")} grid>
-            <div style={{ gridColumn: "1/3" }}>
-              <FontPicker
-                onStyleChange={onStyleChange}
-                currentFont={fontFamily || undefined}
-              />
-            </div>
-            <Select
-              label={t("Font Style.Font Style")}
-              options={fontStyles}
-              value={fontWeight ?? undefined}
-              onChange={(e) => onStyleChange("fontStyle", e)}
-            />
-            <Input
-              label={t("Font Size")}
-              defaultValue={fontSize}
-              onBlur={(e) => onStyleChange("fontSize", Number(e))}
-            />
+      <Section title={t("Typography")} grid>
+        <div style={{ gridColumn: "1/3" }}>
+          <FontPicker onStyleChange={onStyleChange} currentFont={fontFamily} />
+        </div>
+        <Select
+          label={t("Font Style.Font Style")}
+          options={fontStyles}
+          value={fontWeight}
+          onChange={(e) => onStyleChange("fontStyle", e)}
+        />
+        <Input
+          label={t("Font Size")}
+          defaultValue={fontSize}
+          onBlur={(e) => onStyleChange("fontSize", Number(e))}
+        />
 
-            <Input
-              label={t("Line Height")}
-              allowFloats
-              defaultValue={lineHeight}
-              onBlur={(e) => {
-                console.log(e);
-                onStyleChange("lineHeight", Number(e));
-              }}
-            />
-            <Input
-              label={t("Letter Spacing")}
-              defaultValue={letterSpacing}
-              placeholder={t("Normal")}
-              onBlur={(e) =>
-                onStyleChange("letterSpacing", e === "" ? undefined : Number(e))
-              }
-            />
-          </Section>
-        )}
+        <Input
+          label={t("Line Height")}
+          allowFloats
+          defaultValue={lineHeight}
+          onBlur={(e) => {
+            onStyleChange("lineHeight", Number(e));
+          }}
+        />
+        <Input
+          label={t("Letter Spacing")}
+          defaultValue={letterSpacing}
+          placeholder={t("Normal")}
+          onBlur={(e) =>
+            onStyleChange("letterSpacing", e === "" ? undefined : Number(e))
+          }
+        />
+      </Section>
 
       <Section title={t("Layout")} grid>
         <Input
@@ -305,7 +315,7 @@ const Sidebar = ({
           <Input
             label={t("Gap.horizontal")}
             defaultValue={gap?.x}
-            onBlur={(e) => onGapChange({ x: Number(e) })}
+            onBlur={(e) => handleGapChange({ x: Number(e) })}
           />
         )}
 
@@ -313,7 +323,7 @@ const Sidebar = ({
           <Input
             label={t("Gap.vertical")}
             defaultValue={gap?.y}
-            onBlur={(e) => onGapChange({ y: Number(e) })}
+            onBlur={(e) => handleGapChange({ y: Number(e) })}
           />
         )}
       </Section>

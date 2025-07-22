@@ -1,12 +1,17 @@
 import { AacColors } from "./consts/colors";
-import { defaultHeight, defaultWidth } from "./consts/symbol";
 
 export type Positionable = {
   x: number;
   y: number;
   width: number;
   height: number;
+  rotation: number;
 };
+
+export type CanvasElement = {
+  id: string;
+  name: string;
+} & Positionable;
 
 export type FontData = {
   fontStyle: string;
@@ -27,12 +32,16 @@ export type BrushData = {
 };
 
 export type CommunicationSymbol = {
-  id: string;
   name: "symbol";
   text?: string;
-  rotation: number;
 } & BrushData &
-  Positionable &
+  CanvasElement &
+  FontData;
+
+export type Text = {
+  name: "text";
+  text?: string;
+} & CanvasElement &
   FontData;
 
 export const defaultBrush: BrushData = {
@@ -40,8 +49,8 @@ export const defaultBrush: BrushData = {
   backgroundColor: AacColors.negationRed,
   stroke: AacColors.adjectiveBlue,
   strokeWidth: 1,
-  width: defaultWidth,
-  height: defaultHeight,
+  width: 100,
+  height: 100,
 };
 
 export const defaultFontData: FontData = {
@@ -50,3 +59,5 @@ export const defaultFontData: FontData = {
   fontSize: 20,
   lineHeight: 1,
 };
+
+export type CanvasShape = CommunicationSymbol | Text;

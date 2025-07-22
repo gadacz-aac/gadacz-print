@@ -2,23 +2,25 @@ import {
   defaultBrush,
   defaultFontData,
   type BrushData,
-  type CommunicationSymbol,
+  type CanvasShape,
+  type FontData,
+  type Positionable,
 } from "../types";
 import type Konva from "konva";
 import type { Scale } from "../hooks/useScale";
 import { last } from "../helpers/lists";
-import { defaultHeight, defaultWidth } from "../consts/symbol";
-import { type CustomSet } from "../helpers/zustand";
 import type { AppStateCreator } from "./store";
+import type { UnionOmit } from "../helpers/typescript";
 
 export interface ElementsSlice {
-  elements: CommunicationSymbol[];
+  elements: CanvasShape[];
   lastId: number;
   brushData: BrushData;
+  fontData: FontData;
   isResizingNewlyAddedSymbol: boolean;
   addSymbols: (
-    symbols: Omit<CommunicationSymbol, "id">[],
-    callback?: (newSymbols: CommunicationSymbol[]) => void,
+    symbols: UnionOmit<CanvasShape, "id">[],
+    callback?: (newSymbols: CanvasShape[]) => void,
   ) => void;
   handleAddSymbolStart: (
     evt: Konva.KonvaEventObject<MouseEvent>,
@@ -35,14 +37,17 @@ export interface ElementsSlice {
     scale: Scale,
   ) => void;
   handleDeleteSelectedSymbol: () => void;
-  setBrushData: <T extends keyof CommunicationSymbol>(
+  setFontData: <T extends keyof FontData>(
     property: T,
-    value: CommunicationSymbol[T],
+    value: FontData[T],
   ) => void;
-  styleSelectedSymbols: <T extends keyof CommunicationSymbol>(
-    selectedIds: string[],
+  setBrushData: <T extends keyof BrushData>(
     property: T,
-    value: CommunicationSymbol[T],
+    value: BrushData[T],
+  ) => void;
+  styleSelected: <K extends keyof CanvasShape>(
+    property: K,
+    value: CanvasShape[K],
   ) => void;
   handleTransformEnd: (
     evt: Konva.KonvaEventObject<Event>,
@@ -50,12 +55,11 @@ export interface ElementsSlice {
     scale: Scale,
   ) => void;
   modifiedPositionByAxisAndGap: (
-    selected: CommunicationSymbol[],
+    selected: Positionable[],
     gap: number,
     axis: "x" | "y",
   ) => void;
-  handleGapChange: (selectedIds: string[], x?: number, y?: number) => void;
-  setElements: CustomSet<CommunicationSymbol[]>;
+  handleGapChange: (gap: { x?: number; y?: number }) => void;
 }
 
 export const createElementsSlice: AppStateCreator<ElementsSlice> = (
@@ -65,6 +69,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   elements: [],
   lastId: 0,
   brushData: defaultBrush,
+  fontData: defaultFontData,
   selectedIds: [],
   isResizingNewlyAddedSymbol: false,
   addSymbols: (symbols, callback) =>
@@ -72,18 +77,14 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       ({ lastId, elements }) => {
         let localLastId = lastId;
 
-        const newElements = symbols.map((e) => {
-          const symbol = {
-            ...e,
-            id: "symbol_" + String(localLastId++),
-            width: e.width,
-            height: e.height,
-            x: e.x,
-            y: e.y,
-          };
-
-          return symbol;
-        });
+        const newElements = symbols.map((e) => ({
+          ...e,
+          id: `${e.name}_${localLastId++}`,
+          width: e.width,
+          height: e.height,
+          x: e.x,
+          y: e.y,
+        }));
 
         callback?.(newElements);
 
@@ -106,18 +107,17 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       return;
     }
 
-    get().addSymbols([
-      {
-        ...get().brushData,
-        ...defaultFontData,
-        width: 0,
-        height: 0,
-        x: pos.x * A4ToWidth,
-        y: pos.y * A4ToWidth,
-        rotation: 0,
-        name: "symbol",
-      },
-    ]);
+    console.log(get().brushData, get().fontData);
+    const symbol = {
+      ...get().brushData,
+      ...get().fontData,
+      x: pos.x * A4ToWidth,
+      y: pos.y * A4ToWidth,
+      rotation: 0,
+      name: "symbol" as const,
+    };
+
+    get().addSymbols([symbol]);
   },
   handleAddSymbolResize: (
     evt: Konva.KonvaEventObject<MouseEvent>,
@@ -156,8 +156,8 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
           }
 
           if (e.width < 5 && e.height < 5) {
-            e.width = defaultWidth;
-            e.height = defaultHeight;
+            e.width = get().brushData.width;
+            e.height = get().brushData.height;
           }
 
           return { ...e };
@@ -200,6 +200,18 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       "elements/handleDeleteSelectedSymbol",
     );
   },
+  setFontData: (property, value) => {
+    set(
+      ({ fontData }) => ({
+        fontData: {
+          ...fontData,
+          [property]: value,
+        },
+      }),
+      undefined,
+      "elements/setFontData",
+    );
+  },
   setBrushData: (property, value) => {
     set(
       ({ brushData }) => ({
@@ -212,11 +224,12 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       "elements/setBrushData",
     );
   },
-  styleSelectedSymbols: (selectedIds, property, value) => {
+  styleSelected: (property, value) => {
     set(
-      ({ elements }) => ({
+      ({ selectedIds, elements }) => ({
         elements: elements.map((e) => {
           if (selectedIds.includes(e.id)) {
+            console.log(property, value);
             return { ...e, [property]: value };
           }
 
@@ -280,9 +293,9 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         };
       });
   },
-  handleGapChange: (selectedIds, x, y) => {
+  handleGapChange: ({ x, y }) => {
     set(
-      ({ elements }) => {
+      ({ selectedIds, elements }) => {
         const notSelected = elements.filter((e) => !selectedIds.includes(e.id));
 
         const selected = elements.filter((e) => selectedIds.includes(e.id));
@@ -301,18 +314,6 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       },
       undefined,
       "elements/handleGapChange",
-    );
-  },
-  setElements: (customSetter) => {
-    set(
-      ({ elements }) => ({
-        elements:
-          typeof customSetter === "function"
-            ? customSetter(elements)
-            : elements,
-      }),
-      undefined,
-      "elements/setElements",
     );
   },
 });
