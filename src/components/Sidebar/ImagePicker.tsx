@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import type { onStyleChangeFn } from "./Sidebar";
 import styles from "./ImagePicker.module.css";
 import sidebarStyles from "./Sidebar.module.css";
 import { useTranslation } from "react-i18next";
 import Section from "./Section";
+import { useAppStore } from "../../store/store";
+import { type CanvasShape } from "../../types";
 
 type ArasaacPictogram = {
   _id: number;
   keywords: string[];
 };
 
-const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
+const ImagePicker = () => {
+  const addSymbols = useAppStore.use.addSymbols();
+  const onStyleChange = useAppStore.use.styleSelected();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
   const { t, i18n } = useTranslation();
@@ -39,14 +42,32 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
     };
   }, [i18n, searchTerm]);
 
+  const handleImageChange = (value: string) => {
+    if (useAppStore.getState().selectedIds.length !== 0) {
+      return onStyleChange("image" as keyof CanvasShape, value);
+    }
+
+    const symbol = {
+      ...useAppStore.getState().brushData,
+      ...useAppStore.getState().fontData,
+      image: value,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      name: "symbol" as const,
+    };
+
+    addSymbols([symbol]);
+  };
+
   const handleLocalImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        if (event.target?.result) {
-          onStyleChange("image", event.target.result as string);
-        }
+        if (!event.target?.result) return;
+
+        handleImageChange(event.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -88,8 +109,7 @@ const ImagePicker = ({ onStyleChange }: { onStyleChange: onStyleChangeFn }) => {
                 alt={result.keywords.join(", ")}
                 className={styles.resultImage}
                 onClick={() =>
-                  onStyleChange(
-                    "image",
+                  handleImageChange(
                     `https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`,
                   )
                 }
