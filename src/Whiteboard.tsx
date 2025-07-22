@@ -4,7 +4,7 @@ import Konva from "konva";
 import { useEffect, useRef, useState, type Ref } from "react";
 import PageBackground from "./components/PageBackground";
 import usePageSize from "./hooks/usePageSize";
-import { PointerTool, SymbolTool } from "./consts/tools";
+import { PointerTool, SymbolTool, TextTool } from "./consts/tools";
 import useScale from "./hooks/useScale";
 import { useAppStore } from "./store/store";
 import useCursor from "./hooks/useCursor";
@@ -49,6 +49,8 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   const handleStageClick = useAppStore.use.handleStageClick();
   const tool = useAppStore.use.tool();
   const setTool = useAppStore.use.setTool();
+  const toolIsInProgress = useAppStore.use.toolIsInProgress();
+  const setToolIsInProgress = useAppStore.use.setToolInProgress();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -56,8 +58,6 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
 
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
-  const isAddingSymbol = useRef(false);
-  const isSelecting = useRef(false);
 
   const [pageWidth, pageHeight] = usePageSize();
   const scale = useScale();
@@ -84,11 +84,12 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
     switch (tool) {
       case SymbolTool:
-        isAddingSymbol.current = true;
+      case TextTool:
+        setToolIsInProgress(true);
         handleAddSymbolStart(evt, scale);
         break;
       case PointerTool:
-        isSelecting.current = true;
+        setToolIsInProgress(true);
         startSelectionRectangle(evt);
         break;
     }
@@ -98,23 +99,34 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
     const pos = evt.target.getStage()?.getPointerPosition();
     if (pos) setPointerPosition(pos);
 
-    if (isAddingSymbol.current) {
-      handleAddSymbolResize(evt, scale);
-    } else if (isSelecting.current) {
-      resizeSelectionRectangle(evt);
+    if (!toolIsInProgress) return;
+
+    switch (tool) {
+      case SymbolTool:
+      case TextTool:
+        handleAddSymbolResize(evt, scale);
+        break;
+      case PointerTool:
+        resizeSelectionRectangle(evt);
+        break;
     }
   }
 
   function handleStageMouseUp() {
-    if (isAddingSymbol.current) {
-      isAddingSymbol.current = false;
-      setTool(PointerTool);
-      handleAddSymbolEnd();
-    } else if (isSelecting.current) {
-      isSelecting.current = false;
+    if (!toolIsInProgress) return;
 
-      hideSelectionRectangle(scale);
+    switch (tool) {
+      case SymbolTool:
+      case TextTool:
+        setTool(PointerTool);
+        handleAddSymbolEnd();
+        break;
+      case PointerTool:
+        hideSelectionRectangle(scale);
+        break;
     }
+
+    setToolIsInProgress(false);
   }
 
   // were can we snap our objects?

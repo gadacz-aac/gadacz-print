@@ -18,7 +18,7 @@ export interface ElementsSlice {
   brushData: BrushData;
   fontData: FontData;
   isResizingNewlyAddedSymbol: boolean;
-  addSymbols: (
+  addElements: (
     symbols: UnionOmit<CanvasShape, "id">[],
     callback?: (newSymbols: CanvasShape[]) => void,
   ) => void;
@@ -72,12 +72,12 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   fontData: defaultFontData,
   selectedIds: [],
   isResizingNewlyAddedSymbol: false,
-  addSymbols: (symbols, callback) =>
+  addElements: (elements, callback) =>
     set(
-      ({ lastId, elements }) => {
+      ({ lastId, elements: prevElements }) => {
         let localLastId = lastId;
 
-        const newElements = symbols.map((e) => ({
+        const newElements = elements.map((e) => ({
           ...e,
           id: `${e.name}_${localLastId++}`,
           width: e.width,
@@ -90,7 +90,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
 
         return {
           lastId: localLastId,
-          elements: [...elements, ...newElements],
+          elements: [...prevElements, ...newElements],
         };
       },
       undefined,
@@ -107,17 +107,18 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       return;
     }
 
-    console.log(get().brushData, get().fontData);
     const symbol = {
       ...get().brushData,
       ...get().fontData,
       x: pos.x * A4ToWidth,
       y: pos.y * A4ToWidth,
+      width: 0,
+      height: 0,
       rotation: 0,
       name: "symbol" as const,
     };
 
-    get().addSymbols([symbol]);
+    get().addElements([symbol]);
   },
   handleAddSymbolResize: (
     evt: Konva.KonvaEventObject<MouseEvent>,

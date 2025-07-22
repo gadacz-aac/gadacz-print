@@ -17,7 +17,7 @@ import usePageSize from "./hooks/usePageSize";
 const App = () => {
   const elements = useAppStore.use.elements();
   useAppStore.use.isResizingNewlyAddedSymbol();
-  const addSymbols = useAppStore.use.addSymbols();
+  const addSymbols = useAppStore.use.addElements();
   useAppStore.use.handleDeleteSelectedSymbol();
   const setSelectedIds = useAppStore.use.setSelectedIds();
   const setTool = useAppStore.use.setTool();

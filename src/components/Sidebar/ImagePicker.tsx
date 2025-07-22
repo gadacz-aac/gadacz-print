@@ -12,7 +12,7 @@ type ArasaacPictogram = {
 };
 
 const ImagePicker = () => {
-  const addSymbols = useAppStore.use.addSymbols();
+  const addSymbols = useAppStore.use.addElements();
   const onStyleChange = useAppStore.use.styleSelected();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<ArasaacPictogram[]>([]);
