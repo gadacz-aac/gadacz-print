@@ -1,5 +1,5 @@
 import { Layer, Line, Rect, Stage, Transformer } from "react-konva";
-import SymbolCard from "./components/SymbolCard";
+import SymbolCard, { PreviewSymbol } from "./components/SymbolCard";
 import Konva from "konva";
 import { useEffect, useRef, useState, type Ref } from "react";
 import PageBackground from "./components/PageBackground";
@@ -8,6 +8,7 @@ import { PointerTool, SymbolTool, TextTool } from "./consts/tools";
 import useScale from "./hooks/useScale";
 import { useAppStore } from "./store/store";
 import useCursor from "./hooks/useCursor";
+import TextElement from "./components/TextElement";
 
 type Snap = "center" | "end" | "start";
 
@@ -34,7 +35,6 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   const elements = useAppStore.use.elements();
   const isResizingNewlyAddedSymbol =
     useAppStore.use.isResizingNewlyAddedSymbol();
-  const brushData = useAppStore.use.brushData();
   const handleAddSymbolStart = useAppStore.use.handleAddSymbolStart();
   const handleAddSymbolResize = useAppStore.use.handleAddSymbolResize();
   const handleAddSymbolEnd = useAppStore.use.handleAddSymbolEnd();
@@ -44,27 +44,25 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   const selectionRectangle = useAppStore.use.selectionRectangle();
   const startSelectionRectangle = useAppStore.use.startSelectionRectangle();
   const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
-  const handleElementClick = useAppStore.use.handleElementClick();
   const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
   const handleStageClick = useAppStore.use.handleStageClick();
   const tool = useAppStore.use.tool();
   const setTool = useAppStore.use.setTool();
   const toolIsInProgress = useAppStore.use.toolIsInProgress();
   const setToolIsInProgress = useAppStore.use.setToolInProgress();
+  const setPointerPosition = useAppStore.use.setPointerPosition();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
   const transformerRef = useRef<Konva.Transformer>(null);
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
 
-  const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
-
   const [pageWidth, pageHeight] = usePageSize();
   const scale = useScale();
 
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
 
-  const [cursor, setCursor] = useCursor();
+  const [cursor] = useCursor();
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -311,7 +309,6 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
           pageHeight={pageHeight}
           numberOfPages={numberOfPages}
         />
-
         {elements.map((e) => {
           switch (e.name) {
             case "symbol":
@@ -321,9 +318,20 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
                   symbol={e}
                   onDragEnd={handleDragEnd}
                   onTransformEnd={handleTransformEnd}
-                  onMouseOver={() => setCursor("move")}
-                  onMouseOut={() => setCursor("default")}
-                  onClick={handleElementClick}
+                  ref={(node) => {
+                    if (node) {
+                      rectRefs.current.set(e.id, node);
+                    }
+                  }}
+                />
+              );
+            case "text":
+              return (
+                <TextElement
+                  key={e.id}
+                  text={e}
+                  onDragEnd={handleDragEnd}
+                  onTransformEnd={handleTransformEnd}
                   ref={(node) => {
                     if (node) {
                       rectRefs.current.set(e.id, node);
@@ -333,7 +341,6 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
               );
           }
         })}
-
         <Transformer
           ref={transformerRef}
           boundBoxFunc={(oldBox, newBox) => {
@@ -344,19 +351,7 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
           }}
         />
 
-        {showPreviewSymbol && (
-          <Rect
-            x={pointerPosition.x}
-            y={pointerPosition.y}
-            rotation={0}
-            opacity={0.2}
-            width={brushData.width * scale.WidthToA4}
-            height={brushData.height * scale.WidthToA4}
-            fill={brushData.backgroundColor}
-            strokeWidth={brushData.strokeWidth}
-            stroke={brushData.stroke}
-          />
-        )}
+        {showPreviewSymbol && <PreviewSymbol />}
 
         {selectionRectangle.visible && (
           <Rect
@@ -367,7 +362,6 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
             fill="rgba(0,0,255,0.5)"
           />
         )}
-
         {guides.map((lg) => {
           const data =
             lg.orientation === "H"

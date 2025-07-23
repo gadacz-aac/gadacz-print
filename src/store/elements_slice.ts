@@ -11,6 +11,7 @@ import type { Scale } from "../hooks/useScale";
 import { last } from "../helpers/lists";
 import type { AppStateCreator } from "./store";
 import type { UnionOmit } from "../helpers/typescript";
+import { SymbolTool } from "../consts/tools";
 
 export interface ElementsSlice {
   elements: CanvasShape[];
@@ -18,6 +19,8 @@ export interface ElementsSlice {
   brushData: BrushData;
   fontData: FontData;
   isResizingNewlyAddedSymbol: boolean;
+  pointerPosition: { x: number; y: number };
+  setPointerPosition: (pos: { x: number; y: number }) => void;
   addElements: (
     symbols: UnionOmit<CanvasShape, "id">[],
     callback?: (newSymbols: CanvasShape[]) => void,
@@ -44,6 +47,11 @@ export interface ElementsSlice {
   setBrushData: <T extends keyof BrushData>(
     property: T,
     value: BrushData[T],
+  ) => void;
+  styleById: <K extends keyof CanvasShape>(
+    id: string,
+    property: K,
+    value: CanvasShape[K],
   ) => void;
   styleSelected: <K extends keyof CanvasShape>(
     property: K,
@@ -72,6 +80,19 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   fontData: defaultFontData,
   selectedIds: [],
   isResizingNewlyAddedSymbol: false,
+  pointerPosition: { x: 0, y: 0 },
+  setPointerPosition: ({ x, y }) => {
+    set(
+      () => ({
+        pointerPosition: {
+          x,
+          y,
+        },
+      }),
+      undefined,
+      "elements/setPointerPosition",
+    );
+  },
   addElements: (elements, callback) =>
     set(
       ({ lastId, elements: prevElements }) => {
@@ -107,18 +128,18 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       return;
     }
 
-    const symbol = {
+    const baseElement: UnionOmit<CanvasShape, "id"> = {
       ...get().brushData,
       ...get().fontData,
+      name: get().tool === SymbolTool ? "symbol" : "text",
       x: pos.x * A4ToWidth,
       y: pos.y * A4ToWidth,
       width: 0,
       height: 0,
       rotation: 0,
-      name: "symbol" as const,
     };
 
-    get().addElements([symbol]);
+    get().addElements([baseElement]);
   },
   handleAddSymbolResize: (
     evt: Konva.KonvaEventObject<MouseEvent>,
@@ -127,6 +148,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     set(
       ({ elements }) => ({
         isResizingNewlyAddedSymbol: true,
+        selectedIds: [last(elements).id],
         elements: elements.map((e, idx) => {
           if (idx !== elements.length - 1) return e;
           return {
@@ -225,12 +247,26 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       "elements/setBrushData",
     );
   },
+  styleById: (id, property, value) => {
+    set(
+      ({ elements }) => ({
+        elements: elements.map((e) => {
+          if (id === e.id) {
+            return { ...e, [property]: value };
+          }
+
+          return e;
+        }),
+      }),
+      undefined,
+      "elements/styleById",
+    );
+  },
   styleSelected: (property, value) => {
     set(
       ({ selectedIds, elements }) => ({
         elements: elements.map((e) => {
           if (selectedIds.includes(e.id)) {
-            console.log(property, value);
             return { ...e, [property]: value };
           }
 
