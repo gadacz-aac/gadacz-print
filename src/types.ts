@@ -38,14 +38,15 @@ export type CommunicationSymbol = {
   CanvasElement &
   FontData;
 
-export type Text = {
+export type TextShape = {
   name: "text";
   text?: string;
 } & CanvasElement &
-  FontData;
+  FontData &
+  BrushData;
 
 export const defaultBrush: BrushData = {
-  text: "",
+  text: "tes",
   backgroundColor: AacColors.negationRed,
   stroke: AacColors.adjectiveBlue,
   strokeWidth: 1,
@@ -60,4 +61,4 @@ export const defaultFontData: FontData = {
   lineHeight: 1,
 };
 
-export type CanvasShape = CommunicationSymbol | Text;
+export type CanvasShape = CommunicationSymbol | TextShape;

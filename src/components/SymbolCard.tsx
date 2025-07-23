@@ -4,6 +4,27 @@ import useImage from "use-image";
 import { useEffect, useState } from "react";
 import type { CommunicationSymbol } from "../types";
 import useScale, { type Scale } from "../hooks/useScale";
+import { useAppStore } from "../store/store";
+
+export function PreviewSymbol() {
+  const brushData = useAppStore.use.brushData();
+  const scale = useScale();
+  const pointerPosition = useAppStore.use.pointerPosition();
+
+  return (
+    <Rect
+      x={pointerPosition.x}
+      y={pointerPosition.y}
+      rotation={0}
+      opacity={0.2}
+      width={brushData.width * scale.WidthToA4}
+      height={brushData.height * scale.WidthToA4}
+      fill={brushData.backgroundColor}
+      strokeWidth={brushData.strokeWidth}
+      stroke={brushData.stroke}
+    />
+  );
+}
 
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
@@ -18,9 +39,8 @@ type SymbolCardProps = {
     id: string,
     scale: Scale,
   ) => void;
-  onMouseOver: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
-  onMouseOut: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
-  onClick: (evt: Konva.KonvaEventObject<MouseEvent>, id: string) => void;
+  onMouseOver?: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+  onMouseOut?: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
 };
 
 const SymbolCard = ({
@@ -29,13 +49,13 @@ const SymbolCard = ({
   onDragEnd,
   onTransformEnd,
   onMouseOut,
-  onClick,
   onMouseOver,
 }: SymbolCardProps) => {
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const scale = useScale();
+  const handleClick = useAppStore.use.handleElementClick();
 
   useEffect(() => {
     if (background) {
@@ -59,7 +79,7 @@ const SymbolCard = ({
       onMouseOver={onMouseOver}
       onMouseOut={onMouseOut}
       onTransformEnd={(e) => onTransformEnd(e, symbol.id, scale)}
-      onClick={(evt) => onClick(evt, symbol.id)}
+      onClick={(evt) => handleClick(evt, symbol.id)}
       ref={ref}
     >
       <Rect
