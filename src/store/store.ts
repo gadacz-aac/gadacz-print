@@ -5,8 +5,13 @@ import { createToolSlice, type ToolSlice } from "./tool_slice";
 import { createSelectors } from "../helpers/zustand";
 import { devtools } from "zustand/middleware";
 import { createCopySlice, type CopySlice } from "./copy_slice";
+import { createFileSlice, type FileSlice } from "./file_slice";
 
-export type AppStore = ElementsSlice & SelectionSlice & ToolSlice & CopySlice;
+export type AppStore = ElementsSlice &
+  SelectionSlice &
+  ToolSlice &
+  CopySlice &
+  FileSlice;
 export type AppStateCreator<T> = StateCreator<
   AppStore,
   [["zustand/devtools", never]],
@@ -21,6 +26,7 @@ export const useAppStore = createSelectors(
       ...createSelectionSlice(...a),
       ...createToolSlice(...a),
       ...createCopySlice(...a),
+      ...createFileSlice(...a),
     })),
   ),
 );

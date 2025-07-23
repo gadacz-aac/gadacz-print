@@ -15,22 +15,16 @@ import { useAppStore } from "../store/store";
 
 type ToolbarProps = {
   onDownload: () => void;
-  insertPageBreak: () => void;
   openLayoutsModal: () => void;
-  onSave: () => void;
-  onOpen: React.ChangeEventHandler<HTMLInputElement>;
 };
 
-const Toolbar = ({
-  onDownload,
-  insertPageBreak,
-  openLayoutsModal,
-  onSave,
-  onOpen,
-}: ToolbarProps) => {
+const Toolbar = ({ onDownload, openLayoutsModal }: ToolbarProps) => {
   const { t } = useTranslation();
   const currentTool = useAppStore.use.tool();
   const setTool = useAppStore.use.setTool();
+  const open = useAppStore.use.open();
+  const save = useAppStore.use.save();
+  const insertPageBreak = useAppStore.use.insertPageBreak();
 
   return (
     <div className={styles.toolbar}>
@@ -61,14 +55,14 @@ const Toolbar = ({
           <input
             style={{ display: "none" }}
             type="file"
-            onChange={onOpen}
+            onChange={open}
             accept={extension}
           />
           <MdFileOpen />
         </label>
       </button>
 
-      <button title={t("Save")} onClick={onSave}>
+      <button title={t("Save")} onClick={save}>
         <MdSave />
       </button>
       <button title={t("Download")} onClick={onDownload}>

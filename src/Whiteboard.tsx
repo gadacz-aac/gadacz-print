@@ -27,11 +27,10 @@ type ObjectSnappingEdge = {
 const GUIDELINE_OFFSET = 5;
 
 type WhiteboardProps = {
-  numberOfPages: number;
   stageRef: Ref<Konva.Stage>;
 };
 
-const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
+const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const elements = useAppStore.use.elements();
   const isResizingNewlyAddedSymbol =
     useAppStore.use.isResizingNewlyAddedSymbol();
@@ -51,6 +50,7 @@ const Whiteboard = ({ numberOfPages, stageRef }: WhiteboardProps) => {
   const toolIsInProgress = useAppStore.use.toolIsInProgress();
   const setToolIsInProgress = useAppStore.use.setToolInProgress();
   const setPointerPosition = useAppStore.use.setPointerPosition();
+  const numberOfPages = useAppStore.use.numberOfPages();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
