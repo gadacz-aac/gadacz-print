@@ -91,14 +91,14 @@ const SymbolCard = ({
         stroke={symbol.stroke}
       />
       <Image
-        offsetX={-15}
-        offsetY={-25}
-        width={width - 30}
-        height={height - 30}
+        offsetX={-15 * scale.WidthToA4}
+        offsetY={-25 * scale.WidthToA4}
+        width={width - 30 * scale.WidthToA4}
+        height={height - 30 * scale.WidthToA4}
         image={image}
       />
       <Text
-        offsetY={-2}
+        offsetY={-2 * scale.WidthToA4}
         width={width}
         align="center"
         fill={symbol.fontColor}
