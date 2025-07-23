@@ -41,7 +41,7 @@ const App = () => {
     if (
       "nodeName" in evt.target &&
       typeof evt.target.nodeName === "string" &&
-      evt.target.nodeName.toUpperCase() === "INPUT"
+      ["INPUT", "TEXTAREA"].includes(evt.target.nodeName.toUpperCase())
     )
       return;
     if (isFinite(Number(evt.key))) {

@@ -20,7 +20,7 @@ import { KeyCode } from "../../consts/key_codes.ts";
 import Select from "./Select.tsx";
 import FontPicker from "./FontPicker.tsx";
 import { useAppStore } from "../../store/store.ts";
-import useSelectedSymbols from "../../hooks/useSelectedSymbols.ts";
+import useSelected from "../../hooks/useSelectedSymbols.ts";
 import useStyle from "../../hooks/useStyle.ts";
 
 function Input({
@@ -143,12 +143,12 @@ const ColorSquare = ({
 }: {
   color: string;
   onClick: () => void;
-  isSelected: boolean;
+  isSelected: () => boolean;
 }) => {
   return (
     <button
       className={clsx(styles.colorSwatch, {
-        [styles.active]: isSelected,
+        [styles.active]: isSelected(),
       })}
       style={{
         backgroundColor: color,
@@ -168,12 +168,13 @@ const aacColors = [
   AacColors.determinerGrey,
   AacColors.noColorWhite,
   AacColors.adjectiveBlue,
+  AacColors.black,
 ];
 
 const strokeWidths = [1, 2, 3];
 
 const Sidebar = () => {
-  const selectedSymbols = useSelectedSymbols();
+  const selected = useSelected();
   const brushData = useAppStore.use.brushData();
   const fontData = useAppStore.use.fontData();
   const handleGapChange = useAppStore.use.handleGapChange();
@@ -181,30 +182,26 @@ const Sidebar = () => {
   const setBrushData = useAppStore.use.setBrushData();
   const setFontData = useAppStore.use.setFontData();
 
-  const firstSymbol = first(selectedSymbols);
-  const name = selectedSymbols.length === 1 ? firstSymbol.text : brushData.text;
-  const width = useStyle(selectedSymbols, "width", brushData.width);
-  const height = useStyle(selectedSymbols, "height", brushData.height);
-
-  const fontFamily = useStyle(
-    selectedSymbols,
-    "fontFamily",
-    fontData.fontFamily,
+  const areOnlySymbolsSelected = selected.every(
+    ({ name }) => name === "symbol",
   );
-  const fontSize = useStyle(selectedSymbols, "fontSize", fontData.fontSize);
-  const fontWeight = useStyle(selectedSymbols, "fontStyle", fontData.fontStyle);
+
+  const firstSymbol = first(selected);
+  const name = selected.length === 1 ? firstSymbol.text : brushData.text;
+  const width = useStyle(selected, "width", brushData.width);
+  const height = useStyle(selected, "height", brushData.height);
+
+  const fontFamily = useStyle(selected, "fontFamily", fontData.fontFamily);
+  const fontSize = useStyle(selected, "fontSize", fontData.fontSize);
+  const fontWeight = useStyle(selected, "fontStyle", fontData.fontStyle);
   const letterSpacing = useStyle(
-    selectedSymbols,
+    selected,
     "letterSpacing",
     fontData.letterSpacing,
   );
-  const lineHeight = useStyle(
-    selectedSymbols,
-    "lineHeight",
-    fontData.lineHeight,
-  );
+  const lineHeight = useStyle(selected, "lineHeight", fontData.lineHeight);
 
-  const gap = getGap(selectedSymbols);
+  const gap = getGap(selected);
 
   const { t } = useTranslation();
 
@@ -225,33 +222,29 @@ const Sidebar = () => {
     setBrushData(property as keyof BrushData, value);
   };
 
-  function isActive<T extends keyof BrushData>(
-    property: T,
-    value: BrushData[T],
-  ) {
-    if (selectedSymbols.length === 0) return value === brushData[property];
-    if (
-      selectedSymbols.length === 1 &&
-      (firstSymbol as BrushData)[property] === value
-    )
+  function isActive<T, K extends keyof T>(data: T, property: K, value: T[K]) {
+    if (selected.length === 0) return value === data[property];
+    if (selected.length === 1 && (firstSymbol as T)[property] === value)
       return true;
 
-    return selectedSymbols.every((e) => (e as BrushData)[property] === value);
+    return selected.every((e) => (e as T)[property] === value);
   }
 
-  const renderColorGrid = (property: "stroke" | "backgroundColor") =>
-    selectedSymbols.every((e) => e.name === "symbol") && (
-      <div className={styles.colorGrid}>
-        {aacColors.map((c) => (
-          <ColorSquare
-            key={c}
-            color={c}
-            isSelected={isActive(property, c)}
-            onClick={() => onStyleChange(property, c)}
-          />
-        ))}
-      </div>
-    );
+  const renderColorGrid = (
+    isActive: (c: string) => boolean,
+    onStyleChange: (c: string) => void,
+  ) => (
+    <div className={styles.colorGrid}>
+      {aacColors.map((c) => (
+        <ColorSquare
+          key={c}
+          color={c}
+          isSelected={() => isActive(c)}
+          onClick={() => onStyleChange(c)}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <div className={styles.sidebar}>
@@ -297,6 +290,13 @@ const Sidebar = () => {
             onStyleChange("letterSpacing", e === "" ? undefined : Number(e))
           }
         />
+
+        <div style={{ gridColumn: "1/3", marginTop: "2px" }}>
+          {renderColorGrid(
+            (c) => isActive(fontData, "fontColor", c),
+            (c) => onStyleChange("fontColor", c),
+          )}
+        </div>
       </Section>
 
       <Section title={t("Layout")} grid>
@@ -311,7 +311,7 @@ const Sidebar = () => {
           onBlur={(e) => onStyleChange("height", Number(e))}
         />
 
-        {selectedSymbols.length >= 2 && (
+        {selected.length >= 2 && (
           <Input
             label={t("Gap.horizontal")}
             defaultValue={gap?.x}
@@ -319,7 +319,7 @@ const Sidebar = () => {
           />
         )}
 
-        {selectedSymbols.length >= 2 && (
+        {selected.length >= 2 && (
           <Input
             label={t("Gap.vertical")}
             defaultValue={gap?.y}
@@ -328,27 +328,39 @@ const Sidebar = () => {
         )}
       </Section>
 
-      <Section title={t("Stroke")}>{renderColorGrid("stroke")}</Section>
+      {areOnlySymbolsSelected && (
+        <>
+          <Section title={t("Stroke")}>
+            {renderColorGrid(
+              (c) => isActive(brushData, "stroke", c),
+              (c) => onStyleChange("stroke", c),
+            )}
+          </Section>
 
-      <Section title={t("Background")}>
-        {renderColorGrid("backgroundColor")}
-      </Section>
+          <Section title={t("Background")}>
+            {renderColorGrid(
+              (c) => isActive(brushData, "backgroundColor", c),
+              (c) => onStyleChange("backgroundColor", c),
+            )}
+          </Section>
 
-      <Section title={t("Stroke Width")}>
-        <div className={styles.buttonGroup}>
-          {strokeWidths.map((e) => (
-            <button
-              key={e}
-              className={clsx(styles.colorSwatch, {
-                [styles.active]: isActive("strokeWidth", e),
-              })}
-              onClick={() => onStyleChange("strokeWidth", e)}
-            >
-              {e}
-            </button>
-          ))}
-        </div>
-      </Section>
+          <Section title={t("Stroke Width")}>
+            <div className={styles.buttonGroup}>
+              {strokeWidths.map((e) => (
+                <button
+                  key={e}
+                  className={clsx(styles.colorSwatch, {
+                    [styles.active]: isActive(brushData, "strokeWidth", e),
+                  })}
+                  onClick={() => onStyleChange("strokeWidth", e)}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+          </Section>
+        </>
+      )}
     </div>
   );
 };

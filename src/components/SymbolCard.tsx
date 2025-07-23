@@ -101,6 +101,7 @@ const SymbolCard = ({
         offsetY={-2}
         width={width}
         align="center"
+        fill={symbol.fontColor}
         fontStyle={symbol.fontStyle}
         fontFamily={symbol.fontFamily}
         fontSize={symbol.fontSize * scale.WidthToA4}

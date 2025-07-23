@@ -19,6 +19,7 @@ export type FontData = {
   lineHeight: number;
   letterSpacing?: number;
   fontFamily: string;
+  fontColor: string;
 };
 
 export type BrushData = {
@@ -46,9 +47,9 @@ export type TextShape = {
   BrushData;
 
 export const defaultBrush: BrushData = {
-  text: "tes",
-  backgroundColor: AacColors.negationRed,
-  stroke: AacColors.adjectiveBlue,
+  text: "",
+  backgroundColor: AacColors.noColorWhite,
+  stroke: AacColors.black,
   strokeWidth: 1,
   width: 100,
   height: 100,
@@ -59,6 +60,7 @@ export const defaultFontData: FontData = {
   fontStyle: "400",
   fontSize: 20,
   lineHeight: 1,
+  fontColor: AacColors.black,
 };
 
 export type CanvasShape = CommunicationSymbol | TextShape;

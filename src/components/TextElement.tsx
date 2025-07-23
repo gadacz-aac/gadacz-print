@@ -43,11 +43,11 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
     };
 
     setTimeout(() => {
-      document.addEventListener("click", handleClick, true);
+      document.addEventListener("mousedown", handleClick, true);
     });
 
     return () => {
-      document.removeEventListener("click", handleClick, true);
+      document.removeEventListener("mousedown", handleClick, true);
     };
   }, [shape, onClose]);
 
@@ -87,7 +87,7 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
           fontFamily: shape.fontFamily,
           transformOrigin: "left top",
           transform: transform,
-          color: "black",
+          color: shape.fontColor,
         }}
       />
     </Html>
@@ -144,7 +144,7 @@ function TextElement({
       x={x}
       y={y}
       draggable
-      onTransformEnd={(e) => onTransformEnd(e, text.id, scale)}
+      onTransform={(e) => onTransformEnd(e, text.id, scale)}
       onDragEnd={(e) => onDragEnd(e, text.id, scale)}
       onClick={(evt) => {
         handleClick(evt, text.id);
@@ -158,6 +158,7 @@ function TextElement({
         text={text.text}
         fontFamily={text.fontFamily}
         fontStyle={text.fontStyle}
+        fill={text.fontColor}
         lineHeight={text.lineHeight}
         fontSize={fontSize}
         letterSpacing={letterSpacing}
