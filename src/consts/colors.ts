@@ -1,4 +1,5 @@
 export class AacColors {
+  static readonly black = "#000";
   static readonly nounOrange = "#fbaf3c";
   static readonly verbGreen = "#9adf7d";
   static readonly negationRed = "#fb4c4c";
@@ -9,4 +10,3 @@ export class AacColors {
   static readonly noColorWhite = "#fbfbfb";
   static readonly adjectiveBlue = "#66c4fb";
 }
-

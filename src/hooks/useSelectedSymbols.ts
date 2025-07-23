@@ -1,6 +1,6 @@
 import { useAppStore } from "../store/store";
 
-export default function useSelectedSymbols() {
+export default function useSelected() {
   const elements = useAppStore.use.elements();
   const selectedIds = useAppStore.use.selectedIds();
 
