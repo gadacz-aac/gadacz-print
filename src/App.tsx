@@ -44,7 +44,7 @@ const App = () => {
       ["INPUT", "TEXTAREA"].includes(evt.target.nodeName.toUpperCase())
     )
       return;
-    if (isFinite(Number(evt.key))) {
+    if (!Number.isNaN(Number(evt.key))) {
       setTool(Number(evt.key));
     }
 

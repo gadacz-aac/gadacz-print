@@ -20,7 +20,7 @@ export const createToolSlice: AppStateCreator<ToolSlice> = (set) => ({
           };
         }
 
-        if (tool > tools.length) return {};
+        if (tool === 0 || tool > tools.length) return {};
 
         return {
           tool: tools[tool - 1],
