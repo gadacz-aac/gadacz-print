@@ -43,5 +43,10 @@
     "Copy": "Kopiuj",
     "Paste": "Wklej",
     "Select All": "Select All"
+  },
+  "error": {
+    "title": "Ups! Coś poszło nie tak.",
+    "message": "Wygląda na to, że nasza drukarka się zacięła. Pracujemy nad jej naprawą. Spróbuj ponownie.",
+    "tryAgain": "Spróbuj ponownie"
   }
 }

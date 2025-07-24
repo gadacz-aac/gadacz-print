@@ -44,6 +44,11 @@ interface Resources {
       "Copy": "Copy",
       "Paste": "Paste",
       "Select All": "Select All"
+    },
+    "error": {
+      "title": "Oops! Something went wrong.",
+      "message": "It seems our printer has jammed. We're working on fixing it. Please try again.",
+      "tryAgain": "Try again"
     }
   }
 }
