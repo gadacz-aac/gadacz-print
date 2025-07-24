@@ -10,11 +10,13 @@ import { getGap } from "../../helpers/konva.ts";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ChangeEvent,
   type FocusEvent,
   type KeyboardEvent,
+  type Ref,
 } from "react";
 import { KeyCode } from "../../consts/key_codes.ts";
 import Select from "./Select.tsx";
@@ -22,6 +24,84 @@ import FontPicker from "./FontPicker.tsx";
 import { useAppStore } from "../../store/store.ts";
 import useSelected from "../../hooks/useSelectedSymbols.ts";
 import useStyle from "../../hooks/useStyle.ts";
+import { ChromePicker } from "react-color";
+import useClickOutside from "../../hooks/useOnClickOutside.ts";
+
+type ColorGridProps = {
+  isActive: (c: string) => boolean;
+  onStyleChange: (c: string) => void;
+  currentColor: string | undefined;
+};
+
+function ColorGrid({ isActive, onStyleChange, currentColor }: ColorGridProps) {
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const fallback = AacColors.noColorWhite;
+  const ref = useRef<HTMLDivElement>(null);
+  const customColorSquareRef = useRef<HTMLButtonElement>(null);
+  useClickOutside(ref, () => setShowColorPicker(false));
+  const [offsetTop, setOffsetTop] = useState([0, 0]);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      if (customColorSquareRef.current === null) return;
+
+      const { y } = customColorSquareRef.current.getBoundingClientRect();
+      const colorPickerHeight = 282;
+
+      const isTooSmall = window.innerHeight - y < colorPickerHeight;
+
+      const offsetTop = isTooSmall ? window.innerHeight - colorPickerHeight : y;
+
+      setOffsetTop([offsetTop, 0]);
+    };
+
+    setTimeout(handleResize);
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [customColorSquareRef]);
+
+  const customColor =
+    currentColor === undefined
+      ? fallback
+      : aacColors.includes(currentColor)
+        ? AacColors.noColorWhite
+        : currentColor;
+
+  return (
+    <div className={styles.colorGrid}>
+      {aacColors.map((c) => (
+        <ColorSquare
+          key={c}
+          color={c}
+          isSelected={() => isActive(c)}
+          onClick={() => onStyleChange(c)}
+        />
+      ))}
+      <ColorSquare
+        ref={customColorSquareRef}
+        color={customColor}
+        isSelected={() => fallback !== currentColor && isActive(customColor)}
+        onClick={() => setShowColorPicker(true)}
+      />
+      {showColorPicker && (
+        <div
+          className={styles.customColorPicker}
+          ref={ref}
+          style={{
+            transform: `translateY(${offsetTop[0]}px) translateY(${offsetTop[1]}%) translateX(100%)`,
+          }}
+        >
+          <ChromePicker
+            color={customColor}
+            onChange={(c) => onStyleChange(c.hex)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Input({
   label,
@@ -140,13 +220,16 @@ const ColorSquare = ({
   color,
   onClick,
   isSelected,
+  ref,
 }: {
   color: string;
   onClick: () => void;
   isSelected: () => boolean;
+  ref?: Ref<HTMLButtonElement | null>;
 }) => {
   return (
     <button
+      ref={ref}
       className={clsx(styles.colorSwatch, {
         [styles.active]: isSelected(),
       })}
@@ -201,6 +284,14 @@ const Sidebar = () => {
   );
   const lineHeight = useStyle(selected, "lineHeight", fontData.lineHeight);
 
+  const strokeColor = useStyle(selected, "stroke", brushData.stroke);
+  const backgroundColor = useStyle(
+    selected,
+    "backgroundColor",
+    brushData.backgroundColor,
+  );
+  const fontColor = useStyle(selected, "fontColor", fontData.fontColor);
+
   const gap = getGap(selected);
 
   const { t } = useTranslation();
@@ -229,22 +320,6 @@ const Sidebar = () => {
 
     return selected.every((e) => (e as T)[property] === value);
   }
-
-  const renderColorGrid = (
-    isActive: (c: string) => boolean,
-    onStyleChange: (c: string) => void,
-  ) => (
-    <div className={styles.colorGrid}>
-      {aacColors.map((c) => (
-        <ColorSquare
-          key={c}
-          color={c}
-          isSelected={() => isActive(c)}
-          onClick={() => onStyleChange(c)}
-        />
-      ))}
-    </div>
-  );
 
   return (
     <div className={styles.sidebar}>
@@ -292,10 +367,11 @@ const Sidebar = () => {
         />
 
         <div style={{ gridColumn: "1/3", marginTop: "2px" }}>
-          {renderColorGrid(
-            (c) => isActive(fontData, "fontColor", c),
-            (c) => onStyleChange("fontColor", c),
-          )}
+          <ColorGrid
+            currentColor={fontColor}
+            isActive={(c) => isActive(fontData, "fontColor", c)}
+            onStyleChange={(c) => onStyleChange("fontColor", c)}
+          />
         </div>
       </Section>
 
@@ -330,18 +406,20 @@ const Sidebar = () => {
 
       {areOnlySymbolsSelected && (
         <>
-          <Section title={t("Stroke")}>
-            {renderColorGrid(
-              (c) => isActive(brushData, "stroke", c),
-              (c) => onStyleChange("stroke", c),
-            )}
+          <Section title={t("Background")}>
+            <ColorGrid
+              currentColor={backgroundColor}
+              isActive={(c) => isActive(brushData, "backgroundColor", c)}
+              onStyleChange={(c) => onStyleChange("backgroundColor", c)}
+            />
           </Section>
 
-          <Section title={t("Background")}>
-            {renderColorGrid(
-              (c) => isActive(brushData, "backgroundColor", c),
-              (c) => onStyleChange("backgroundColor", c),
-            )}
+          <Section title={t("Stroke")}>
+            <ColorGrid
+              currentColor={strokeColor}
+              isActive={(c) => isActive(brushData, "stroke", c)}
+              onStyleChange={(c) => onStyleChange("stroke", c)}
+            />
           </Section>
 
           <Section title={t("Stroke Width")}>

@@ -28,7 +28,6 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
     transform += `rotateZ(${shape.rotation}deg)`;
   }
   useEffect(() => {
-    console.log("dupa");
     textAreaRef.current?.focus();
     textAreaRef.current?.select();
 
@@ -37,7 +36,6 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
         textAreaRef.current &&
         !textAreaRef.current.contains(event.target as Node)
       ) {
-        console.log(textAreaRef.current, event.target);
         onClose();
       }
     };

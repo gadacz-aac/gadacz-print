@@ -86,6 +86,13 @@ label>.searchInput {
   border-color: #007bff;
 }
 
+.customColorPicker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
 .buttonGroup {
   display: flex;
   gap: 5px;
