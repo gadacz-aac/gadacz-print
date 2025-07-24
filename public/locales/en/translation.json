@@ -43,5 +43,13 @@
     "Copy": "Copy",
     "Paste": "Paste",
     "Select All": "Select All"
+  },
+  "error": {
+    "title": "SYSTEM KERNEL PANIC",
+    "message": "Unrecoverable error detected. Please stand by.",
+    "tryAgain": "Try again",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "rebooting": "Attempting to reboot the system..."
   }
 }
