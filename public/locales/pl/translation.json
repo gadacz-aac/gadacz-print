@@ -37,5 +37,11 @@
   "Gap": {
     "horizontal" : "Gap (horizontal)",
     "vertical": "Gap (vertical)"
+  },
+  "ContextMenu": {
+    "Delete Page": "Usuń stronę",
+    "Copy": "Kopiuj",
+    "Paste": "Wklej",
+    "Select All": "Select All"
   }
 }

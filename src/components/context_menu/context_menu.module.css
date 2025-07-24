@@ -1,0 +1,34 @@
+.contextMenu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    padding: 4px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.contextMenuItemDisabled {
+    color: #e0e0e0
+}
+
+.contextMenuItem {
+    --background: transparent;
+    border: none;
+    background-color: var(--background);
+    padding: 6px 8px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+    width: unset;
+    height: unset;
+}
+
+.contextMenuItem:not(.contextMenuItemDisabled):hover {
+    --background: #e0e0e0;
+}

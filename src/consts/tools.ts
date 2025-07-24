@@ -1,6 +1,12 @@
 import type * as CSS from "csstype";
-import { MdAdd, MdTextFields } from "react-icons/md";
+import {
+  MdAdd,
+  MdAutoAwesomeMosaic,
+  MdInsertPageBreak,
+  MdTextFields,
+} from "react-icons/md";
 import PointerIcon from "../components/icons/PointerIcon";
+import { appStore } from "../store/store";
 
 export type Tool = {
   cursor: CSS.Property.Cursor;
@@ -10,6 +16,14 @@ export type Tool = {
 
 export type InsertableTool = Tool & {
   elementName: string;
+};
+
+export const isOnClickTool = (tool: Tool): tool is OnClickTool => {
+  return "onClick" in tool && typeof tool.onClick === "function";
+};
+
+export type OnClickTool = Tool & {
+  onClick: () => void;
 };
 
 export const PointerTool: Tool = {
@@ -32,4 +46,24 @@ export const TextTool: InsertableTool = {
   icon: MdTextFields,
 };
 
-export const tools = [PointerTool, SymbolTool, TextTool] as const;
+export const InsertLayoutTool: OnClickTool = {
+  cursor: "default",
+  title: "Insert layout",
+  icon: MdAutoAwesomeMosaic,
+  onClick: () => appStore.getState().setShowLayoutModal(true),
+};
+
+export const InsertPageBreakTool: OnClickTool = {
+  cursor: "default",
+  title: "New page",
+  icon: MdInsertPageBreak,
+  onClick: () => appStore.getState().insertPageBreak(),
+};
+
+export const tools = [
+  PointerTool,
+  SymbolTool,
+  TextTool,
+  InsertLayoutTool,
+  InsertPageBreakTool,
+] as const;

@@ -10,6 +10,7 @@ import { PageBreakName } from "../components/PageBackground";
 export interface FileSlice {
   numberOfPages: number;
   insertPageBreak: () => void;
+  removePage: () => void;
   save: () => void;
   open: (evt: ChangeEvent<HTMLInputElement>) => void;
   download: (
@@ -25,6 +26,17 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
     set(({ numberOfPages }) => ({
       numberOfPages: numberOfPages + 1,
     }));
+  },
+  removePage: () => {
+    set(({ contextMenuPos, elements, numberOfPages }) => {
+      return {
+        elements: elements.filter((e) => {
+          console.log(e.x, e.y, contextMenuPos.x, contextMenuPos.y);
+          return true;
+        }),
+        numberOfPages: numberOfPages - 1,
+      };
+    });
   },
   save: () => {
     const text = JSON.stringify({

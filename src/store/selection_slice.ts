@@ -1,7 +1,6 @@
 import Konva from "konva";
 import { getClientRect, isStage } from "../helpers/konva";
 import type { Scale } from "../hooks/useScale";
-import type { CustomSet } from "../helpers/zustand";
 import type { AppStateCreator } from "./store";
 
 export interface SelectionSlice {
@@ -21,7 +20,9 @@ export interface SelectionSlice {
     evt: Konva.KonvaEventObject<MouseEvent>,
     id: string,
   ) => void;
-  setSelectedIds: CustomSet<string[]>;
+  setSelectedIds: (
+    customerSetter: string[] | ((prev: string[]) => string[]),
+  ) => void;
 }
 
 export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
