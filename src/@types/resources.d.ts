@@ -38,6 +38,12 @@ interface Resources {
     "Gap": {
       "horizontal": "Odstępy (poziome)",
       "vertical": "Odstępy (pionowe)"
+    },
+    "ContextMenu": {
+      "Delete Page": "Delete Page",
+      "Copy": "Copy",
+      "Paste": "Paste",
+      "Select All": "Select All"
     }
   }
 }

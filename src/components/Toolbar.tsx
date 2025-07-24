@@ -1,10 +1,4 @@
-import {
-  MdAutoAwesomeMosaic,
-  MdDownload,
-  MdFileOpen,
-  MdInsertPageBreak,
-  MdSave,
-} from "react-icons/md";
+import { MdDownload, MdFileOpen, MdSave } from "react-icons/md";
 import styles from "./Toolbar.module.css";
 import { tools } from "../consts/tools";
 import { LanguagePicker } from "./LanguagePicker";
@@ -15,16 +9,14 @@ import { useAppStore } from "../store/store";
 
 type ToolbarProps = {
   onDownload: () => void;
-  openLayoutsModal: () => void;
 };
 
-const Toolbar = ({ onDownload, openLayoutsModal }: ToolbarProps) => {
+const Toolbar = ({ onDownload }: ToolbarProps) => {
   const { t } = useTranslation();
   const currentTool = useAppStore.use.tool();
   const setTool = useAppStore.use.setTool();
   const open = useAppStore.use.open();
   const save = useAppStore.use.save();
-  const insertPageBreak = useAppStore.use.insertPageBreak();
 
   return (
     <div className={styles.toolbar}>
@@ -42,12 +34,6 @@ const Toolbar = ({ onDownload, openLayoutsModal }: ToolbarProps) => {
           <span className={styles.shortcut}>{idx + 1}</span>
         </button>
       ))}
-      <button title={t("Insert layout")} onClick={openLayoutsModal}>
-        <MdAutoAwesomeMosaic />
-      </button>
-      <button title={t("New page")} onClick={insertPageBreak}>
-        <MdInsertPageBreak />
-      </button>
       <hr />
 
       <button title={t("Open")}>

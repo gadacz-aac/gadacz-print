@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Toolbar from "./components/Toolbar";
 import { KeyCode } from "./consts/key_codes";
@@ -9,11 +9,11 @@ import PredefinedLayoutsModal from "./components/modals/PredefinedLayoutsModal";
 import { useAppStore } from "./store/store";
 import Whiteboard from "./Whiteboard";
 import usePageSize from "./hooks/usePageSize";
+import ContextMenu from "./components/context_menu/context_menu";
 
 const App = () => {
   const elements = useAppStore.use.elements();
   useAppStore.use.isResizingNewlyAddedSymbol();
-  const addSymbols = useAppStore.use.addElements();
   useAppStore.use.handleDeleteSelectedSymbol();
   const setSelectedIds = useAppStore.use.setSelectedIds();
   const setTool = useAppStore.use.setTool();
@@ -27,7 +27,6 @@ const App = () => {
   const stageRef = useRef<Konva.Stage>(null);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
-  const [isLayoutsModalOpen, setIsLayoutsModalOpen] = useState(false);
 
   useEffect(() => {
     containerRef?.current?.focus();
@@ -84,20 +83,11 @@ const App = () => {
         <Sidebar />
       </div>
       <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
-        <Toolbar
-          onDownload={() => download(pageWidth, pageHeight, stageRef)}
-          openLayoutsModal={() => setIsLayoutsModalOpen(true)}
-        />
+        <Toolbar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
       </div>
-      <PredefinedLayoutsModal
-        isOpen={isLayoutsModalOpen}
-        onClose={() => setIsLayoutsModalOpen(false)}
-        onSelectLayout={(layout) => {
-          addSymbols(layout);
-          setIsLayoutsModalOpen(false);
-        }}
-      />
+      <PredefinedLayoutsModal />
       <Whiteboard stageRef={stageRef} />
+      <ContextMenu />
     </div>
   );
 };

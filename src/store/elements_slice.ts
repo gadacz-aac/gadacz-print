@@ -20,6 +20,8 @@ export interface ElementsSlice {
   fontData: FontData;
   isResizingNewlyAddedSymbol: boolean;
   pointerPosition: { x: number; y: number };
+  isLayoutModalOpen: boolean;
+  setShowLayoutModal: (show: boolean) => void;
   setPointerPosition: (pos: { x: number; y: number }) => void;
   addElements: (
     symbols: UnionOmit<CanvasShape, "id">[],
@@ -79,8 +81,10 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   brushData: defaultBrush,
   fontData: defaultFontData,
   selectedIds: [],
+  isLayoutModalOpen: false,
   isResizingNewlyAddedSymbol: false,
   pointerPosition: { x: 0, y: 0 },
+
   setPointerPosition: ({ x, y }) => {
     set(
       () => ({
@@ -352,5 +356,10 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       undefined,
       "elements/handleGapChange",
     );
+  },
+  setShowLayoutModal: (show: boolean) => {
+    set(() => ({
+      isLayoutModalOpen: show,
+    }));
   },
 });

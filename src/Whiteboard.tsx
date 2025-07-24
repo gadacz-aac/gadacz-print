@@ -51,6 +51,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const setToolIsInProgress = useAppStore.use.setToolInProgress();
   const setPointerPosition = useAppStore.use.setPointerPosition();
   const numberOfPages = useAppStore.use.numberOfPages();
+  const handleContextMenu = useAppStore.use.openContextMenu();
 
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -289,106 +290,109 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   return (
-    <Stage
-      ref={stageRef}
-      width={pageWidth}
-      height={pageHeight * numberOfPages}
-      style={{
-        cursor,
-        display: "flex",
-        justifyContent: "center",
-      }}
-      onMouseDown={handleStageMouseDown}
-      onMouseMove={handleStageMouseMove}
-      onMouseUp={handleStageMouseUp}
-      onClick={handleStageClick}
-    >
-      <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
-        <PageBackground
-          pageWidth={pageWidth}
-          pageHeight={pageHeight}
-          numberOfPages={numberOfPages}
-        />
-        {elements.map((e) => {
-          switch (e.name) {
-            case "symbol":
-              return (
-                <SymbolCard
-                  key={e.id}
-                  symbol={e}
-                  onDragEnd={handleDragEnd}
-                  onTransformEnd={handleTransformEnd}
-                  ref={(node) => {
-                    if (node) {
-                      rectRefs.current.set(e.id, node);
-                    }
-                  }}
-                />
-              );
-            case "text":
-              return (
-                <TextElement
-                  key={e.id}
-                  text={e}
-                  onDragEnd={handleDragEnd}
-                  onTransformEnd={handleTransformEnd}
-                  ref={(node) => {
-                    if (node) {
-                      rectRefs.current.set(e.id, node);
-                    }
-                  }}
-                />
-              );
-          }
-        })}
-        <Transformer
-          ref={transformerRef}
-          boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < 5 || newBox.height < 5) {
-              return oldBox;
-            }
-            return newBox;
-          }}
-        />
-
-        {showPreviewSymbol && <PreviewSymbol />}
-
-        {selectionRectangle.visible && (
-          <Rect
-            x={Math.min(selectionRectangle.x1, selectionRectangle.x2)}
-            y={Math.min(selectionRectangle.y1, selectionRectangle.y2)}
-            width={Math.abs(selectionRectangle.x2 - selectionRectangle.x1)}
-            height={Math.abs(selectionRectangle.y2 - selectionRectangle.y1)}
-            fill="rgba(0,0,255,0.5)"
+    <>
+      <Stage
+        ref={stageRef}
+        width={pageWidth}
+        height={pageHeight * numberOfPages}
+        style={{
+          cursor,
+          display: "flex",
+          justifyContent: "center",
+        }}
+        onMouseDown={handleStageMouseDown}
+        onMouseMove={handleStageMouseMove}
+        onMouseUp={handleStageMouseUp}
+        onClick={handleStageClick}
+        onContextMenu={handleContextMenu}
+      >
+        <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
+          <PageBackground
+            pageWidth={pageWidth}
+            pageHeight={pageHeight}
+            numberOfPages={numberOfPages}
           />
-        )}
-        {guides.map((lg) => {
-          const data =
-            lg.orientation === "H"
-              ? {
-                  points: [-6000, 0, 6000, 0],
-                  x: 0,
-                  y: lg.lineGuide,
-                }
-              : {
-                  points: [0, -6000, 0, 6000],
-                  x: lg.lineGuide,
-                  y: 0,
-                };
+          {elements.map((e) => {
+            switch (e.name) {
+              case "symbol":
+                return (
+                  <SymbolCard
+                    key={e.id}
+                    symbol={e}
+                    onDragEnd={handleDragEnd}
+                    onTransformEnd={handleTransformEnd}
+                    ref={(node) => {
+                      if (node) {
+                        rectRefs.current.set(e.id, node);
+                      }
+                    }}
+                  />
+                );
+              case "text":
+                return (
+                  <TextElement
+                    key={e.id}
+                    text={e}
+                    onDragEnd={handleDragEnd}
+                    onTransformEnd={handleTransformEnd}
+                    ref={(node) => {
+                      if (node) {
+                        rectRefs.current.set(e.id, node);
+                      }
+                    }}
+                  />
+                );
+            }
+          })}
+          <Transformer
+            ref={transformerRef}
+            boundBoxFunc={(oldBox, newBox) => {
+              if (newBox.width < 5 || newBox.height < 5) {
+                return oldBox;
+              }
+              return newBox;
+            }}
+          />
 
-          return (
-            <Line
-              key={lg.orientation + lg.lineGuide}
-              {...data}
-              stroke="rgb(0, 161, 255)"
-              strokeWidth={1}
-              name="guid-line"
-              dash={[4, 6]}
+          {showPreviewSymbol && <PreviewSymbol />}
+
+          {selectionRectangle.visible && (
+            <Rect
+              x={Math.min(selectionRectangle.x1, selectionRectangle.x2)}
+              y={Math.min(selectionRectangle.y1, selectionRectangle.y2)}
+              width={Math.abs(selectionRectangle.x2 - selectionRectangle.x1)}
+              height={Math.abs(selectionRectangle.y2 - selectionRectangle.y1)}
+              fill="rgba(0,0,255,0.5)"
             />
-          );
-        })}
-      </Layer>
-    </Stage>
+          )}
+          {guides.map((lg) => {
+            const data =
+              lg.orientation === "H"
+                ? {
+                    points: [-6000, 0, 6000, 0],
+                    x: 0,
+                    y: lg.lineGuide,
+                  }
+                : {
+                    points: [0, -6000, 0, 6000],
+                    x: lg.lineGuide,
+                    y: 0,
+                  };
+
+            return (
+              <Line
+                key={lg.orientation + lg.lineGuide}
+                {...data}
+                stroke="rgb(0, 161, 255)"
+                strokeWidth={1}
+                name="guid-line"
+                dash={[4, 6]}
+              />
+            );
+          })}
+        </Layer>
+      </Stage>
+    </>
   );
 };
 

@@ -55,7 +55,7 @@ button {
   color: #213547;
 }
 
-button:is(.active, :hover) {
+button.active:hover {
   border-color: #646cff;
   background-color: #e7e7e7;
 }
