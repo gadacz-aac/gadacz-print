@@ -5,12 +5,14 @@ import { useAppStore } from "../../store/store";
 type ContextMenuOptionProps = {
   label: string;
   disabled?: boolean;
+  shortcut?: string;
   onClick: () => void;
 };
 
 export default function BaseContextMenuOption({
   label,
   disabled = false,
+  shortcut,
   onClick,
 }: ContextMenuOptionProps) {
   const hide = useAppStore.use.closeContextMenu();
@@ -28,6 +30,13 @@ export default function BaseContextMenuOption({
       }}
     >
       {label}
+
+      {shortcut && (
+        <>
+          <div style={{ width: "10px", margin: "auto" }}></div>
+          <span className={styles.contextMenuItemShotcut}>{shortcut}</span>
+        </>
+      )}
     </button>
   );
 }

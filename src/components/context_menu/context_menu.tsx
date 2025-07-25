@@ -5,6 +5,7 @@ import { useRef } from "react";
 import DeletePageOption from "./options/delete_page_option";
 import CopyOption from "./options/copy_option";
 import PasteOption from "./options/paste_option";
+import SelectAllOption from "./options/select_all_option";
 
 export default function ContextMenu() {
   const ref = useRef<HTMLDivElement>(null);
@@ -30,6 +31,7 @@ export default function ContextMenu() {
       onClick={(e) => e.stopPropagation()}
     >
       <DeletePageOption />
+      <SelectAllOption />
       <CopyOption />
       <PasteOption />
     </div>

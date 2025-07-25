@@ -32,3 +32,11 @@
 .contextMenuItem:not(.contextMenuItemDisabled):hover {
     --background: #e0e0e0;
 }
+
+.contextMenuItem:not(:has(.contextMenuItemShotcut)) {
+    align-self: start;
+}
+
+.contextMenuItemShotcut {
+    font-size: "12px";
+}
