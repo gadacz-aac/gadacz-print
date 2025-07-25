@@ -31,6 +31,17 @@ type WhiteboardProps = {
   stageRef: Ref<Konva.Stage>;
 };
 
+/**
+ * In a perfect world we could use this property of transromer https://konvajs.org/api/Konva.Transformer.html#shouldOverdrawWholeArea
+ * but this disables some events like dblClick on attached nodes
+ *
+ * IMPORTANT: Has to be placed before any items that will be attached to Transformer
+ *
+ */
+function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
+  return <Rect draggable ref={ref} />;
+}
+
 const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const elements = useAppStore.use.elements();
   const isResizingNewlyAddedSymbol =
@@ -57,6 +68,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
   const transformerRef = useRef<Konva.Transformer>(null);
   const rectRefs = useRef<Map<string, Konva.Group>>(new Map());
+  const overdrawWholeAreaRef = useRef<Konva.Rect>(null);
 
   const [pageWidth, pageHeight] = usePageSize();
   const scale = useScale();
@@ -67,9 +79,12 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
   useEffect(() => {
     if (!transformerRef.current) return;
+    if (!overdrawWholeAreaRef.current) return;
 
     if (!selectedIds.length) {
       transformerRef.current.nodes([]);
+      overdrawWholeAreaRef.current.width(0);
+      overdrawWholeAreaRef.current.height(0);
       return;
     }
 
@@ -77,7 +92,19 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
       .map((id) => rectRefs.current.get(id))
       .filter((node) => node !== undefined);
 
-    transformerRef.current.nodes(nodes);
+    transformerRef.current.nodes([...nodes]);
+
+    const { width, height } = transformerRef.current.__getNodeRect();
+
+    // without this there's some funky behaviour when snapping
+    // and really it looks similar to when every object was snapped separetly
+    const padding = 10;
+    overdrawWholeAreaRef.current.x(transformerRef.current.x() + padding / 2);
+    overdrawWholeAreaRef.current.y(transformerRef.current.y() + padding / 2);
+    overdrawWholeAreaRef.current.width(width - padding);
+    overdrawWholeAreaRef.current.height(height - padding);
+
+    transformerRef.current.nodes([...nodes, overdrawWholeAreaRef.current]);
   }, [selectedIds, elements]);
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
@@ -253,9 +280,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   function handleLayerDragMove(e: Konva.KonvaEventObject<DragEvent>) {
-    // clear all previous lines on the screen
-    // layer.find(".guid-line").forEach((l) => l.destroy());
-
     if (e.target instanceof Konva.Stage) return;
     if (transformerRef.current === null) return;
 
@@ -284,6 +308,8 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
     });
 
     for (const e of transformerRef.current.nodes()) {
+      if (e === overdrawWholeAreaRef.current) continue;
+
       const absPos = e.getAbsolutePosition();
       const nodeBox = e.getClientRect();
       // now force object position
@@ -297,6 +323,10 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
       e.absolutePosition(absPos);
     }
+
+    overdrawWholeAreaRef.current?.absolutePosition(
+      transformerRef.current.getAbsolutePosition(),
+    );
   }
 
   function handleLayerDragEnd() {
@@ -326,6 +356,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
             pageHeight={pageHeight}
             numberOfPages={numberOfPages}
           />
+          <ShouldOverDrawWholeAreaHack ref={overdrawWholeAreaRef} />
           {elements.map((e) => {
             switch (e.name) {
               case "symbol":
@@ -358,7 +389,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
           })}
           <Transformer
             ref={transformerRef}
-            shouldOverdrawWholeArea
             onDragMove={handleLayerDragMove}
             onDragEnd={handleLayerDragEnd}
             boundBoxFunc={(oldBox, newBox) => {

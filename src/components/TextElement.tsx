@@ -100,11 +100,7 @@ type TextElementProps = {
     id: string,
     scale: Scale,
   ) => void;
-  onDragEnd: (
-    evt: Konva.KonvaEventObject<DragEvent>,
-    id: string,
-    scale: Scale,
-  ) => void;
+  onDragEnd?: (evt: Konva.KonvaEventObject<DragEvent>) => void;
 };
 
 function TextElement({
@@ -115,6 +111,7 @@ function TextElement({
 }: TextElementProps) {
   const onStyleChange = useAppStore.use.styleById();
   const handleMouseDown = useAppStore.use.handleMouseDown();
+  const handleDragEnd = useAppStore.use.handleDragEnd();
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -143,7 +140,10 @@ function TextElement({
       y={y}
       draggable
       onTransform={(e) => onTransformEnd(e, text.id, scale)}
-      onDragEnd={(e) => onDragEnd(e, text.id, scale)}
+      onDragEnd={(e) => {
+        handleDragEnd(e, text.id, scale);
+        onDragEnd?.(e);
+      }}
       onMouseDown={(evt) => {
         handleMouseDown(evt, text.id);
       }}

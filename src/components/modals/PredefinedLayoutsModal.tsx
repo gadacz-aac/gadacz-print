@@ -1,10 +1,12 @@
 import styles from "./PredefinedLayoutsModal.module.css";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { layouts } from "../../consts/layouts";
 import LayoutPreview from "./LayoutPreview";
 import { PageAspectRatio } from "../../consts/page_format";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../store/store";
 import type { CommunicationSymbol } from "../../types";
+import { KeyCode } from "../../consts/key_codes";
 
 export default function PredefinedLayoutsModal() {
   const { t } = useTranslation();
@@ -12,7 +14,14 @@ export default function PredefinedLayoutsModal() {
   const setShowLayoutModal = useAppStore.use.setShowLayoutModal();
   const addElements = useAppStore.use.addElements();
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    ref.current?.focus();
+  });
+
   function close() {
+    ref.current?.blur();
     setShowLayoutModal(false);
   }
 
@@ -21,12 +30,24 @@ export default function PredefinedLayoutsModal() {
     close();
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === KeyCode.Escape) close();
+
+    e.stopPropagation();
+  }
+
   if (!isOpen) {
     return null;
   }
 
   return (
-    <div className={styles.modalOverlay} onClick={close}>
+    <div
+      ref={ref}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className={styles.modalOverlay}
+      onClick={close}
+    >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("Select a Predefined Layout")}</h2>

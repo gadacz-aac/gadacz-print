@@ -10,6 +10,7 @@ import { useAppStore } from "./store/store";
 import Whiteboard from "./Whiteboard";
 import usePageSize from "./hooks/usePageSize";
 import ContextMenu from "./components/context_menu/context_menu";
+import { APP_CONTAINER_ID } from "./helpers/helpers";
 
 const App = () => {
   const setSelectedIds = useAppStore.use.setSelectedIds();
@@ -30,6 +31,18 @@ const App = () => {
   useEffect(() => {
     containerRef?.current?.focus();
   }, []);
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      document.activeElement?.addEventListener(
+        "blur",
+        () => {
+          containerRef?.current?.focus();
+        },
+        { once: true },
+      );
+    });
+  };
 
   const handleKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
     if (
@@ -73,6 +86,10 @@ const App = () => {
     }
 
     switch (evt.key) {
+      case KeyCode.Escape:
+        setSelectedIds([]);
+        evt.preventDefault();
+        break;
       case KeyCode.Delete:
         handleDeleteSelectedSymbol();
         setSelectedIds([]);
@@ -85,9 +102,11 @@ const App = () => {
 
   return (
     <div
+      id={APP_CONTAINER_ID}
       ref={containerRef}
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      onBlur={handleBlur}
       className={styles.container}
     >
       <div className={styles.sidebar} style={{ width: sidebarWidth }}>
