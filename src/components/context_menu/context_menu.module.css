@@ -31,6 +31,7 @@
 
 .contextMenuItem:not(.contextMenuItemDisabled):hover {
     --background: #e0e0e0;
+
 }
 
 .contextMenuItem:not(:has(.contextMenuItemShotcut)) {
@@ -38,9 +39,12 @@
 }
 
 .contextMenuItemShotcut {
-    font-size: "12px";
+    font-size: 12px;
 }
 
 .separator {
-    width: 100%;
+    border: none;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.2);
+    width: 90%;
 }

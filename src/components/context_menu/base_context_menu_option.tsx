@@ -33,7 +33,7 @@ export default function BaseContextMenuOption({
 
       {shortcut && (
         <>
-          <div style={{ width: "10px", margin: "auto" }}></div>
+          <div style={{ width: "30px", margin: "auto" }}></div>
           <span className={styles.contextMenuItemShotcut}>{shortcut}</span>
         </>
       )}
