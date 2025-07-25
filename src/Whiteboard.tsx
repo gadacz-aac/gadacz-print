@@ -9,7 +9,6 @@ import useScale from "./hooks/useScale";
 import { useAppStore } from "./store/store";
 import useCursor from "./hooks/useCursor";
 import TextElement from "./components/TextElement";
-import type { ShapeConfig } from "konva/lib/Shape";
 import { getClientRect } from "./helpers/konva";
 
 type Snap = "center" | "end" | "start";
@@ -39,7 +38,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const handleAddSymbolStart = useAppStore.use.handleAddSymbolStart();
   const handleAddSymbolResize = useAppStore.use.handleAddSymbolResize();
   const handleAddSymbolEnd = useAppStore.use.handleAddSymbolEnd();
-  const handleDragEnd = useAppStore.use.handleDragEnd();
   const handleTransformEnd = useAppStore.use.handleTransformEnd();
   const selectedIds = useAppStore.use.selectedIds();
   const selectionRectangle = useAppStore.use.selectionRectangle();
@@ -279,16 +277,24 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
     setGuides(guides);
 
+    const trRect = transformerRef.current.__getNodeRect();
+    const box = getClientRect({
+      ...trRect,
+      rotation: Konva.Util.radToDeg(trRect.rotation),
+    });
+
     for (const e of transformerRef.current.nodes()) {
       const absPos = e.getAbsolutePosition();
+      const nodeBox = e.getClientRect();
       // now force object position
       guides.forEach((lg) => {
         const axis = lg.orientation === "V" ? "x" : "y";
 
-        // const diff = Math.abs(lg.lineGuide - itemBound.guide);
+        const innerOffset = box[axis] - nodeBox[axis];
 
-        absPos[axis] = lg.lineGuide;
+        absPos[axis] = lg.lineGuide + lg.offset - innerOffset;
       });
+
       e.absolutePosition(absPos);
     }
   }
@@ -327,7 +333,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <SymbolCard
                     key={e.id}
                     symbol={e}
-                    onDragEnd={handleDragEnd}
                     onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {
@@ -341,7 +346,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <TextElement
                     key={e.id}
                     text={e}
-                    onDragEnd={handleDragEnd}
                     onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {

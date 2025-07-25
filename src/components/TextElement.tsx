@@ -114,7 +114,7 @@ function TextElement({
   onTransformEnd,
 }: TextElementProps) {
   const onStyleChange = useAppStore.use.styleById();
-  const handleClick = useAppStore.use.handleElementClick();
+  const handleMouseDown = useAppStore.use.handleMouseDown();
 
   const [isEditing, setIsEditing] = useState(true);
 
@@ -144,8 +144,8 @@ function TextElement({
       draggable
       onTransform={(e) => onTransformEnd(e, text.id, scale)}
       onDragEnd={(e) => onDragEnd(e, text.id, scale)}
-      onClick={(evt) => {
-        handleClick(evt, text.id);
+      onMouseDown={(evt) => {
+        handleMouseDown(evt, text.id);
       }}
       onDblClick={() => {
         setIsEditing(true);

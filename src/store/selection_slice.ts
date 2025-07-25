@@ -16,7 +16,7 @@ export interface SelectionSlice {
   resizeSelectionRectangle: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   hideSelectionRectangle: (scale: Scale) => void;
   handleStageClick: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
-  handleElementClick: (
+  handleMouseDown: (
     evt: Konva.KonvaEventObject<MouseEvent>,
     id: string,
   ) => void;
@@ -137,7 +137,7 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
       return;
     }
   },
-  handleElementClick: (evt, clickedId) => {
+  handleMouseDown: (evt, clickedId) => {
     const metaPressed = evt.evt.shiftKey || evt.evt.ctrlKey || evt.evt.metaKey;
     const isSelected = get().selectedIds.includes(clickedId);
 
