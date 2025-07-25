@@ -364,31 +364,38 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     }));
   },
   align: (axis, type) => {
-    set(({ elements }) => {
-      const sorted = elements.sort((a, b) => a[axis] - b[axis]);
-      let alignt: CanvasShape[] = [];
+    set(({ elements, selectedIds }) => {
+      const unselected = elements.filter(({ id }) => !selectedIds.includes(id));
+      const alignt = elements
+        .filter(({ id }) => selectedIds.includes(id))
+        .sort((a, b) => a[axis] - b[axis])
+        .map((e, _, arr) => {
+          switch (type) {
+            case "start": {
+              return {
+                ...e,
+                [axis]: (e[axis] = arr[0][axis]),
+              };
+            }
+            case "end": {
+              return {
+                ...e,
+                [axis]: (e[axis] = last(arr)[axis]),
+              };
+            }
+            case "center": {
+              const lastItem = last(arr);
+              const dim = axis === "x" ? "width" : "height";
+              const middle =
+                (arr[0][axis] + lastItem[axis] + lastItem[dim]) / 2;
 
-      if (type === "start")
-        alignt = sorted.map((e) => ({
-          ...e,
-          [axis]: (e[axis] = sorted[0][axis]),
-        }));
-      if (type === "end")
-        alignt = sorted.map((e) => ({
-          ...e,
-          [axis]: (e[axis] = last(sorted)[axis]),
-        }));
-      if (type === "center")
-        alignt = sorted.map((e) => {
-          const lastItem = last(sorted);
-          const dim = axis === "x" ? "width" : "height";
-          const middle = (sorted[0][axis] + lastItem[axis] + lastItem[dim]) / 2;
-
-          return { ...e, [axis]: middle - e[dim] / 2 };
+              return { ...e, [axis]: middle - e[dim] / 2 };
+            }
+          }
         });
 
       return {
-        elements: alignt,
+        elements: [...alignt, ...unselected],
       };
     });
   },

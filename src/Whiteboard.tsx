@@ -37,6 +37,7 @@ type WhiteboardProps = {
  *
  * IMPORTANT: Has to be placed before any items that will be attached to Transformer
  *
+ * When elements are added to transformer this element should be resized
  */
 function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
   return <Rect draggable ref={ref} />;
