@@ -32,30 +32,38 @@ const App = () => {
   }, []);
 
   const handleKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
-    evt.preventDefault();
     if (
       "nodeName" in evt.target &&
       typeof evt.target.nodeName === "string" &&
       ["INPUT", "TEXTAREA"].includes(evt.target.nodeName.toUpperCase())
-    )
+    ) {
       return;
+    }
+
     if (!Number.isNaN(Number(evt.key))) {
       setTool(Number(evt.key));
+      evt.preventDefault();
+
+      return;
     }
 
     if (evt.ctrlKey) {
       switch (evt.key) {
         case KeyCode.C:
           handleCopyElements();
+          evt.preventDefault();
           break;
         case KeyCode.V:
           handlePasteElements();
+          evt.preventDefault();
           break;
         case KeyCode.A:
           selectAll();
+          evt.preventDefault();
           break;
         case KeyCode.D:
           duplicate();
+          evt.preventDefault();
           break;
         default:
           return;
@@ -68,11 +76,11 @@ const App = () => {
       case KeyCode.Delete:
         handleDeleteSelectedSymbol();
         setSelectedIds([]);
+        evt.preventDefault();
         break;
       default:
         return;
     }
-    evt.preventDefault();
   };
 
   return (

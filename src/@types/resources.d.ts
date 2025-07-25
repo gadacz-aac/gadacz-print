@@ -43,8 +43,10 @@ interface Resources {
     "ContextMenu": {
       "Delete Page": "Delete Page",
       "Copy": "Copy",
+      "Duplicate": "Duplicate",
       "Paste": "Paste",
-      "Select All": "Select All"
+      "Select All": "Select All",
+      "Delete": "Delete"
     },
     "error": {
       "title": "SYSTEM KERNEL PANIC",

@@ -7,6 +7,7 @@ import CopyOption from "./options/copy_option";
 import PasteOption from "./options/paste_option";
 import SelectAllOption from "./options/select_all_option";
 import DuplicateOption from "./options/duplicate_option";
+import DeleteElementOption from "./options/delete_element_option";
 
 export default function ContextMenu() {
   const ref = useRef<HTMLDivElement>(null);
@@ -32,6 +33,7 @@ export default function ContextMenu() {
       onClick={(e) => e.stopPropagation()}
     >
       <DeletePageOption />
+      <DeleteElementOption />
       <SelectAllOption />
       <CopyOption />
       <DuplicateOption />

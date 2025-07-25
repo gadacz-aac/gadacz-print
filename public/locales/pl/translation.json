@@ -44,7 +44,8 @@
     "Copy": "Kopiuj",
     "Duplicate": "Duplikuj",
     "Paste": "Wklej",
-    "Select All": "Select All"
+    "Select All": "Select All",
+    "Delete": "Usuń"
   },
   "error": {
     "title": "Ups! Coś poszło nie tak.",
