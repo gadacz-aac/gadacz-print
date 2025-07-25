@@ -23,6 +23,7 @@ export interface SelectionSlice {
   setSelectedIds: (
     customerSetter: string[] | ((prev: string[]) => string[]),
   ) => void;
+  selectAll: () => void;
 }
 
 export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
@@ -124,7 +125,8 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
       return;
     }
 
-    if (isStage(evt)) {
+    const isLeft = evt.evt.button === 0;
+    if (isStage(evt) && isLeft) {
       set(
         () => ({
           selectedIds: [],
@@ -176,5 +178,10 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
       undefined,
       "selection/setSelectedIds",
     );
+  },
+  selectAll: () => {
+    set(({ elements }) => ({
+      selectedIds: elements.map((e) => e.id),
+    }));
   },
 });

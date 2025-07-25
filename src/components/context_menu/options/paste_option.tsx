@@ -12,6 +12,7 @@ export default function PasteOption() {
     <BaseContextMenuOption
       disabled={length === 0}
       label={t("ContextMenu.Paste")}
+      shortcut="Ctrl + V"
       onClick={paste}
     />
   );

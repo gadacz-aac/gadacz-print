@@ -52,7 +52,7 @@ export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
     set(() => ({
       contextMenuState: {
         isOpened: true,
-        isOverElement: isStage(e),
+        isOverElement: !isStage(e),
       },
       contextMenuPos: {
         x: containerRect.left + pointerPosition.x + 4,
