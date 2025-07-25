@@ -392,17 +392,22 @@ const Sidebar = () => {
 
         {selected.length >= 2 && (
           <>
-            <Input
-              label={t("Gap.horizontal")}
-              defaultValue={gap?.x}
-              onBlur={(e) => handleGapChange({ x: Number(e) })}
-            />
+            {/* undefined value means there wasn't one that was the same for every element, so we still want to allow two enter a value */}
+            {(gap?.x ?? 0) >= 0 && (
+              <Input
+                label={t("Gap.horizontal")}
+                defaultValue={gap?.x}
+                onBlur={(e) => handleGapChange({ x: Number(e) })}
+              />
+            )}
 
-            <Input
-              label={t("Gap.vertical")}
-              defaultValue={gap?.y}
-              onBlur={(e) => handleGapChange({ y: Number(e) })}
-            />
+            {(gap?.y ?? 0) >= 0 && (
+              <Input
+                label={t("Gap.vertical")}
+                defaultValue={gap?.y}
+                onBlur={(e) => handleGapChange({ y: Number(e) })}
+              />
+            )}
           </>
         )}
       </Section>

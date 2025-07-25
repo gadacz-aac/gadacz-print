@@ -9,6 +9,8 @@ import useScale from "./hooks/useScale";
 import { useAppStore } from "./store/store";
 import useCursor from "./hooks/useCursor";
 import TextElement from "./components/TextElement";
+import type { ShapeConfig } from "konva/lib/Shape";
+import { getClientRect } from "./helpers/konva";
 
 type Snap = "center" | "end" | "start";
 
@@ -129,14 +131,14 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   // were can we snap our objects?
-  function getLineGuideStops(stage: Konva.Stage, skipShape: Konva.Shape) {
+  function getLineGuideStops(stage: Konva.Stage, skipShapes: Konva.Node[]) {
     // we can snap to stage borders and the center of the stage
     const vertical = [0, pageWidth / 2, pageWidth];
     const horizontal = [0, pageHeight / 2, pageHeight];
 
     // and we snap over edges and center of each object on the canvas
     stage.find(".symbol").forEach((guideItem) => {
-      if (guideItem === skipShape) {
+      if (skipShapes.includes(guideItem)) {
         return;
       }
       const box = guideItem.getClientRect();
@@ -154,9 +156,13 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   // what points of the object will trigger to snapping?
   // it can be just center of the object
   // but we will enable all edges and center
-  function getObjectSnappingEdges(node: Konva.Shape) {
-    const box = node.getClientRect();
-    const absPos = node.absolutePosition();
+  function getObjectSnappingEdges(transformer: Konva.Transformer) {
+    const trRect = transformer.__getNodeRect();
+    const box = getClientRect({
+      ...trRect,
+      rotation: Konva.Util.radToDeg(trRect.rotation),
+    });
+    const absPos = transformer.getAbsolutePosition();
 
     return {
       vertical: [
@@ -253,36 +259,38 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
     // layer.find(".guid-line").forEach((l) => l.destroy());
 
     if (e.target instanceof Konva.Stage) return;
+    if (transformerRef.current === null) return;
 
     const stage = e.target.getStage();
 
     if (stage === null) return;
 
     // find possible snapping lines
-    const lineGuideStops = getLineGuideStops(stage, e.target);
+    const lineGuideStops = getLineGuideStops(
+      stage,
+      transformerRef.current.nodes(),
+    );
+
     // find snapping points of current object
-    const itemBounds = getObjectSnappingEdges(e.target);
+    const itemBounds = getObjectSnappingEdges(transformerRef.current);
 
     // now find where can we snap current object
     const guides = getGuides(lineGuideStops, itemBounds);
 
     setGuides(guides);
 
-    const absPos = e.target.absolutePosition();
-    // now force object position
-    guides.forEach((lg) => {
-      switch (lg.orientation) {
-        case "V": {
-          absPos.x = lg.lineGuide + lg.offset;
-          break;
-        }
-        case "H": {
-          absPos.y = lg.lineGuide + lg.offset;
-          break;
-        }
-      }
-    });
-    e.target.absolutePosition(absPos);
+    for (const e of transformerRef.current.nodes()) {
+      const absPos = e.getAbsolutePosition();
+      // now force object position
+      guides.forEach((lg) => {
+        const axis = lg.orientation === "V" ? "x" : "y";
+
+        // const diff = Math.abs(lg.lineGuide - itemBound.guide);
+
+        absPos[axis] = lg.lineGuide;
+      });
+      e.absolutePosition(absPos);
+    }
   }
 
   function handleLayerDragEnd() {
@@ -306,7 +314,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
         onClick={handleStageClick}
         onContextMenu={handleContextMenu}
       >
-        <Layer onDragMove={handleLayerDragMove} onDragEnd={handleLayerDragEnd}>
+        <Layer>
           <PageBackground
             pageWidth={pageWidth}
             pageHeight={pageHeight}
@@ -346,6 +354,9 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
           })}
           <Transformer
             ref={transformerRef}
+            shouldOverdrawWholeArea
+            onDragMove={handleLayerDragMove}
+            onDragEnd={handleLayerDragEnd}
             boundBoxFunc={(oldBox, newBox) => {
               if (newBox.width < 5 || newBox.height < 5) {
                 return oldBox;
