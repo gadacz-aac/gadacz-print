@@ -42,6 +42,7 @@
   "ContextMenu": {
     "Delete Page": "Usuń stronę",
     "Copy": "Kopiuj",
+    "Duplicate": "Duplikuj",
     "Paste": "Wklej",
     "Select All": "Select All"
   },
