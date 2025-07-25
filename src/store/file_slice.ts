@@ -6,6 +6,7 @@ import { A4 } from "../consts/page_format";
 import jsPDF from "jspdf";
 import type Konva from "konva";
 import { PageBreakName } from "../components/PageBackground";
+import SizeHelper from "../helpers/sizing";
 
 export interface FileSlice {
   numberOfPages: number;
@@ -29,11 +30,39 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
   },
   removePage: () => {
     set(({ contextMenuPos, elements, numberOfPages }) => {
+      if (contextMenuPos.pageNumber === undefined) return {};
+      if (numberOfPages === 1) return {};
+
+      const [width, height] = SizeHelper.caluclatePageDimensions();
+      const scale = SizeHelper.calculateScale(width);
+      const pageYStart = height * contextMenuPos.pageNumber;
+      const pageYEnd = height * (contextMenuPos.pageNumber + 1);
+
       return {
-        elements: elements.filter((e) => {
-          console.log(e.x, e.y, contextMenuPos.x, contextMenuPos.y);
-          return true;
-        }),
+        elements: elements
+          .filter((e) => {
+            const yStart = e.y * scale.WidthToA4;
+            const yEnd = yStart + e.height * scale.WidthToA4;
+            const remove =
+              yStart > pageYStart &&
+              yStart < pageYEnd &&
+              yEnd > pageYStart &&
+              yEnd < pageYEnd;
+
+            return !remove;
+          })
+          .map((e) => {
+            const yStart = e.y * scale.WidthToA4;
+            const yEnd = yStart + e.height * scale.WidthToA4;
+
+            const shift = yEnd > pageYEnd;
+            if (!shift) return e;
+
+            return {
+              ...e,
+              y: e.y - height * scale.A4ToWidth,
+            };
+          }),
         numberOfPages: numberOfPages - 1,
       };
     });

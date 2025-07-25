@@ -13,7 +13,6 @@ export default function ContextMenu() {
 
   const { isOpened } = useAppStore.use.contextMenuState();
   const position = useAppStore.use.contextMenuPos();
-  console.log(position);
 
   useClickOutside(ref, close);
 

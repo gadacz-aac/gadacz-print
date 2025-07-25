@@ -7,6 +7,7 @@ export interface ContextMenuSlice {
   contextMenuPos: {
     x: number;
     y: number;
+    pageNumber?: number;
   };
   contextMenuState: {
     isOpened: boolean;
@@ -18,7 +19,6 @@ export interface ContextMenuSlice {
 
 export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
   set,
-  get,
 ) => ({
   contextMenuPos: {
     x: 0,
@@ -42,8 +42,12 @@ export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
 
     e.cancelBubble = true;
 
-    const pageOffset =
-      (get().numberOfPages - 1) * SizeHelper.caluclatePageDimensions()[0];
+    const scrollTop =
+      document.querySelector("div:has(> .konvajs-content)")?.scrollTop ?? 0;
+
+    const pageNumber = Math.floor(
+      pointerPosition.y / SizeHelper.caluclatePageDimensions()[1],
+    );
 
     set(() => ({
       contextMenuState: {
@@ -52,7 +56,8 @@ export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
       },
       contextMenuPos: {
         x: containerRect.left + pointerPosition.x + 4,
-        y: containerRect.top + pointerPosition.y + 4 - pageOffset,
+        y: containerRect.top + pointerPosition.y + 4 - scrollTop,
+        pageNumber,
       },
     }));
   },
