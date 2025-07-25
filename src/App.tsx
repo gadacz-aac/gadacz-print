@@ -12,13 +12,12 @@ import usePageSize from "./hooks/usePageSize";
 import ContextMenu from "./components/context_menu/context_menu";
 
 const App = () => {
-  const elements = useAppStore.use.elements();
-  useAppStore.use.isResizingNewlyAddedSymbol();
-  useAppStore.use.handleDeleteSelectedSymbol();
   const setSelectedIds = useAppStore.use.setSelectedIds();
   const setTool = useAppStore.use.setTool();
   const handleCopyElements = useAppStore.use.copySelected();
   const handlePasteElements = useAppStore.use.paste();
+  const duplicate = useAppStore.use.duplicate();
+  const selectAll = useAppStore.use.selectAll();
   const handleDeleteSelectedSymbol =
     useAppStore.use.handleDeleteSelectedSymbol();
   const download = useAppStore.use.download();
@@ -33,6 +32,7 @@ const App = () => {
   }, []);
 
   const handleKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
+    evt.preventDefault();
     if (
       "nodeName" in evt.target &&
       typeof evt.target.nodeName === "string" &&
@@ -52,7 +52,10 @@ const App = () => {
           handlePasteElements();
           break;
         case KeyCode.A:
-          setSelectedIds(elements.map((e) => e.id));
+          selectAll();
+          break;
+        case KeyCode.D:
+          duplicate();
           break;
         default:
           return;

@@ -6,10 +6,15 @@ export interface CopySlice {
   copied: CanvasShape[];
   copySelected: () => void;
   paste: () => void;
+  duplicate: () => void;
 }
 
 export const createCopySlice: AppStateCreator<CopySlice> = (set, get) => ({
   copied: [],
+  duplicate: () => {
+    get().copySelected();
+    get().paste();
+  },
   copySelected: () => {
     const dx = randomFromRange(-10, 10);
     const dy = randomFromRange(-10, 10);
