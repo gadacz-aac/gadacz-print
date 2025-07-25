@@ -1,12 +1,30 @@
 import styles from "./PredefinedLayoutsModal.module.css";
 import { useEffect, useRef, type KeyboardEvent } from "react";
-import { layouts } from "../../consts/layouts";
 import LayoutPreview from "./LayoutPreview";
 import { PageAspectRatio } from "../../consts/page_format";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../store/store";
 import type { CommunicationSymbol } from "../../types";
 import { KeyCode } from "../../consts/key_codes";
+
+const layoutModules = import.meta.glob("/src/layouts/*.gp", {
+  as: "raw",
+  eager: true,
+});
+const layoutsData = Object.entries(layoutModules)
+  .map(([path, jsonString]) => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      return {
+        layout: (parsed.elements ?? []) as CommunicationSymbol[],
+        path,
+      };
+    } catch (e) {
+      console.error(`Failed to parse layout: ${path}`, e);
+      return { layout: [], path };
+    }
+  })
+  .filter((item) => item.layout.length > 0);
 
 export default function PredefinedLayoutsModal() {
   const { t } = useTranslation();
@@ -53,9 +71,9 @@ export default function PredefinedLayoutsModal() {
           <h2>{t("Select a Predefined Layout")}</h2>
         </div>
         <div className={styles.layouts}>
-          {layouts.map((layout, index) => (
+          {layoutsData.map(({ layout, path }) => (
             <div
-              key={index}
+              key={path}
               className={styles.layoutTile}
               onClick={() => onSelectLayout(layout)}
             >
