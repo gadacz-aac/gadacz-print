@@ -26,6 +26,7 @@ import useSelected from "../../hooks/useSelectedSymbols.ts";
 import useStyle from "../../hooks/useStyle.ts";
 import { ChromePicker } from "react-color";
 import useClickOutside from "../../hooks/useOnClickOutside.ts";
+import Aligment from "./Aligment.tsx";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -375,6 +376,8 @@ const Sidebar = () => {
         </div>
       </Section>
 
+      {selected.length >= 2 && <Aligment />}
+
       <Section title={t("Layout")} grid>
         <Input
           label={t("Width")}
@@ -388,19 +391,19 @@ const Sidebar = () => {
         />
 
         {selected.length >= 2 && (
-          <Input
-            label={t("Gap.horizontal")}
-            defaultValue={gap?.x}
-            onBlur={(e) => handleGapChange({ x: Number(e) })}
-          />
-        )}
+          <>
+            <Input
+              label={t("Gap.horizontal")}
+              defaultValue={gap?.x}
+              onBlur={(e) => handleGapChange({ x: Number(e) })}
+            />
 
-        {selected.length >= 2 && (
-          <Input
-            label={t("Gap.vertical")}
-            defaultValue={gap?.y}
-            onBlur={(e) => handleGapChange({ y: Number(e) })}
-          />
+            <Input
+              label={t("Gap.vertical")}
+              defaultValue={gap?.y}
+              onBlur={(e) => handleGapChange({ y: Number(e) })}
+            />
+          </>
         )}
       </Section>
 

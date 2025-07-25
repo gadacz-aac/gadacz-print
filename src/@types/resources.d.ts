@@ -25,6 +25,7 @@ interface Resources {
     "Line Height": "Line Height",
     "Letter Spacing": "Letter Spacing",
     "Layout": "Layout",
+    "Alignment": "Alignment",
     "Width": "Width",
     "Height": "Height",
     "Normal": "Normal",
@@ -46,9 +47,12 @@ interface Resources {
       "Select All": "Select All"
     },
     "error": {
-      "title": "Oops! Something went wrong.",
-      "message": "It seems our printer has jammed. We're working on fixing it. Please try again.",
-      "tryAgain": "Try again"
+      "title": "SYSTEM KERNEL PANIC",
+      "message": "Unrecoverable error detected. Please stand by.",
+      "tryAgain": "Try again",
+      "showDetails": "Show Details",
+      "hideDetails": "Hide Details",
+      "rebooting": "Attempting to reboot the system..."
     }
   }
 }

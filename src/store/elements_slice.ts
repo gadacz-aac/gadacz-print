@@ -70,6 +70,7 @@ export interface ElementsSlice {
     axis: "x" | "y",
   ) => void;
   handleGapChange: (gap: { x?: number; y?: number }) => void;
+  align: (axis: "x" | "y", type: "start" | "center" | "end") => void;
 }
 
 export const createElementsSlice: AppStateCreator<ElementsSlice> = (
@@ -361,5 +362,34 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     set(() => ({
       isLayoutModalOpen: show,
     }));
+  },
+  align: (axis, type) => {
+    set(({ elements }) => {
+      const sorted = elements.sort((a, b) => a[axis] - b[axis]);
+      let alignt: CanvasShape[] = [];
+
+      if (type === "start")
+        alignt = sorted.map((e) => ({
+          ...e,
+          [axis]: (e[axis] = sorted[0][axis]),
+        }));
+      if (type === "end")
+        alignt = sorted.map((e) => ({
+          ...e,
+          [axis]: (e[axis] = last(sorted)[axis]),
+        }));
+      if (type === "center")
+        alignt = sorted.map((e) => {
+          const lastItem = last(sorted);
+          const dim = axis === "x" ? "width" : "height";
+          const middle = (sorted[0][axis] + lastItem[axis] + lastItem[dim]) / 2;
+
+          return { ...e, [axis]: middle - e[dim] / 2 };
+        });
+
+      return {
+        elements: alignt,
+      };
+    });
   },
 });
