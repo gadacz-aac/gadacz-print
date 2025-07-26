@@ -49,7 +49,11 @@
   },
   "error": {
     "title": "Ups! Coś poszło nie tak.",
-    "message": "Wygląda na to, że nasza drukarka się zacięła. Pracujemy nad jej naprawą. Spróbuj ponownie.",
-    "tryAgain": "Spróbuj ponownie"
+    "message": "Wygląda na to, że napotkaliśmy nieoczekiwany błąd. Proszę spróbować ponownie.",
+    "tryAgain": "Spróbuj ponownie",
+    "retry": "Ponów",
+    "copy": "Kopiuj",
+    "showDetails": "Pokaż szczegóły",
+    "hideDetails": "Ukryj szczegóły"
   }
 }

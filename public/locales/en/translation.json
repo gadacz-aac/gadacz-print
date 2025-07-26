@@ -48,11 +48,13 @@
     "Delete": "Delete"
   },
   "error": {
-    "title": "SYSTEM KERNEL PANIC",
-    "message": "Unrecoverable error detected. Please stand by.",
+    "title": "Oops! Something went wrong.",
+    "message": "It seems we've encountered an unexpected error. Please try again.",
     "tryAgain": "Try again",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
-    "rebooting": "Attempting to reboot the system..."
+    "rebooting": "Attempting to reboot the system...",
+    "retry": "Retry",
+    "copy": "Copy"
   }
 }
