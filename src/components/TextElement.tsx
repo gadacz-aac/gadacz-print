@@ -7,6 +7,7 @@ import {
   useState,
   type Ref,
   type KeyboardEvent,
+  useCallback,
 } from "react";
 import { type TextShape } from "../types";
 import type { Scale } from "../hooks/useScale";
@@ -27,6 +28,12 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
   if (shape.rotation) {
     transform += `rotateZ(${shape.rotation}deg)`;
   }
+
+  const handleClose = useCallback(() => {
+    textAreaRef.current?.blur();
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     textAreaRef.current?.focus();
     textAreaRef.current?.select();
@@ -36,7 +43,7 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
         textAreaRef.current &&
         !textAreaRef.current.contains(event.target as Node)
       ) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -47,16 +54,16 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
     return () => {
       document.removeEventListener("mousedown", handleClick, true);
     };
-  }, [shape, onClose]);
+  }, [shape, handleClose]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onChange(e.currentTarget.value);
-      onClose();
+      handleClose();
     }
     if (e.key === "Escape") {
-      onClose();
+      handleClose();
     }
   };
 
@@ -139,6 +146,7 @@ function TextElement({
       x={x}
       y={y}
       draggable
+      name={text.name}
       onTransform={(e) => onTransformEnd(e, text.id, scale)}
       onDragEnd={(e) => {
         handleDragEnd(e, text.id, scale);

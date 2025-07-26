@@ -160,10 +160,16 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   function getLineGuideStops(stage: Konva.Stage, skipShapes: Konva.Node[]) {
     // we can snap to stage borders and the center of the stage
     const vertical = [0, pageWidth / 2, pageWidth];
-    const horizontal = [0, pageHeight / 2, pageHeight];
+    const horizontal = [];
+
+    for (let i = 0; i < numberOfPages + 1; i++) {
+      horizontal.push(pageHeight * i, pageHeight * i + pageHeight / 2);
+    }
+
+    horizontal.push(pageHeight * (numberOfPages + 1));
 
     // and we snap over edges and center of each object on the canvas
-    stage.find(".symbol").forEach((guideItem) => {
+    [...stage.find(".symbol"), ...stage.find(".text")].forEach((guideItem) => {
       if (skipShapes.includes(guideItem)) {
         return;
       }
