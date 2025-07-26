@@ -1,3 +1,5 @@
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorBoundaryFallback from "./components/ErrorBoundaryFallback";
 import Konva from "konva";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
@@ -53,7 +55,7 @@ const App = () => {
       return;
     }
 
-    if (!Number.isNaN(Number(evt.key))) {
+    if (!evt.ctrlKey && !evt.shiftKey && !Number.isNaN(Number(evt.key))) {
       setTool(Number(evt.key));
       evt.preventDefault();
 
@@ -101,24 +103,26 @@ const App = () => {
   };
 
   return (
-    <div
-      id={APP_CONTAINER_ID}
-      ref={containerRef}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      onBlur={handleBlur}
-      className={styles.container}
-    >
-      <div className={styles.sidebar} style={{ width: sidebarWidth }}>
-        <Sidebar />
+    <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
+      <div
+        id={APP_CONTAINER_ID}
+        ref={containerRef}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        onBlur={handleBlur}
+        className={styles.container}
+      >
+        <div className={styles.sidebar} style={{ width: sidebarWidth }}>
+          <Sidebar />
+        </div>
+        <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
+          <Toolbar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
+        </div>
+        <PredefinedLayoutsModal />
+        <Whiteboard stageRef={stageRef} />
+        <ContextMenu />
       </div>
-      <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
-        <Toolbar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
-      </div>
-      <PredefinedLayoutsModal />
-      <Whiteboard stageRef={stageRef} />
-      <ContextMenu />
-    </div>
+    </ErrorBoundary>
   );
 };
 
