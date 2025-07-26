@@ -12,6 +12,7 @@ import { last } from "../helpers/lists";
 import type { AppStateCreator } from "./store";
 import type { UnionOmit } from "../helpers/typescript";
 import { SymbolTool } from "../consts/tools";
+import SizeHelper from "../helpers/sizing";
 
 export interface ElementsSlice {
   elements: CanvasShape[];
@@ -20,8 +21,11 @@ export interface ElementsSlice {
   fontData: FontData;
   isResizingNewlyAddedSymbol: boolean;
   pointerPosition: { x: number; y: number };
-  isLayoutModalOpen: boolean;
-  setShowLayoutModal: (show: boolean) => void;
+  layoutModalData: {
+    isOpen: boolean;
+    insertOnPage?: number;
+  };
+  setShowLayoutModal: (show: boolean, pageNumber?: number) => void;
   setPointerPosition: (pos: { x: number; y: number }) => void;
   addElements: (
     symbols: UnionOmit<CanvasShape, "id">[],
@@ -71,6 +75,7 @@ export interface ElementsSlice {
   ) => void;
   handleGapChange: (gap: { x?: number; y?: number }) => void;
   align: (axis: "x" | "y", type: "start" | "center" | "end") => void;
+  insertLayout: (layout: CanvasShape[]) => void;
 }
 
 export const createElementsSlice: AppStateCreator<ElementsSlice> = (
@@ -82,10 +87,11 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   brushData: defaultBrush,
   fontData: defaultFontData,
   selectedIds: [],
-  isLayoutModalOpen: false,
+  layoutModalData: {
+    isOpen: false,
+  },
   isResizingNewlyAddedSymbol: false,
   pointerPosition: { x: 0, y: 0 },
-
   setPointerPosition: ({ x, y }) => {
     set(
       () => ({
@@ -106,10 +112,6 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         const newElements = elements.map((e) => ({
           ...e,
           id: `${e.name}_${localLastId++}`,
-          width: e.width,
-          height: e.height,
-          x: e.x,
-          y: e.y,
         }));
 
         callback?.(newElements);
@@ -358,9 +360,12 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       "elements/handleGapChange",
     );
   },
-  setShowLayoutModal: (show: boolean) => {
+  setShowLayoutModal: (show, pageNumber) => {
     set(() => ({
-      isLayoutModalOpen: show,
+      layoutModalData: {
+        isOpen: show,
+        insertOnPage: pageNumber,
+      },
     }));
   },
   align: (axis, type) => {
@@ -398,5 +403,17 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         elements: [...alignt, ...unselected],
       };
     });
+  },
+  insertLayout: (layout) => {
+    const pageNumber = get().layoutModalData.insertOnPage ?? 0;
+    const [width, height] = SizeHelper.caluclatePageDimensions();
+    const scale = SizeHelper.calculateScale(width);
+
+    get().addElements(
+      layout.map((e) => ({
+        ...e,
+        y: e.y + pageNumber * height * scale.A4ToWidth,
+      })),
+    );
   },
 });

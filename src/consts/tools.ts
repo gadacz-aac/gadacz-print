@@ -1,10 +1,5 @@
 import type * as CSS from "csstype";
-import {
-  MdAdd,
-  MdAutoAwesomeMosaic,
-  MdInsertPageBreak,
-  MdTextFields,
-} from "react-icons/md";
+import { MdAdd, MdInsertPageBreak, MdTextFields } from "react-icons/md";
 import PointerIcon from "../components/icons/PointerIcon";
 import { appStore } from "../store/store";
 
@@ -46,13 +41,6 @@ export const TextTool: InsertableTool = {
   icon: MdTextFields,
 };
 
-export const InsertLayoutTool: OnClickTool = {
-  cursor: "default",
-  title: "Insert layout",
-  icon: MdAutoAwesomeMosaic,
-  onClick: () => appStore.getState().setShowLayoutModal(true),
-};
-
 export const InsertPageBreakTool: OnClickTool = {
   cursor: "default",
   title: "New page",
@@ -64,6 +52,5 @@ export const tools = [
   PointerTool,
   SymbolTool,
   TextTool,
-  InsertLayoutTool,
   InsertPageBreakTool,
 ] as const;

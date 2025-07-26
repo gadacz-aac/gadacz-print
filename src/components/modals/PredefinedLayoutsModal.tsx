@@ -28,9 +28,9 @@ const layoutsData = Object.entries(layoutModules)
 
 export default function PredefinedLayoutsModal() {
   const { t } = useTranslation();
-  const isOpen = useAppStore.use.isLayoutModalOpen();
+  const { isOpen } = useAppStore.use.layoutModalData();
   const setShowLayoutModal = useAppStore.use.setShowLayoutModal();
-  const addElements = useAppStore.use.addElements();
+  const insertLayout = useAppStore.use.insertLayout();
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -44,7 +44,7 @@ export default function PredefinedLayoutsModal() {
   }
 
   function onSelectLayout(layout: CommunicationSymbol[]) {
-    addElements(layout);
+    insertLayout(layout);
     close();
   }
 

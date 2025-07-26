@@ -23,7 +23,7 @@
     text-align: left;
     cursor: pointer;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
     width: unset;
     height: unset;
@@ -34,7 +34,7 @@
 }
 
 .contextMenuItem:not(:has(.contextMenuItemShotcut)) {
-    align-self: start;
+    justify-content: left;
 }
 
 .contextMenuItemShotcut {
@@ -44,6 +44,7 @@
 .separator {
     border: none;
     height: 1px;
-    background: rgba(0, 0, 0, 0.2);
+    background: #e0e0e066;
     width: 90%;
+    margin-block: 2px;
 }
