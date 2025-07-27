@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "mv index.dev.html index.html && vite",
+    "build": "mv index.prod.html index.html && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-i18next-types": "npx i18next-resources-for-ts interface -i ./public/locales/en -o ./src/@types/resources.d.ts"

@@ -33,8 +33,10 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       if (contextMenuPos.pageNumber === undefined) return {};
       if (numberOfPages === 1) return {};
 
-      const [width, height] = SizeHelper.caluclatePageDimensions();
-      const scale = SizeHelper.calculateScale(width);
+      const [width, height] = SizeHelper.caluclatePageDimensions(
+        get().isLandscape,
+      );
+      const scale = SizeHelper.calculateScale(width, get().isLandscape);
       const pageYStart = height * contextMenuPos.pageNumber;
       const pageYEnd = height * (contextMenuPos.pageNumber + 1);
 

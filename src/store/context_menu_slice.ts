@@ -19,6 +19,7 @@ export interface ContextMenuSlice {
 
 export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
   set,
+  get,
 ) => ({
   contextMenuPos: {
     x: 0,
@@ -46,7 +47,8 @@ export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
       document.querySelector("div:has(> .konvajs-content)")?.scrollTop ?? 0;
 
     const pageNumber = Math.floor(
-      pointerPosition.y / SizeHelper.caluclatePageDimensions()[1],
+      pointerPosition.y /
+        SizeHelper.caluclatePageDimensions(get().isLandscape)[1],
     );
 
     set(() => ({

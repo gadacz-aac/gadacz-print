@@ -17,6 +17,7 @@ const Toolbar = ({ onDownload }: ToolbarProps) => {
   const setTool = useAppStore.use.setTool();
   const open = useAppStore.use.open();
   const save = useAppStore.use.save();
+  const toggleLandscape = useAppStore.use.toggleOrientation();
 
   return (
     <div className={styles.toolbar}>
@@ -53,6 +54,10 @@ const Toolbar = ({ onDownload }: ToolbarProps) => {
       </button>
       <button title={t("Download")} onClick={onDownload}>
         <MdDownload />
+      </button>
+
+      <button title={t("Download")} onClick={toggleLandscape}>
+        dupa
       </button>
       <hr />
       <LanguagePicker />

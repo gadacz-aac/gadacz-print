@@ -25,6 +25,7 @@ export interface ElementsSlice {
     isOpen: boolean;
     insertOnPage?: number;
   };
+  isLandscape: boolean;
   setShowLayoutModal: (show: boolean, pageNumber?: number) => void;
   setPointerPosition: (pos: { x: number; y: number }) => void;
   addElements: (
@@ -76,6 +77,7 @@ export interface ElementsSlice {
   handleGapChange: (gap: { x?: number; y?: number }) => void;
   align: (axis: "x" | "y", type: "start" | "center" | "end") => void;
   insertLayout: (layout: CanvasShape[]) => void;
+  toggleOrientation: () => void;
 }
 
 export const createElementsSlice: AppStateCreator<ElementsSlice> = (
@@ -91,6 +93,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     isOpen: false,
   },
   isResizingNewlyAddedSymbol: false,
+  isLandscape: true,
   pointerPosition: { x: 0, y: 0 },
   setPointerPosition: ({ x, y }) => {
     set(
@@ -406,8 +409,10 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   },
   insertLayout: (layout) => {
     const pageNumber = get().layoutModalData.insertOnPage ?? 0;
-    const [width, height] = SizeHelper.caluclatePageDimensions();
-    const scale = SizeHelper.calculateScale(width);
+    const [width, height] = SizeHelper.caluclatePageDimensions(
+      get().isLandscape,
+    );
+    const scale = SizeHelper.calculateScale(width, get().isLandscape);
 
     get().addElements(
       layout.map((e) => ({
@@ -415,5 +420,24 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         y: e.y + pageNumber * height * scale.A4ToWidth,
       })),
     );
+  },
+  toggleOrientation: () => {
+    set(({ isLandscape, elements }) => {
+      const _isLandscape = !isLandscape;
+
+      const [width, height] = SizeHelper.caluclatePageDimensions(_isLandscape);
+      const scale = SizeHelper.calculateScale(width, _isLandscape);
+
+      return {
+        isLandscape: _isLandscape,
+        elements: elements.map((e) => ({
+          ...e,
+          x: _isLandscape ? e.y : width * scale.A4ToWidth - e.y - e.height,
+          y: _isLandscape ? height * scale.A4ToWidth - e.x - e.width : e.x,
+          width: e.height,
+          height: e.width,
+        })),
+      };
+    });
   },
 });
