@@ -103,17 +103,28 @@ const ImagePicker = () => {
         {searchResults.length > 0 && (
           <div className={styles.resultsGrid}>
             {searchResults.map((result) => (
-              <img
-                key={result._id}
-                src={`https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`}
-                alt={result.keywords.join(", ")}
-                className={styles.resultImage}
-                onClick={() =>
-                  handleImageChange(
-                    `https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`,
-                  )
-                }
-              />
+              <figure key={result._id} style={{ margin: 0 }}>
+                <img
+                  src={`https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`}
+                  alt={result.keywords.join(", ")}
+                  className={styles.resultImage}
+                  onClick={() =>
+                    handleImageChange(
+                      `https://static.arasaac.org/pictograms/${result._id}/${result._id}_300.png`,
+                    )
+                  }
+                />
+
+                <figcaption style={{ fontSize: "9px" }}>
+                  <a
+                    href="https://arasaac.org/terms-of-use"
+                    referrerPolicy="no-referrer"
+                    rel="nofollow"
+                  >
+                    Arasaac, CC BY-NC-SA
+                  </a>
+                </figcaption>
+              </figure>
             ))}
           </div>
         )}
