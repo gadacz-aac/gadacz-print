@@ -291,6 +291,12 @@ const Sidebar = () => {
     "backgroundColor",
     brushData.backgroundColor,
   );
+  const borderRadius = useStyle(
+    selected,
+    "borderRadius",
+    brushData.borderRadius,
+  );
+
   const fontColor = useStyle(selected, "fontColor", fontData.fontColor);
 
   const gap = getGap(selected);
@@ -443,6 +449,15 @@ const Sidebar = () => {
                   {e}
                 </button>
               ))}
+            </div>
+          </Section>
+
+          <Section title={t("Stroke Width")}>
+            <div className={styles.buttonGroup}>
+              <Input
+                defaultValue={borderRadius}
+                onBlur={(e) => onStyleChange("borderRadius", Number(e))}
+              />
             </div>
           </Section>
         </>

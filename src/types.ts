@@ -27,6 +27,7 @@ export type BrushData = {
   image?: string;
   stroke: string;
   strokeWidth: number;
+  borderRadius: number;
   backgroundColor: string;
   width: number;
   height: number;
@@ -51,6 +52,7 @@ export const defaultBrush: BrushData = {
   backgroundColor: AacColors.noColorWhite,
   stroke: AacColors.black,
   strokeWidth: 1,
+  borderRadius: 2,
   width: 100,
   height: 100,
 };

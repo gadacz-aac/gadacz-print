@@ -26,3 +26,6 @@ jak wydrukować
 contribution guide
 
 info o językach
+
+attribution for arasaac
+

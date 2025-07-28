@@ -21,6 +21,7 @@ export function PreviewSymbol() {
       height={brushData.height * scale.WidthToA4}
       fill={brushData.backgroundColor}
       strokeWidth={brushData.strokeWidth}
+      cornerRadius={brushData.borderRadius}
       stroke={brushData.stroke}
     />
   );
@@ -87,6 +88,7 @@ const SymbolCard = ({
         width={width}
         height={height}
         fill={symbol.backgroundColor}
+        cornerRadius={symbol.borderRadius}
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}
       />
