@@ -7,6 +7,10 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorBoundaryFallback from "./components/ErrorBoundaryFallback.tsx";
+import { OverlayScrollbars, ClickScrollPlugin } from "overlayscrollbars";
+import "overlayscrollbars/overlayscrollbars.css";
+
+OverlayScrollbars.plugin(ClickScrollPlugin);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

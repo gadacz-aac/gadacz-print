@@ -28,6 +28,7 @@ import { ChromePicker } from "react-color";
 import useClickOutside from "../../hooks/useOnClickOutside.ts";
 import Aligment from "./Aligment.tsx";
 import Switch from "../Switch/Switch.tsx";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -336,7 +337,11 @@ const Sidebar = () => {
   }
 
   return (
-    <div className={styles.sidebar}>
+    <OverlayScrollbarsComponent
+      options={{ scrollbars: { autoHide: "move" } }}
+      element="div"
+      className={styles.sidebar}
+    >
       <ImagePicker />
 
       <Section title={t("Text")}>
@@ -488,7 +493,7 @@ const Sidebar = () => {
           </Section>
         </>
       )}
-    </div>
+    </OverlayScrollbarsComponent>
   );
 };
 

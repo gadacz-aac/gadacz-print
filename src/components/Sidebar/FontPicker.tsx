@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import Select from "./Select";
+import type { CanvasShape } from "../../types";
 
 const localFonts = ["Arial", "Times New Roman"];
 
@@ -28,7 +29,7 @@ const FontPicker = ({
   onStyleChange,
   currentFont,
 }: {
-  onStyleChange: (property: string, value: unknown) => void;
+  onStyleChange: (property: keyof CanvasShape, value: unknown) => void;
   currentFont: string | undefined;
 }) => {
   useEffect(() => {

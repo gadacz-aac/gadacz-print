@@ -10,6 +10,7 @@ import { useAppStore } from "./store/store";
 import useCursor from "./hooks/useCursor";
 import TextElement from "./components/TextElement";
 import { getClientRect } from "./helpers/konva";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 type Snap = "center" | "end" | "start";
 
@@ -343,7 +344,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   return (
-    <>
+    <OverlayScrollbarsComponent options={{ scrollbars: { autoHide: "move" } }}>
       <Stage
         ref={stageRef}
         width={pageWidth}
@@ -450,7 +451,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
           })}
         </Layer>
       </Stage>
-    </>
+    </OverlayScrollbarsComponent>
   );
 };
 

@@ -6,12 +6,7 @@
   gap: 20px;
   padding: var(--padding);
   height: 100vh;
-  overflow: hidden;
   box-sizing: border-box;
-}
-
-div:has(canvas) {
-  overflow-y: auto;
 }
 
 .container:focus {
