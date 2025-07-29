@@ -31,6 +31,7 @@ export type BrushData = {
   backgroundColor: string;
   width: number;
   height: number;
+  textOverImage: boolean;
 };
 
 export type CommunicationSymbol = {
@@ -49,6 +50,7 @@ export type TextShape = {
 
 export const defaultBrush: BrushData = {
   text: "",
+  textOverImage: false,
   backgroundColor: AacColors.noColorWhite,
   stroke: AacColors.black,
   strokeWidth: 1,

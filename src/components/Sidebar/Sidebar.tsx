@@ -27,6 +27,7 @@ import useStyle from "../../hooks/useStyle.ts";
 import { ChromePicker } from "react-color";
 import useClickOutside from "../../hooks/useOnClickOutside.ts";
 import Aligment from "./Aligment.tsx";
+import Switch from "../Switch/Switch.tsx";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -273,6 +274,8 @@ const Sidebar = () => {
   const firstSymbol = first(selected);
   const name = selected.length === 1 ? firstSymbol.text : brushData.text;
   const width = useStyle(selected, "width", brushData.width);
+  const textOverImage =
+    useStyle(selected, "textOverImage", brushData.textOverImage) ?? false;
   const height = useStyle(selected, "height", brushData.height);
 
   const fontFamily = useStyle(selected, "fontFamily", fontData.fontFamily);
@@ -334,9 +337,15 @@ const Sidebar = () => {
 
       <Section title={t("Text")}>
         <Input
+          label="Podpis"
           allowEmpty
           defaultValue={name}
           onChange={(e) => onStyleChange("text", e)}
+        />
+        <Switch
+          label={t("Display Text Over Image")}
+          value={textOverImage}
+          onChange={(e) => onStyleChange("textOverImage", e)}
         />
       </Section>
 
@@ -452,13 +461,11 @@ const Sidebar = () => {
             </div>
           </Section>
 
-          <Section title={t("Stroke Width")}>
-            <div className={styles.buttonGroup}>
-              <Input
-                defaultValue={borderRadius}
-                onBlur={(e) => onStyleChange("borderRadius", Number(e))}
-              />
-            </div>
+          <Section title={t("Border Radius")}>
+            <Input
+              defaultValue={borderRadius}
+              onBlur={(e) => onStyleChange("borderRadius", Number(e))}
+            />
           </Section>
         </>
       )}

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CommunicationSymbol } from "../types";
 import useScale, { type Scale } from "../hooks/useScale";
 import { useAppStore } from "../store/store";
+import { isEmpty } from "../helpers/helpers";
 
 export function PreviewSymbol() {
   const brushData = useAppStore.use.brushData();
@@ -53,8 +54,9 @@ const SymbolCard = ({
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
-  // const [textHeight, setTextHeight] = useState(0);
+
   const scale = useScale();
+  const [textHeight, setTextHeight] = useState(0);
   const handleMouseDown = useAppStore.use.handleMouseDown();
   const handleDragEnd = useAppStore.use.handleDragEnd();
 
@@ -63,6 +65,22 @@ const SymbolCard = ({
       setImage(background);
     }
   }, [background]);
+
+  function handleTextHeightChange() {
+    setTextHeight(textRef.current?.height() ?? 0);
+  }
+
+  useEffect(() => {
+    handleTextHeightChange();
+  }, [symbol]);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleTextHeightChange);
+
+    console.log(textRef.current?.height());
+
+    return () => window.removeEventListener("resize", handleTextHeightChange);
+  }, []);
 
   const width = symbol.width * scale.WidthToA4;
   const height = symbol.height * scale.WidthToA4;
@@ -73,13 +91,10 @@ const SymbolCard = ({
   const paddingY = 5 * scale.WidthToA4;
   const paddingX = 5 * scale.WidthToA4;
 
-  // useEffect(() => {
-  // console.log("dupa");
-  const textHeight = textRef.current?.height() ?? 0;
-  // }, [symbol]);
-
-  const imageOffetY = -textHeight;
-  const imageHeight = height - paddingY * 2 - textHeight;
+  const imageOffet =
+    symbol.textOverImage || isEmpty(symbol.text) ? 0 : -textHeight;
+  const imageHeight = height - paddingY * 2 + imageOffet;
+  const imageWidth = width - paddingX * 2 + imageOffet;
 
   return (
     <Group
@@ -108,8 +123,9 @@ const SymbolCard = ({
       />
       <Group offsetX={-paddingX} offsetY={-paddingY}>
         <Image
-          offsetY={imageOffetY}
-          width={width - paddingX * 2}
+          offsetY={imageOffet}
+          offsetX={imageOffet / 2}
+          width={imageWidth}
           height={imageHeight}
           image={image}
         />
