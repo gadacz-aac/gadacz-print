@@ -8,13 +8,14 @@ import type { CommunicationSymbol } from "../../types";
 import { KeyCode } from "../../consts/key_codes";
 
 const layoutModules = import.meta.glob("/src/layouts/*.gp", {
-  as: "raw",
+  query: "?raw",
+  import: "default",
   eager: true,
 });
 const layoutsData = Object.entries(layoutModules)
   .map(([path, jsonString]) => {
     try {
-      const parsed = JSON.parse(jsonString);
+      const parsed = JSON.parse(jsonString as string);
       return {
         layout: (parsed.elements ?? []) as CommunicationSymbol[],
         path,

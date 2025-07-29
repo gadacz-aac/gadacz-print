@@ -1,7 +1,7 @@
 import { Group, Image, Rect, Text } from "react-konva";
 import type Konva from "konva";
 import useImage from "use-image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CommunicationSymbol } from "../types";
 import useScale, { type Scale } from "../hooks/useScale";
 import { useAppStore } from "../store/store";
@@ -48,9 +48,12 @@ const SymbolCard = ({
   onMouseOut,
   onMouseOver,
 }: SymbolCardProps) => {
+  const textRef = useRef<Konva.Text>(null);
+
   const [background] = useImage(symbol.image ?? "", "anonymous");
 
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  // const [textHeight, setTextHeight] = useState(0);
   const scale = useScale();
   const handleMouseDown = useAppStore.use.handleMouseDown();
   const handleDragEnd = useAppStore.use.handleDragEnd();
@@ -66,6 +69,17 @@ const SymbolCard = ({
 
   const x = symbol.x * scale.WidthToA4;
   const y = symbol.y * scale.WidthToA4;
+
+  const paddingY = 5 * scale.WidthToA4;
+  const paddingX = 5 * scale.WidthToA4;
+
+  // useEffect(() => {
+  // console.log("dupa");
+  const textHeight = textRef.current?.height() ?? 0;
+  // }, [symbol]);
+
+  const imageOffetY = -textHeight;
+  const imageHeight = height - paddingY * 2 - textHeight;
 
   return (
     <Group
@@ -92,25 +106,26 @@ const SymbolCard = ({
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}
       />
-      <Image
-        offsetX={-15 * scale.WidthToA4}
-        offsetY={-25 * scale.WidthToA4}
-        width={width - 30 * scale.WidthToA4}
-        height={height - 30 * scale.WidthToA4}
-        image={image}
-      />
-      <Text
-        offsetY={-2 * scale.WidthToA4}
-        width={width}
-        align="center"
-        fill={symbol.fontColor}
-        fontStyle={symbol.fontStyle}
-        fontFamily={symbol.fontFamily}
-        fontSize={symbol.fontSize * scale.WidthToA4}
-        text={symbol.text}
-        lineHeight={symbol.lineHeight}
-        letterSpacing={symbol.letterSpacing}
-      />
+      <Group offsetX={-paddingX} offsetY={-paddingY}>
+        <Image
+          offsetY={imageOffetY}
+          width={width - paddingX * 2}
+          height={imageHeight}
+          image={image}
+        />
+        <Text
+          width={width - paddingX * 2}
+          ref={textRef}
+          align="center"
+          fill={symbol.fontColor}
+          fontStyle={symbol.fontStyle}
+          fontFamily={symbol.fontFamily}
+          fontSize={symbol.fontSize * scale.WidthToA4}
+          text={symbol.text}
+          lineHeight={symbol.lineHeight}
+          letterSpacing={symbol.letterSpacing}
+        />
+      </Group>
     </Group>
   );
 };
