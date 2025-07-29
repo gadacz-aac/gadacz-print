@@ -64,11 +64,7 @@ export interface ElementsSlice {
     property: K,
     value: CanvasShape[K],
   ) => void;
-  handleTransformEnd: (
-    evt: Konva.KonvaEventObject<Event>,
-    id: string,
-    scale: Scale,
-  ) => void;
+  handleTransformEnd: (transformer: Konva.Transformer) => void;
   modifiedPositionByAxisAndGap: (
     selected: Positionable[],
     gap: number,
@@ -287,32 +283,37 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       "elements/styleSelectedSymbols",
     );
   },
-  handleTransformEnd: (evt, id, { A4ToWidth }) => {
-    const node = evt.target;
-
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
-
-    if (scaleX === 1 && scaleY === 1) return;
-
-    node.scaleX(1);
-    node.scaleY(1);
-
+  handleTransformEnd: (transformer) => {
     set(
       ({ elements }) => {
+        const { A4ToWidth } = SizeHelper.calculateScale(
+          SizeHelper.caluclatePageDimensions(get().isLandscape)[0],
+          get().isLandscape,
+        );
+
         const newRects = [...elements];
 
-        const index = newRects.findIndex((r) => r.id === id);
+        for (const node of transformer.nodes()) {
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
 
-        if (index !== -1) {
-          newRects[index] = {
-            ...newRects[index],
-            x: node.x() * A4ToWidth,
-            y: node.y() * A4ToWidth,
-            width: Math.max(5, newRects[index].width * scaleX),
-            height: Math.max(5, newRects[index].height * scaleY),
-            rotation: node.rotation(),
-          };
+          if (scaleX === 1 && scaleY === 1) continue;
+
+          node.scaleX(1);
+          node.scaleY(1);
+
+          const index = newRects.findIndex((r) => r.id === node.id());
+
+          if (index !== -1) {
+            newRects[index] = {
+              ...newRects[index],
+              x: node.x() * A4ToWidth,
+              y: node.y() * A4ToWidth,
+              width: Math.max(5, newRects[index].width * scaleX),
+              height: Math.max(5, newRects[index].height * scaleY),
+              rotation: node.rotation(),
+            };
+          }
         }
 
         return {

@@ -40,7 +40,7 @@ type WhiteboardProps = {
  * When elements are added to transformer this element should be resized
  */
 function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
-  return <Rect draggable ref={ref} />;
+  return <Rect fill={"black"} draggable ref={ref} />;
 }
 
 const Whiteboard = ({ stageRef }: WhiteboardProps) => {
@@ -97,6 +97,8 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
     const { width, height } = transformerRef.current.__getNodeRect();
 
+    console.log(width, height);
+
     // without this there's some funky behaviour when snapping
     // and really it looks similar to when every object was snapped separetly
     const padding = 10;
@@ -105,7 +107,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
     overdrawWholeAreaRef.current.width(width - padding);
     overdrawWholeAreaRef.current.height(height - padding);
 
-    transformerRef.current.nodes([...nodes, overdrawWholeAreaRef.current]);
+    // transformerRef.current.nodes([...nodes, overdrawWholeAreaRef.current]);
   }, [selectedIds, elements]);
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
@@ -371,7 +373,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <SymbolCard
                     key={e.id}
                     symbol={e}
-                    onTransformEnd={handleTransformEnd}
+                    // onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {
                         rectRefs.current.set(e.id, node);
@@ -384,7 +386,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <TextElement
                     key={e.id}
                     text={e}
-                    onTransformEnd={handleTransformEnd}
+                    // onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {
                         rectRefs.current.set(e.id, node);
@@ -398,6 +400,10 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
             ref={transformerRef}
             onDragMove={handleLayerDragMove}
             onDragEnd={handleLayerDragEnd}
+            onTransformEnd={() => {
+              if (transformerRef.current !== null)
+                handleTransformEnd(transformerRef.current);
+            }}
             boundBoxFunc={(oldBox, newBox) => {
               if (newBox.width < 5 || newBox.height < 5) {
                 return oldBox;

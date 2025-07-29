@@ -31,7 +31,7 @@ export function PreviewSymbol() {
 type SymbolCardProps = {
   symbol: CommunicationSymbol;
   ref: React.Ref<Konva.Group>;
-  onTransformEnd: (
+  onTransformEnd?: (
     evt: Konva.KonvaEventObject<Event>,
     id: string,
     scale: Scale,
@@ -99,6 +99,7 @@ const SymbolCard = ({
   return (
     <Group
       name={symbol.name}
+      id={symbol.id}
       x={x}
       y={y}
       draggable
@@ -108,12 +109,11 @@ const SymbolCard = ({
       }}
       onMouseOver={onMouseOver}
       onMouseOut={onMouseOut}
-      onTransformEnd={(e) => onTransformEnd(e, symbol.id, scale)}
+      onTransformEnd={(e) => onTransformEnd?.(e, symbol.id, scale)}
       onMouseDown={(evt) => handleMouseDown(evt, symbol.id)}
       ref={ref}
     >
       <Rect
-        id={symbol.id}
         width={width}
         height={height}
         fill={symbol.backgroundColor}

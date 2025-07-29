@@ -102,7 +102,7 @@ const TextEditor = ({ shape, onClose, onChange }: TextEditorProps) => {
 type TextElementProps = {
   ref: Ref<Konva.Group>;
   text: TextShape;
-  onTransformEnd: (
+  onTransformEnd?: (
     evt: Konva.KonvaEventObject<Event>,
     id: string,
     scale: Scale,
@@ -146,8 +146,9 @@ function TextElement({
       x={x}
       y={y}
       draggable
+      id={text.id}
       name={text.name}
-      onTransform={(e) => onTransformEnd(e, text.id, scale)}
+      onTransform={(e) => onTransformEnd?.(e, text.id, scale)}
       onDragEnd={(e) => {
         handleDragEnd(e, text.id, scale);
         onDragEnd?.(e);
