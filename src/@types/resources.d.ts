@@ -30,6 +30,7 @@ interface Resources {
     "Alignment": "Alignment",
     "Width": "Width",
     "Height": "Height",
+    "Padding": "Padding",
     "Normal": "Normal",
     "Font Style": {
       "Font Style": "Font Style",

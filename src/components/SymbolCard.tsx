@@ -88,8 +88,8 @@ const SymbolCard = ({
   const x = symbol.x * scale.WidthToA4;
   const y = symbol.y * scale.WidthToA4;
 
-  const paddingY = 5 * scale.WidthToA4;
-  const paddingX = 5 * scale.WidthToA4;
+  const paddingY = symbol.paddingY * scale.WidthToA4;
+  const paddingX = symbol.paddingX * scale.WidthToA4;
 
   const imageOffet =
     symbol.textOverImage || isEmpty(symbol.text) ? 0 : -textHeight;

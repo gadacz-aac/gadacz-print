@@ -32,6 +32,8 @@ export type BrushData = {
   width: number;
   height: number;
   textOverImage: boolean;
+  paddingX: number;
+  paddingY: number;
 };
 
 export type CommunicationSymbol = {
@@ -57,6 +59,8 @@ export const defaultBrush: BrushData = {
   borderRadius: 2,
   width: 100,
   height: 100,
+  paddingX: 5,
+  paddingY: 5,
 };
 
 export const defaultFontData: FontData = {

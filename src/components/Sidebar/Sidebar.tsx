@@ -294,6 +294,7 @@ const Sidebar = () => {
     "backgroundColor",
     brushData.backgroundColor,
   );
+
   const borderRadius = useStyle(
     selected,
     "borderRadius",
@@ -301,6 +302,9 @@ const Sidebar = () => {
   );
 
   const fontColor = useStyle(selected, "fontColor", fontData.fontColor);
+
+  const paddingX = useStyle(selected, "paddingX", brushData.paddingX);
+  const paddingY = useStyle(selected, "paddingY", brushData.paddingY);
 
   const gap = getGap(selected);
 
@@ -314,9 +318,9 @@ const Sidebar = () => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onStyleChange = (property: string, value: any) => {
+  const onStyleChange = (property: keyof CanvasShape, value: any) => {
     if (useAppStore.getState().selectedIds.length > 0) {
-      return styleSelected(property as keyof CanvasShape, value);
+      return styleSelected(property, value);
     }
 
     setFontData(property as keyof FontData, value);
@@ -342,11 +346,13 @@ const Sidebar = () => {
           defaultValue={name}
           onChange={(e) => onStyleChange("text", e)}
         />
-        <Switch
-          label={t("Display Text Over Image")}
-          value={textOverImage}
-          onChange={(e) => onStyleChange("textOverImage", e)}
-        />
+        {areOnlySymbolsSelected && (
+          <Switch
+            label={t("Display Text Over Image")}
+            value={textOverImage}
+            onChange={(e) => onStyleChange("textOverImage", e)}
+          />
+        )}
       </Section>
 
       <Section title={t("Typography")} grid>
@@ -426,6 +432,19 @@ const Sidebar = () => {
           </>
         )}
       </Section>
+
+      {areOnlySymbolsSelected && (
+        <Section grid title={t("Padding")}>
+          <Input
+            defaultValue={paddingX}
+            onBlur={(e) => onStyleChange("paddingX", Number(e))}
+          />
+          <Input
+            defaultValue={paddingY}
+            onBlur={(e) => onStyleChange("paddingY", Number(e))}
+          />
+        </Section>
+      )}
 
       {areOnlySymbolsSelected && (
         <>
