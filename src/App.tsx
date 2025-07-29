@@ -13,6 +13,7 @@ import Whiteboard from "./Whiteboard";
 import usePageSize from "./hooks/usePageSize";
 import ContextMenu from "./components/context_menu/context_menu";
 import { APP_CONTAINER_ID } from "./helpers/helpers";
+import { PointerTool } from "./consts/tools";
 
 const App = () => {
   const setSelectedIds = useAppStore.use.setSelectedIds();
@@ -89,7 +90,12 @@ const App = () => {
 
     switch (evt.key) {
       case KeyCode.Escape:
-        setSelectedIds([]);
+        if (useAppStore.getState().tool !== PointerTool) {
+          setTool(PointerTool);
+        } else {
+          setSelectedIds([]);
+        }
+
         evt.preventDefault();
         break;
       case KeyCode.Delete:
@@ -116,7 +122,9 @@ const App = () => {
           <Sidebar />
         </div>
         <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
-          <Toolbar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
+          <Toolbar
+            onDownload={() => download(pageWidth, pageHeight, stageRef)}
+          />
         </div>
         <PredefinedLayoutsModal />
         <Whiteboard stageRef={stageRef} />
