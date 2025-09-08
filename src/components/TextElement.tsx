@@ -127,8 +127,8 @@ function TextElement({
   const x = text.x * scale.WidthToA4;
   const y = text.y * scale.WidthToA4;
 
-  const width = text.width * scale.WidthToA4;
-  const height = text.height * scale.WidthToA4;
+  const width = Math.abs(text.width) * scale.WidthToA4;
+  const height = Math.abs(text.height) * scale.WidthToA4;
 
   const letterSpacing =
     text.letterSpacing === undefined
@@ -159,6 +159,8 @@ function TextElement({
       onDblClick={() => {
         setIsEditing(true);
       }}
+      scaleX={text.width < 0 ? -1 : 1}
+      scaleY={text.height < 0 ? -1 : 1}
     >
       <Rect width={width} height={height} />
       <Text

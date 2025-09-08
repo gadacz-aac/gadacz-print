@@ -82,8 +82,8 @@ const SymbolCard = ({
     return () => window.removeEventListener("resize", handleTextHeightChange);
   }, []);
 
-  const width = symbol.width * scale.WidthToA4;
-  const height = symbol.height * scale.WidthToA4;
+  const width = Math.abs(symbol.width) * scale.WidthToA4;
+  const height = Math.abs(symbol.height) * scale.WidthToA4;
 
   const x = symbol.x * scale.WidthToA4;
   const y = symbol.y * scale.WidthToA4;
@@ -112,6 +112,8 @@ const SymbolCard = ({
       onTransformEnd={(e) => onTransformEnd?.(e, symbol.id, scale)}
       onMouseDown={(evt) => handleMouseDown(evt, symbol.id)}
       ref={ref}
+      scaleX={symbol.width < 0 ? -1 : 1}
+      scaleY={symbol.height < 0 ? -1 : 1}
     >
       <Rect
         width={width}

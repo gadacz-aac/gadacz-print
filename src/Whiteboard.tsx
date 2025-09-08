@@ -41,7 +41,7 @@ type WhiteboardProps = {
  * When elements are added to transformer this element should be resized
  */
 function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
-  return <Rect fill={"black"} draggable ref={ref} />;
+  return <Rect draggable ref={ref} />;
 }
 
 const Whiteboard = ({ stageRef }: WhiteboardProps) => {
@@ -97,8 +97,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
     transformerRef.current.nodes([...nodes]);
 
     const { width, height } = transformerRef.current.__getNodeRect();
-
-    console.log(width, height);
 
     // without this there's some funky behaviour when snapping
     // and really it looks similar to when every object was snapped separetly
