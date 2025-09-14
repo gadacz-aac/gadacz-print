@@ -4,7 +4,6 @@ import {
   type BrushData,
   type CanvasShape,
   type FontData,
-  type Positionable,
 } from "../types";
 import type Konva from "konva";
 import type { Scale } from "../hooks/useScale";
@@ -13,6 +12,7 @@ import type { AppStateCreator } from "./store";
 import type { UnionOmit } from "../helpers/typescript";
 import { SymbolTool } from "../consts/tools";
 import SizeHelper from "../helpers/sizing";
+import { modifiedPositionByAxisAndGap } from "../helpers/gap";
 
 export interface ElementsSlice {
   elements: CanvasShape[];
@@ -65,11 +65,7 @@ export interface ElementsSlice {
     value: CanvasShape[K],
   ) => void;
   handleTransformEnd: (transformer: Konva.Transformer) => void;
-  modifiedPositionByAxisAndGap: (
-    selected: CanvasShape[],
-    gap: number,
-    axis: "x" | "y",
-  ) => CanvasShape[];
+
   handleGapChange: (gap: { x?: number; y?: number }) => void;
   align: (axis: "x" | "y", type: "start" | "center" | "end") => void;
   insertLayout: (layout: CanvasShape[]) => void;
@@ -80,43 +76,6 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
   set,
   get,
 ) => {
-  const findGridLines = (
-    shapes: CanvasShape[],
-    axis: "x" | "y",
-  ): number[] => {
-    const counts = new Map<number, { pos: number; count: number }>();
-    shapes.forEach((shape) => {
-      const key = Math.round(shape[axis] / 20) * 20;
-      const entry = counts.get(key) || { pos: 0, count: 0 };
-      counts.set(key, { pos: entry.pos + shape[axis], count: entry.count + 1 });
-    });
-
-    const lines: number[] = [];
-    counts.forEach((value) => {
-      lines.push(value.pos / value.count); // average position for the line
-    });
-    return lines.sort((a, b) => a - b);
-  };
-
-  const findClosest = (value: number, array: number[]): number => {
-    if (array.length === 0) return value;
-    return array.reduce((prev, curr) => {
-      return Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev;
-    });
-  };
-
-  const snapToGrid = (
-    shapes: CanvasShape[],
-    xGridLines: number[],
-    yGridLines: number[],
-  ): CanvasShape[] => {
-    return shapes.map((shape) => ({
-      ...shape,
-      x: findClosest(shape.x, xGridLines),
-      y: findClosest(shape.y, yGridLines),
-    }));
-  };
-
   return {
     elements: [],
     lastId: 0,
@@ -362,83 +321,20 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         "elements/handleTranformEnd",
       );
     },
-    modifiedPositionByAxisAndGap: (selected, gap, axis) => {
-      if (selected.length < 2) {
-        return selected;
-      }
-
-      const yGridLines = findGridLines(selected, "y");
-      const xGridLines = findGridLines(selected, "x");
-
-      const snappedShapes = snapToGrid(selected, xGridLines, yGridLines);
-
-      if (axis === "x") {
-        // Sort by y, then x to process row by row
-        const sorted = [...snappedShapes].sort((a, b) => {
-          if (Math.abs(a.y - b.y) > 10) return a.y - b.y;
-          return a.x - b.x;
-        });
-
-        const rows = new Map<number, CanvasShape[]>();
-        sorted.forEach((s) => {
-          const rowKey = Math.round(s.y / 10);
-          if (!rows.has(rowKey)) rows.set(rowKey, []);
-          rows.get(rowKey)!.push(s);
-        });
-
-        const newShapes = new Map<string, CanvasShape>();
-        snappedShapes.forEach((s) => newShapes.set(s.id, s));
-
-        rows.forEach((row) => {
-          for (let i = 1; i < row.length; i++) {
-            const prev = newShapes.get(row[i - 1].id)!;
-            const current = newShapes.get(row[i].id)!;
-            const newX = prev.x + prev.width + gap;
-            newShapes.set(current.id, { ...current, x: newX });
-          }
-        });
-        return Array.from(newShapes.values());
-      } else {
-        // axis === 'y'
-        // Sort by x, then y to process column by column
-        const sorted = [...snappedShapes].sort((a, b) => {
-          if (Math.abs(a.x - b.x) > 10) return a.x - b.x;
-          return a.y - b.y;
-        });
-
-        const cols = new Map<number, CanvasShape[]>();
-        sorted.forEach((s) => {
-          const colKey = Math.round(s.x / 10);
-          if (!cols.has(colKey)) cols.set(colKey, []);
-          cols.get(colKey)!.push(s);
-        });
-
-        const newShapes = new Map<string, CanvasShape>();
-        snappedShapes.forEach((s) => newShapes.set(s.id, s));
-
-        cols.forEach((col) => {
-          for (let i = 1; i < col.length; i++) {
-            const prev = newShapes.get(col[i - 1].id)!;
-            const current = newShapes.get(col[i].id)!;
-            const newY = prev.y + prev.height + gap;
-            newShapes.set(current.id, { ...current, y: newY });
-          }
-        });
-        return Array.from(newShapes.values());
-      }
-    },
     handleGapChange: ({ x, y }) => {
       set(
         ({ selectedIds, elements }) => {
-          const notSelected = elements.filter((e) => !selectedIds.includes(e.id));
+          const notSelected = elements.filter(
+            (e) => !selectedIds.includes(e.id),
+          );
           let selected = elements.filter((e) => selectedIds.includes(e.id));
 
           if (x !== undefined) {
-            selected = get().modifiedPositionByAxisAndGap(selected, x, "x");
+            selected = modifiedPositionByAxisAndGap(selected, x, "x");
           }
 
           if (y !== undefined) {
-            selected = get().modifiedPositionByAxisAndGap(selected, y, "y");
+            selected = modifiedPositionByAxisAndGap(selected, y, "y");
           }
 
           return {
@@ -459,7 +355,9 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     },
     align: (axis, type) => {
       set(({ elements, selectedIds }) => {
-        const unselected = elements.filter(({ id }) => !selectedIds.includes(id));
+        const unselected = elements.filter(
+          ({ id }) => !selectedIds.includes(id),
+        );
         const alignt = elements
           .filter(({ id }) => selectedIds.includes(id))
           .sort((a, b) => a[axis] - b[axis])
@@ -511,7 +409,8 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       set(({ isLandscape, elements }) => {
         const _isLandscape = !isLandscape;
 
-        const [width, height] = SizeHelper.caluclatePageDimensions(_isLandscape);
+        const [width, height] =
+          SizeHelper.caluclatePageDimensions(_isLandscape);
         const scale = SizeHelper.calculateScale(width, _isLandscape);
 
         return {
