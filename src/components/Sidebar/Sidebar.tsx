@@ -29,6 +29,7 @@ import useClickOutside from "../../hooks/useOnClickOutside.ts";
 import Aligment from "./Aligment.tsx";
 import Switch from "../Switch/Switch.tsx";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import GapSection from "./GapSection.tsx";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -416,26 +417,7 @@ const Sidebar = () => {
           onBlur={(e) => onStyleChange("height", Number(e))}
         />
 
-        {selected.length >= 2 && (
-          <>
-            {/* undefined value means there wasn't one that was the same for every element, so we still want to allow two enter a value */}
-            {(gap?.x ?? 0) >= 0 && (
-              <Input
-                label={t("Gap.horizontal")}
-                defaultValue={gap?.x}
-                onBlur={(e) => handleGapChange({ x: Number(e) })}
-              />
-            )}
-
-            {(gap?.y ?? 0) >= 0 && (
-              <Input
-                label={t("Gap.vertical")}
-                defaultValue={gap?.y}
-                onBlur={(e) => handleGapChange({ y: Number(e) })}
-              />
-            )}
-          </>
-        )}
+        {selected.length >= 2 && <GapSection />}
       </Section>
 
       {areOnlySymbolsSelected && (

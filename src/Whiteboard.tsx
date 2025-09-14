@@ -399,6 +399,11 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
             ref={transformerRef}
             onDragMove={handleLayerDragMove}
             onDragEnd={handleLayerDragEnd}
+            anchorStyleFunc={(anchor) => {
+              if (anchor.hasName("rotator")) {
+                anchor.position({ x: 1, y: 1 });
+              }
+            }}
             onTransformEnd={() => {
               if (transformerRef.current !== null)
                 handleTransformEnd(transformerRef.current);

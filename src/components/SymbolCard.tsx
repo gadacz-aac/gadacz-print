@@ -122,6 +122,7 @@ const SymbolCard = ({
         cornerRadius={symbol.borderRadius}
         strokeWidth={symbol.strokeWidth}
         stroke={symbol.stroke}
+        strokeScaleEnabled={false}
       />
       <Group offsetX={-paddingX} offsetY={-paddingY}>
         <Image
