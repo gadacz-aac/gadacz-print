@@ -41,7 +41,7 @@ type WhiteboardProps = {
  * When elements are added to transformer this element should be resized
  */
 function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
-  return <Rect draggable ref={ref} />;
+  return <Rect draggable ref={ref} fill={"black"} />;
 }
 
 const Whiteboard = ({ stageRef }: WhiteboardProps) => {
@@ -106,7 +106,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
     overdrawWholeAreaRef.current.width(width - padding);
     overdrawWholeAreaRef.current.height(height - padding);
 
-    // transformerRef.current.nodes([...nodes, overdrawWholeAreaRef.current]);
+    transformerRef.current.nodes([...nodes, overdrawWholeAreaRef.current]);
   }, [selectedIds, elements]);
 
   function handleStageMouseDown(evt: Konva.KonvaEventObject<MouseEvent>): void {
@@ -399,11 +399,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
             ref={transformerRef}
             onDragMove={handleLayerDragMove}
             onDragEnd={handleLayerDragEnd}
-            anchorStyleFunc={(anchor) => {
-              if (anchor.hasName("rotator")) {
-                anchor.position({ x: 1, y: 1 });
-              }
-            }}
             onTransformEnd={() => {
               if (transformerRef.current !== null)
                 handleTransformEnd(transformerRef.current);
