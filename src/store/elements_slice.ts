@@ -69,7 +69,7 @@ export interface ElementsSlice {
   handleGapChange: (gap: { x?: number; y?: number }) => void;
   align: (axis: "x" | "y", type: "start" | "center" | "end") => void;
   insertLayout: (layout: CanvasShape[]) => void;
-  toggleOrientation: () => void;
+  rotatePage: (clockwise: boolean) => void;
 }
 
 export const createElementsSlice: AppStateCreator<ElementsSlice> = (
@@ -405,7 +405,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         })),
       );
     },
-    toggleOrientation: () => {
+    rotatePage: (clockwise) => {
       set(({ isLandscape, elements }) => {
         const _isLandscape = !isLandscape;
 
@@ -417,8 +417,12 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
           isLandscape: _isLandscape,
           elements: elements.map((e) => ({
             ...e,
-            x: _isLandscape ? e.y : width * scale.A4ToWidth - e.y - e.height,
-            y: _isLandscape ? height * scale.A4ToWidth - e.x - e.width : e.x,
+            x: clockwise
+              ? width * scale.A4ToWidth - e.y - e.height
+              : e.y,
+            y: clockwise
+              ? e.x
+              : height * scale.A4ToWidth - e.x - e.width,
             width: e.height,
             height: e.width,
           })),
@@ -427,3 +431,4 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     },
   };
 };
+

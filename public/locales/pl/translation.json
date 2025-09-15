@@ -48,7 +48,9 @@
     "Duplicate": "Duplikuj",
     "Paste": "Wklej",
     "Select All": "Select All",
-    "Delete": "Usuń"
+    "Delete": "Usuń",
+    "Rotate Clockwise": "Obróć w prawo",
+    "Rotate Counter-Clockwise": "Obróć w lewo"
   },
   "error": {
     "title": "Ups! Coś poszło nie tak.",

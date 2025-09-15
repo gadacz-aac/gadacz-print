@@ -39,8 +39,8 @@
     "Bold italic": "Bold italic"
   },
   "Gap": {
-    "horizontal": "Odstępy (poziome)",
-    "vertical": "Odstępy (pionowe)"
+    "horizontal": "Gap (horizontal)",
+    "vertical": "Gap (vertical)"
   },
   "ContextMenu": {
     "Delete Page": "Delete Page",
@@ -48,7 +48,9 @@
     "Duplicate": "Duplicate",
     "Paste": "Paste",
     "Select All": "Select All",
-    "Delete": "Delete"
+    "Delete": "Delete",
+    "Rotate Clockwise": "Rotate Clockwise",
+    "Rotate Counter-Clockwise": "Rotate Counter-Clockwise"
   },
   "error": {
     "title": "Oops! Something went wrong.",

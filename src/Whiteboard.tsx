@@ -11,8 +11,7 @@ import useCursor from "./hooks/useCursor";
 import TextElement from "./components/TextElement";
 import { getClientRect } from "./helpers/konva";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { findGridLines } from "./helpers/gap";
-import useSelected from "./hooks/useSelectedSymbols";
+
 
 type Snap = "center" | "end" | "start";
 
@@ -82,10 +81,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
   const [cursor] = useCursor();
 
-  const selected = useSelected();
-  const xGridLines = findGridLines(selected, "x");
-  const yGridLines = findGridLines(selected, "y");
-  console.log(xGridLines);
+  
 
   useEffect(() => {
     if (!transformerRef.current) return;

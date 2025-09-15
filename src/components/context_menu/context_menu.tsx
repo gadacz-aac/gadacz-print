@@ -9,6 +9,8 @@ import SelectAllOption from "./options/select_all_option";
 import DuplicateOption from "./options/duplicate_option";
 import DeleteElementOption from "./options/delete_element_option";
 import InsertLayoutOption from "./options/insert_layout_option";
+import RotateCounterClockwiseOption from "./options/rotate_counter_clockwise_option";
+import RotateClockwiseOption from "./options/rotate_clockwise_option";
 
 export default function ContextMenu() {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,6 +37,8 @@ export default function ContextMenu() {
     >
       <DeletePageOption />
       <InsertLayoutOption />
+      <RotateClockwiseOption />
+      <RotateCounterClockwiseOption />
       <DeleteElementOption />
       <SelectAllOption />
       <CopyOption />
