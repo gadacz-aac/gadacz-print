@@ -21,36 +21,6 @@ export const determineGridGaps = (shapes: CanvasShape[]) => {
   const rowGaps: number[] = [];
   const columnGaps: number[] = [];
 
-  // Group by rows to find elements in multi-element rows
-  const rows = new Map<number, CanvasShape[]>();
-  shapes.forEach((s) => {
-    const key = Math.round(s.y / 5);
-    if (!rows.has(key)) rows.set(key, []);
-    rows.get(key)!.push(s);
-  });
-
-  let elementsInMultiElementRows = 0;
-  rows.forEach((row) => {
-    if (row.length > 1) {
-      elementsInMultiElementRows += row.length;
-    }
-  });
-
-  // Group by columns to find elements in multi-element columns
-  const cols = new Map<number, CanvasShape[]>();
-  shapes.forEach((s) => {
-    const key = Math.round(s.x / 5);
-    if (!cols.has(key)) cols.set(key, []);
-    cols.get(key)!.push(s);
-  });
-
-  let elementsInMultiElementCols = 0;
-  cols.forEach((col) => {
-    if (col.length > 1) {
-      elementsInMultiElementCols += col.length;
-    }
-  });
-
   // Calculate row gaps
   const shapesSortedByRow = [...shapes].sort((a, b) => {
     if (Math.abs(a.y - b.y) > 5) return a.y - b.y;
@@ -87,21 +57,8 @@ export const determineGridGaps = (shapes: CanvasShape[]) => {
     }
   }
 
-  let consistentRowGap = getConsistentGap(rowGaps);
-  if (
-    consistentRowGap !== undefined &&
-    elementsInMultiElementRows < shapes.length
-  ) {
-    consistentRowGap = undefined;
-  }
-
-  let consistentColumnGap = getConsistentGap(columnGaps);
-  if (
-    consistentColumnGap !== undefined &&
-    elementsInMultiElementCols < shapes.length
-  ) {
-    consistentColumnGap = undefined;
-  }
+  const consistentRowGap = getConsistentGap(rowGaps);
+  const consistentColumnGap = getConsistentGap(columnGaps);
 
   return {
     rowGap: consistentRowGap,
@@ -109,7 +66,10 @@ export const determineGridGaps = (shapes: CanvasShape[]) => {
   };
 };
 
-const findGridLines = (shapes: CanvasShape[], axis: "x" | "y"): number[] => {
+export const findGridLines = (
+  shapes: CanvasShape[],
+  axis: "x" | "y",
+): number[] => {
   if (shapes.length === 0) {
     return [];
   }
@@ -156,72 +116,103 @@ const snapToGrid = (
 
 export const modifiedPositionByAxisAndGap = (
   selected: CanvasShape[],
-  gap: number,
+  gapValue: number,
   axis: "x" | "y",
 ): CanvasShape[] => {
   if (selected.length < 2) {
     return selected;
   }
 
+  // 1. Determine both gaps. The one not being changed is preserved.
+  const currentGaps = determineGridGaps(selected);
+  const rowGap = axis === "x" ? gapValue : currentGaps.rowGap ?? 0;
+  const columnGap = axis === "y" ? gapValue : currentGaps.columnGap ?? 0;
+
+  // 2. Establish grid structure
   const yGridLines = findGridLines(selected, "y");
   const xGridLines = findGridLines(selected, "x");
-  console.log(xGridLines, yGridLines);
-
   const snappedShapes = snapToGrid(selected, xGridLines, yGridLines);
 
-  if (axis === "x") {
-    // Sort by y, then x to process row by row
-    const sorted = [...snappedShapes].sort((a, b) => {
-      if (Math.abs(a.y - b.y) > 10) return a.y - b.y;
-      return a.x - b.x;
-    });
+  // 3. Organize shapes into a logical grid
+  const grid = new Map<number, Map<number, CanvasShape>>(); // y-key -> x-key -> shape
+  const rowYKeys = new Set<number>();
+  const colXKeys = new Set<number>();
 
-    const rows = new Map<number, CanvasShape[]>();
-    sorted.forEach((s) => {
-      const rowKey = Math.round(s.y / 10);
-      if (!rows.has(rowKey)) rows.set(rowKey, []);
-      rows.get(rowKey)!.push(s);
-    });
+  snappedShapes.forEach((s) => {
+    if (!grid.has(s.y)) {
+      grid.set(s.y, new Map());
+    }
+    grid.get(s.y)!.set(s.x, s);
+    rowYKeys.add(s.y);
+    colXKeys.add(s.x);
+  });
 
-    const newShapes = new Map<string, CanvasShape>();
-    snappedShapes.forEach((s) => newShapes.set(s.id, s));
+  const sortedRows = [...rowYKeys].sort((a, b) => a - b);
+  const sortedCols = [...colXKeys].sort((a, b) => a - b);
 
-    rows.forEach((row) => {
-      for (let i = 1; i < row.length; i++) {
-        const prev = newShapes.get(row[i - 1].id)!;
-        const current = newShapes.get(row[i].id)!;
-        const newX = prev.x + prev.width + gap;
-        newShapes.set(current.id, { ...current, x: newX });
+  // 4. Calculate max width for each column and max height for each row
+  const colWidths = new Map<number, number>();
+  sortedCols.forEach((x) => {
+    let maxWidth = 0;
+    sortedRows.forEach((y) => {
+      const shape = grid.get(y)?.get(x);
+      if (shape && shape.width > maxWidth) {
+        maxWidth = shape.width;
       }
     });
-    return Array.from(newShapes.values());
-  } else {
-    // axis === 'y'
-    // Sort by x, then y to process column by column
-    const sorted = [...snappedShapes].sort((a, b) => {
-      if (Math.abs(a.x - b.x) > 10) return a.x - b.x;
-      return a.y - b.y;
-    });
+    colWidths.set(x, maxWidth);
+  });
 
-    const cols = new Map<number, CanvasShape[]>();
-    sorted.forEach((s) => {
-      const colKey = Math.round(s.x / 10);
-      if (!cols.has(colKey)) cols.set(colKey, []);
-      cols.get(colKey)!.push(s);
-    });
-
-    const newShapes = new Map<string, CanvasShape>();
-    snappedShapes.forEach((s) => newShapes.set(s.id, s));
-
-    cols.forEach((col) => {
-      for (let i = 1; i < col.length; i++) {
-        const prev = newShapes.get(col[i - 1].id)!;
-        const current = newShapes.get(col[i].id)!;
-        const newY = prev.y + prev.height + gap;
-        newShapes.set(current.id, { ...current, y: newY });
+  const rowHeights = new Map<number, number>();
+  sortedRows.forEach((y) => {
+    let maxHeight = 0;
+    sortedCols.forEach((x) => {
+      const shape = grid.get(y)?.get(x);
+      if (shape && shape.height > maxHeight) {
+        maxHeight = shape.height;
       }
     });
-    return Array.from(newShapes.values());
+    rowHeights.set(y, maxHeight);
+  });
+
+  // 5. Calculate new positions for columns and rows
+  const newColX = new Map<number, number>();
+  if (sortedCols.length > 0) {
+    let currentX = sortedCols[0]; // Keep original position of first column
+    for (let i = 0; i < sortedCols.length; i++) {
+      const xKey = sortedCols[i];
+      newColX.set(xKey, currentX);
+      const width = colWidths.get(xKey) ?? 0;
+      currentX += width + rowGap;
+    }
   }
-};
 
+  const newRowY = new Map<number, number>();
+  if (sortedRows.length > 0) {
+    let currentY = sortedRows[0]; // Keep original position of first row
+    for (let i = 0; i < sortedRows.length; i++) {
+      const yKey = sortedRows[i];
+      newRowY.set(yKey, currentY);
+      const height = rowHeights.get(yKey) ?? 0;
+      currentY += height + columnGap;
+    }
+  }
+
+  // 6. Apply new positions
+  const originalShapesById = new Map(selected.map((s) => [s.id, s]));
+  const finalShapes: CanvasShape[] = [];
+
+  snappedShapes.forEach((snapped) => {
+    const newX = newColX.get(snapped.x);
+    const newY = newRowY.get(snapped.y);
+    const originalShape = originalShapesById.get(snapped.id);
+
+    if (newX !== undefined && newY !== undefined && originalShape) {
+      finalShapes.push({ ...originalShape, x: newX, y: newY });
+    } else if (originalShape) {
+      finalShapes.push(originalShape); // Failsafe
+    }
+  });
+
+  return finalShapes;
+};

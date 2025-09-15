@@ -1,5 +1,4 @@
 import type Konva from "konva";
-import { type Positionable } from "../types";
 import { PageBackgroundGroupName } from "../components/PageBackground";
 
 export const degToRad = (angle: number) => (angle / 180) * Math.PI;
@@ -48,61 +47,4 @@ export const getClientRect = (element: {
 
 export function isStage(evt: Konva.KonvaEventObject<Event>) {
   return evt.target.hasName(PageBackgroundGroupName);
-}
-
-function getGapByAxisBetweenTwo(
-  a: Positionable,
-  b: Positionable,
-  axis: "x" | "y",
-) {
-  if (b[axis] < a[axis]) {
-    const buff = a;
-    a = b;
-    b = buff;
-  }
-
-  return (
-    Math.floor(b[axis]) -
-    Math.floor(a[axis]) -
-    Math.floor(a[axis === "x" ? "width" : "height"])
-  );
-}
-
-function getGapBetweenTwo(a: Positionable, b: Positionable) {
-  return {
-    x: getGapByAxisBetweenTwo(a, b, "x"),
-    y: getGapByAxisBetweenTwo(a, b, "y"),
-  };
-}
-
-// TODO take into account rotation
-export function getGapByAxis(elements: Positionable[], axis: "x" | "y") {
-  if (elements.length < 2) return;
-
-  const sortedByAxis = elements.sort((a, b) => a[axis] - b[axis]);
-
-  const { [axis]: consistentGap } = getGapBetweenTwo(
-    sortedByAxis[0],
-    sortedByAxis[1],
-  );
-
-  for (let i = 1; i < sortedByAxis.length - 1; i++) {
-    const { [axis]: gap } = getGapBetweenTwo(
-      sortedByAxis[i],
-      sortedByAxis[i + 1],
-    );
-
-    if (gap !== consistentGap) return undefined;
-  }
-
-  return consistentGap;
-}
-
-export function getGap(elements: Positionable[]) {
-  if (elements.length < 2) return;
-
-  return {
-    x: getGapByAxis(elements, "x"),
-    y: getGapByAxis(elements, "y"),
-  };
 }

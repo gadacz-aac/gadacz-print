@@ -11,6 +11,8 @@ import useCursor from "./hooks/useCursor";
 import TextElement from "./components/TextElement";
 import { getClientRect } from "./helpers/konva";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { findGridLines } from "./helpers/gap";
+import useSelected from "./hooks/useSelectedSymbols";
 
 type Snap = "center" | "end" | "start";
 
@@ -41,7 +43,8 @@ type WhiteboardProps = {
  * When elements are added to transformer this element should be resized
  */
 function ShouldOverDrawWholeAreaHack({ ref }: { ref: Ref<Konva.Rect> }) {
-  return <Rect draggable ref={ref} fill={"black"} />;
+  // fill={"black"}
+  return <Rect draggable ref={ref} />;
 }
 
 const Whiteboard = ({ stageRef }: WhiteboardProps) => {
@@ -78,6 +81,11 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
 
   const [cursor] = useCursor();
+
+  const selected = useSelected();
+  const xGridLines = findGridLines(selected, "x");
+  const yGridLines = findGridLines(selected, "y");
+  console.log(xGridLines);
 
   useEffect(() => {
     if (!transformerRef.current) return;
@@ -372,7 +380,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <SymbolCard
                     key={e.id}
                     symbol={e}
-                    // onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {
                         rectRefs.current.set(e.id, node);
@@ -385,7 +392,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
                   <TextElement
                     key={e.id}
                     text={e}
-                    // onTransformEnd={handleTransformEnd}
                     ref={(node) => {
                       if (node) {
                         rectRefs.current.set(e.id, node);
@@ -447,6 +453,28 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
               />
             );
           })}
+
+          {yGridLines.map((e) => (
+            <Line
+              key={e}
+              points={[0, e * scale.WidthToA4, pageWidth, e * scale.WidthToA4]}
+              stroke="rgb(0, 161, 255)"
+              strokeWidth={1}
+              name="guid-line"
+              dash={[4, 6]}
+            />
+          ))}
+
+          {xGridLines.map((e) => (
+            <Line
+              key={e}
+              points={[e * scale.WidthToA4, 0, e * scale.WidthToA4, pageHeight]}
+              stroke="rgb(0, 161, 255)"
+              strokeWidth={1}
+              name="guid-line"
+              dash={[4, 6]}
+            />
+          ))}
         </Layer>
       </Stage>
     </OverlayScrollbarsComponent>

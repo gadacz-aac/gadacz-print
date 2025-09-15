@@ -6,7 +6,6 @@ import { first } from "../../helpers/lists.tsx";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import Section from "./Section.tsx";
-import { getGap } from "../../helpers/konva.ts";
 import {
   useCallback,
   useEffect,
@@ -264,7 +263,6 @@ const Sidebar = () => {
   const selected = useSelected();
   const brushData = useAppStore.use.brushData();
   const fontData = useAppStore.use.fontData();
-  const handleGapChange = useAppStore.use.handleGapChange();
   const styleSelected = useAppStore.use.styleSelected();
   const setBrushData = useAppStore.use.setBrushData();
   const setFontData = useAppStore.use.setFontData();
@@ -307,8 +305,6 @@ const Sidebar = () => {
 
   const paddingX = useStyle(selected, "paddingX", brushData.paddingX);
   const paddingY = useStyle(selected, "paddingY", brushData.paddingY);
-
-  const gap = getGap(selected);
 
   const { t } = useTranslation();
 
