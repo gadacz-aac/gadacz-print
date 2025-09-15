@@ -18,42 +18,65 @@ export const determineGridGaps = (shapes: CanvasShape[]) => {
     return { rowGap: 0, columnGap: 0 };
   }
 
-  const rowGaps: number[] = [];
-  const columnGaps: number[] = [];
+  const xGridLines = findGridLines(shapes, "x");
+  const yGridLines = findGridLines(shapes, "y");
 
-  // Calculate row gaps
-  const shapesSortedByRow = [...shapes].sort((a, b) => {
-    if (Math.abs(a.y - b.y) > 5) return a.y - b.y;
-    return a.x - b.x;
+  const snappedShapes = snapToGrid(shapes, xGridLines, yGridLines);
+
+  const grid = new Map<number, Map<number, CanvasShape>>(); // y-key -> x-key -> shape
+  const rowYKeys = new Set<number>();
+  const colXKeys = new Set<number>();
+
+  snappedShapes.forEach((s) => {
+    if (!grid.has(s.y)) {
+      grid.set(s.y, new Map());
+    }
+    grid.get(s.y)!.set(s.x, s);
+    rowYKeys.add(s.y);
+    colXKeys.add(s.x);
   });
 
-  for (let i = 0; i < shapesSortedByRow.length - 1; i++) {
-    const current = shapesSortedByRow[i];
-    const next = shapesSortedByRow[i + 1];
+  const sortedRows = [...rowYKeys].sort((a, b) => a - b);
+  const sortedCols = [...colXKeys].sort((a, b) => a - b);
 
-    if (Math.abs(current.y - next.y) < 5) {
-      const gap = next.x - (current.x + current.width);
-      if (gap > 0) {
-        rowGaps.push(gap);
+  // Calculate vertical gaps (between rows) -> columnGap
+  const columnGaps: number[] = [];
+  for (let i = 0; i < sortedRows.length - 1; i++) {
+    const rowY1 = sortedRows[i];
+    const rowY2 = sortedRows[i + 1];
+
+    let maxBottomY1 = -Infinity;
+    grid.get(rowY1)?.forEach((shape) => {
+      if (shape.y + shape.height > maxBottomY1) {
+        maxBottomY1 = shape.y + shape.height;
       }
+    });
+
+    const gap = rowY2 - maxBottomY1;
+    if (gap > 0) {
+      columnGaps.push(gap);
     }
   }
 
-  // Calculate column gaps
-  const shapesSortedByColumn = [...shapes].sort((a, b) => {
-    if (Math.abs(a.x - b.x) > 5) return a.x - b.x;
-    return a.y - b.y;
-  });
+  // Calculate horizontal gaps (between columns) -> rowGap
+  const rowGaps: number[] = [];
+  for (let i = 0; i < sortedCols.length - 1; i++) {
+    const colX1 = sortedCols[i];
+    const colX2 = sortedCols[i + 1];
 
-  for (let i = 0; i < shapesSortedByColumn.length - 1; i++) {
-    const current = shapesSortedByColumn[i];
-    const next = shapesSortedByColumn[i + 1];
-
-    if (Math.abs(current.x - next.x) < 5) {
-      const gap = next.y - (current.y + current.height);
-      if (gap > 0) {
-        columnGaps.push(gap);
+    let maxRightX1 = -Infinity;
+    sortedRows.forEach((y) => {
+      const shape = grid.get(y)?.get(colX1);
+      if (shape) {
+        if (shape.x + shape.width > maxRightX1) {
+          maxRightX1 = shape.x + shape.width;
+        }
       }
+    });
+
+    const gap = colX2 - maxRightX1;
+    if (gap > 0) {
+      rowGaps.push(gap);
     }
   }
 

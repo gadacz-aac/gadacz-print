@@ -11,13 +11,19 @@ The grid gap feature allows users to inspect and modify the spacing between elem
 
 ## Gap Calculation (`determineGridGaps`)
 
-This function is responsible for calculating the horizontal (`rowGap`) and vertical (`columnGap`) gaps from a given array of selected shapes. It is designed to be lenient and find a consistent gap if one exists, even among a few elements in the selection.
+This function is responsible for calculating the horizontal (`rowGap`) and vertical (`columnGap`) gaps from a given array of selected shapes. It is designed to find the gap *between rows and columns* of the grid that the shapes form.
 
 ### Key Steps:
 
-1.  **Sort and Scan:** It sorts the selected shapes twice: once by row (y then x) and once by column (x then y).
-2.  **Gap Measurement:** It iterates through the sorted lists and measures the distance between each adjacent pair of elements on the primary axis.
-3.  **Consistency Check:** It uses the `getConsistentGap` helper to check if all the measured gaps (for a given axis) are the same (within a rounding tolerance). If a consistent gap is found, it is returned; otherwise, it returns `undefined`.
+1.  **Grid Structure Detection (`findGridLines` & `snapToGrid`):** The function first determines the logical grid structure of the selected elements, even if they are not perfectly aligned. It uses `findGridLines` to find the row and column lines and `snapToGrid` to place the elements into a temporary, perfectly aligned grid.
+
+2.  **Organize Shapes into Grid:** The snapped shapes are organized into a data structure that represents the grid, making it easy to identify which elements belong to which row and column.
+
+3.  **Gap Measurement:**
+    *   **Vertical Gap (`columnGap`):** The function iterates through the grid rows, calculating the vertical distance between the bottom-most edge of one row and the top-most edge of the row directly below it.
+    *   **Horizontal Gap (`rowGap`):** It similarly iterates through the grid columns, calculating the horizontal distance between the right-most edge of one column and the left-most edge of the next column.
+
+4.  **Consistency Check:** It gathers all calculated row and column gaps and uses the `getConsistentGap` helper to see if they are uniform. If a consistent gap is found, it is returned; otherwise, it returns `undefined`.
 
 ## Gap Adjustment (`modifiedPositionByAxisAndGap`)
 
