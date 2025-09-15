@@ -454,7 +454,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
             );
           })}
 
-          {yGridLines.map((e) => (
+          {/* {yGridLines.map((e) => (
             <Line
               key={e}
               points={[0, e * scale.WidthToA4, pageWidth, e * scale.WidthToA4]}
@@ -474,7 +474,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
               name="guid-line"
               dash={[4, 6]}
             />
-          ))}
+          ))} */}
         </Layer>
       </Stage>
     </OverlayScrollbarsComponent>
