@@ -118,17 +118,19 @@ const App = () => {
         onBlur={handleBlur}
         className={styles.container}
       >
-        <div className={styles.sidebar} style={{ width: sidebarWidth }}>
-          <Sidebar />
-        </div>
         <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
           <Toolbar
             onDownload={() => download(pageWidth, pageHeight, stageRef)}
           />
         </div>
+
         <PredefinedLayoutsModal />
         <Whiteboard stageRef={stageRef} />
         <ContextMenu />
+
+        <div className={styles.sidebar} style={{ width: sidebarWidth }}>
+          <Sidebar />
+        </div>
       </div>
     </ErrorBoundary>
   );

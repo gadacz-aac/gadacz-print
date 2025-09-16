@@ -39,31 +39,48 @@ type ColorGridProps = {
 function ColorGrid({ isActive, onStyleChange, currentColor }: ColorGridProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const fallback = AacColors.noColorWhite;
-  const ref = useRef<HTMLDivElement>(null);
-  const customColorSquareRef = useRef<HTMLButtonElement>(null);
-  useClickOutside(ref, () => setShowColorPicker(false));
-  const [offsetTop, setOffsetTop] = useState([0, 0]);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  useClickOutside(pickerRef, () => setShowColorPicker(false));
+  const [pickerPos, setPickerPos] = useState({ top: 0, left: 0 });
 
   useLayoutEffect(() => {
-    const handleResize = () => {
-      if (customColorSquareRef.current === null) return;
+    const scrollContainer = gridRef.current?.closest(
+      "[data-overlayscrollbars-contents]",
+    );
 
-      const { y } = customColorSquareRef.current.getBoundingClientRect();
-      const colorPickerHeight = 282;
+    const updatePosition = () => {
+      if (gridRef.current) {
+        const rect = gridRef.current.getBoundingClientRect();
+        const pickerHeight = pickerRef.current?.offsetHeight ?? 245;
+        const paddingBottom = 12;
+        const paddingLeft = 12;
+        let top = rect.top;
 
-      const isTooSmall = window.innerHeight - y < colorPickerHeight;
+        if (top < paddingBottom) {
+          top = paddingBottom;
+        } else if (top + pickerHeight > window.innerHeight - paddingBottom) {
+          top = Math.max(
+            paddingBottom,
+            window.innerHeight - pickerHeight - paddingBottom,
+          );
+        }
 
-      const offsetTop = isTooSmall ? window.innerHeight - colorPickerHeight : y;
-
-      setOffsetTop([offsetTop, 0]);
+        setPickerPos({ top, left: rect.right + paddingLeft });
+      }
     };
 
-    setTimeout(handleResize);
+    if (showColorPicker) {
+      updatePosition();
+      scrollContainer?.addEventListener("scroll", updatePosition);
+      window.addEventListener("resize", updatePosition);
+    }
 
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, [customColorSquareRef]);
+    return () => {
+      scrollContainer?.removeEventListener("scroll", updatePosition);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [showColorPicker]);
 
   const customColor =
     currentColor === undefined
@@ -73,7 +90,7 @@ function ColorGrid({ isActive, onStyleChange, currentColor }: ColorGridProps) {
         : currentColor;
 
   return (
-    <div className={styles.colorGrid}>
+    <div className={styles.colorGrid} ref={gridRef}>
       {aacColors.map((c) => (
         <ColorSquare
           key={c}
@@ -83,17 +100,17 @@ function ColorGrid({ isActive, onStyleChange, currentColor }: ColorGridProps) {
         />
       ))}
       <ColorSquare
-        ref={customColorSquareRef}
         color={customColor}
         isSelected={() => fallback !== currentColor && isActive(customColor)}
         onClick={() => setShowColorPicker(true)}
       />
       {showColorPicker && (
         <div
-          className={styles.customColorPicker}
-          ref={ref}
+          ref={pickerRef}
           style={{
-            transform: `translateY(${offsetTop[0]}px) translateY(${offsetTop[1]}%) translateX(100%)`,
+            position: "fixed",
+            top: pickerPos.top,
+            left: pickerPos.left,
           }}
         >
           <ChromePicker

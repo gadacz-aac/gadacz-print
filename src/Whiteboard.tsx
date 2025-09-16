@@ -12,7 +12,6 @@ import TextElement from "./components/TextElement";
 import { getClientRect } from "./helpers/konva";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
-
 type Snap = "center" | "end" | "start";
 
 type GuideLine = {
@@ -80,8 +79,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const showPreviewSymbol = tool === SymbolTool && !isResizingNewlyAddedSymbol;
 
   const [cursor] = useCursor();
-
-  
 
   useEffect(() => {
     if (!transformerRef.current) return;

@@ -1,5 +1,4 @@
 import { useAppStore } from "../../../store/store";
-import useSelected from "../../../hooks/useSelectedSymbols";
 import BaseContextMenuOption from "../base_context_menu_option";
 import { useTranslation } from "react-i18next";
 
@@ -20,3 +19,4 @@ export default function RotateCounterClockwiseOption() {
     />
   );
 }
+
