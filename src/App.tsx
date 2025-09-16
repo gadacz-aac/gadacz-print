@@ -25,6 +25,8 @@ const App = () => {
   const handleDeleteSelectedSymbol =
     useAppStore.use.handleDeleteSelectedSymbol();
   const download = useAppStore.use.download();
+  const undo = useAppStore.use.undo();
+  const redo = useAppStore.use.redo();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
@@ -79,6 +81,18 @@ const App = () => {
           break;
         case KeyCode.D:
           duplicate();
+          evt.preventDefault();
+          break;
+        case KeyCode.Z:
+          if (evt.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+          evt.preventDefault();
+          break;
+        case KeyCode.Y:
+          redo();
           evt.preventDefault();
           break;
         default:
