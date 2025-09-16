@@ -180,8 +180,12 @@ export const createSelectionSlice: AppStateCreator<SelectionSlice> = (
     );
   },
   selectAll: () => {
-    set(({ elements }) => ({
-      selectedIds: elements.map((e) => e.id),
-    }));
+    set(
+      ({ elements }) => ({
+        selectedIds: elements.map((e) => e.id),
+      }),
+      undefined,
+      "selection/selectAll",
+    );
   },
 });

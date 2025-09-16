@@ -136,6 +136,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
         handleAddSymbolResize(evt, scale);
         break;
       case PointerTool:
+        if (selectedIds.length > 0) break;
         resizeSelectionRectangle(evt);
         break;
     }

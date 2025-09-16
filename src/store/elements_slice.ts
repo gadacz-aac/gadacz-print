@@ -346,50 +346,58 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       );
     },
     setShowLayoutModal: (show, pageNumber) => {
-      set(() => ({
-        layoutModalData: {
-          isOpen: show,
-          insertOnPage: pageNumber,
-        },
-      }));
+      set(
+        () => ({
+          layoutModalData: {
+            isOpen: show,
+            insertOnPage: pageNumber,
+          },
+        }),
+        undefined,
+        "elements/setShowLayoutModal",
+      );
     },
     align: (axis, type) => {
-      set(({ elements, selectedIds }) => {
-        const unselected = elements.filter(
-          ({ id }) => !selectedIds.includes(id),
-        );
-        const alignt = elements
-          .filter(({ id }) => selectedIds.includes(id))
-          .sort((a, b) => a[axis] - b[axis])
-          .map((e, _, arr) => {
-            switch (type) {
-              case "start": {
-                return {
-                  ...e,
-                  [axis]: (e[axis] = arr[0][axis]),
-                };
-              }
-              case "end": {
-                return {
-                  ...e,
-                  [axis]: (e[axis] = last(arr)[axis]),
-                };
-              }
-              case "center": {
-                const lastItem = last(arr);
-                const dim = axis === "x" ? "width" : "height";
-                const middle =
-                  (arr[0][axis] + lastItem[axis] + lastItem[dim]) / 2;
+      set(
+        ({ elements, selectedIds }) => {
+          const unselected = elements.filter(
+            ({ id }) => !selectedIds.includes(id),
+          );
+          const alignt = elements
+            .filter(({ id }) => selectedIds.includes(id))
+            .sort((a, b) => a[axis] - b[axis])
+            .map((e, _, arr) => {
+              switch (type) {
+                case "start": {
+                  return {
+                    ...e,
+                    [axis]: (e[axis] = arr[0][axis]),
+                  };
+                }
+                case "end": {
+                  return {
+                    ...e,
+                    [axis]: (e[axis] = last(arr)[axis]),
+                  };
+                }
+                case "center": {
+                  const lastItem = last(arr);
+                  const dim = axis === "x" ? "width" : "height";
+                  const middle =
+                    (arr[0][axis] + lastItem[axis] + lastItem[dim]) / 2;
 
-                return { ...e, [axis]: middle - e[dim] / 2 };
+                  return { ...e, [axis]: middle - e[dim] / 2 };
+                }
               }
-            }
-          });
+            });
 
-        return {
-          elements: [...alignt, ...unselected],
-        };
-      });
+          return {
+            elements: [...alignt, ...unselected],
+          };
+        },
+        undefined,
+        "elements/align",
+      );
     },
     insertLayout: (layout) => {
       const pageNumber = get().layoutModalData.insertOnPage ?? 0;
@@ -406,29 +414,28 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       );
     },
     rotatePage: (clockwise) => {
-      set(({ isLandscape, elements }) => {
-        const _isLandscape = !isLandscape;
+      set(
+        ({ isLandscape, elements }) => {
+          const _isLandscape = !isLandscape;
 
-        const [width, height] =
-          SizeHelper.caluclatePageDimensions(_isLandscape);
-        const scale = SizeHelper.calculateScale(width, _isLandscape);
+          const [width, height] =
+            SizeHelper.caluclatePageDimensions(_isLandscape);
+          const scale = SizeHelper.calculateScale(width, _isLandscape);
 
-        return {
-          isLandscape: _isLandscape,
-          elements: elements.map((e) => ({
-            ...e,
-            x: clockwise
-              ? width * scale.A4ToWidth - e.y - e.height
-              : e.y,
-            y: clockwise
-              ? e.x
-              : height * scale.A4ToWidth - e.x - e.width,
-            width: e.height,
-            height: e.width,
-          })),
-        };
-      });
+          return {
+            isLandscape: _isLandscape,
+            elements: elements.map((e) => ({
+              ...e,
+              x: clockwise ? width * scale.A4ToWidth - e.y - e.height : e.y,
+              y: clockwise ? e.x : height * scale.A4ToWidth - e.x - e.width,
+              width: e.height,
+              height: e.width,
+            })),
+          };
+        },
+        undefined,
+        "elemenets/rotatePage",
+      );
     },
   };
 };
-
