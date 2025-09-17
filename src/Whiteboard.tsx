@@ -55,6 +55,7 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   const handleTransformEnd = useAppStore.use.handleTransformEnd();
   const selectedIds = useAppStore.use.selectedIds();
   const selectionRectangle = useAppStore.use.selectionRectangle();
+  const handleDragEnd = useAppStore.use.handleDragEnd();
   const startSelectionRectangle = useAppStore.use.startSelectionRectangle();
   const resizeSelectionRectangle = useAppStore.use.resizeSelectionRectangle();
   const hideSelectionRectangle = useAppStore.use.hideSelectionRectangle();
@@ -340,6 +341,14 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   function handleLayerDragEnd() {
+    if (transformerRef.current === null) return;
+
+    const moved = transformerRef.current
+      .nodes()
+      .filter((e) => e !== overdrawWholeAreaRef.current);
+
+    handleDragEnd(moved);
+
     setGuides([]);
   }
 
@@ -447,28 +456,6 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
               />
             );
           })}
-
-          {/* {yGridLines.map((e) => (
-            <Line
-              key={e}
-              points={[0, e * scale.WidthToA4, pageWidth, e * scale.WidthToA4]}
-              stroke="rgb(0, 161, 255)"
-              strokeWidth={1}
-              name="guid-line"
-              dash={[4, 6]}
-            />
-          ))}
-
-          {xGridLines.map((e) => (
-            <Line
-              key={e}
-              points={[e * scale.WidthToA4, 0, e * scale.WidthToA4, pageHeight]}
-              stroke="rgb(0, 161, 255)"
-              strokeWidth={1}
-              name="guid-line"
-              dash={[4, 6]}
-            />
-          ))} */}
         </Layer>
       </Stage>
     </OverlayScrollbarsComponent>

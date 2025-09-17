@@ -25,8 +25,7 @@ const App = () => {
   const handleDeleteSelectedSymbol =
     useAppStore.use.handleDeleteSelectedSymbol();
   const download = useAppStore.use.download();
-  const undo = useAppStore.use.undo();
-  const redo = useAppStore.use.redo();
+  const { undo, redo } = useAppStore.temporal.getState();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);

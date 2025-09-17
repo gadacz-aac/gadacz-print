@@ -36,7 +36,6 @@ type SymbolCardProps = {
     id: string,
     scale: Scale,
   ) => void;
-  onDragEnd?: (evt: Konva.KonvaEventObject<DragEvent>) => void;
   onMouseOver?: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
   onMouseOut?: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
 };
@@ -44,7 +43,6 @@ type SymbolCardProps = {
 const SymbolCard = ({
   symbol,
   ref,
-  onDragEnd,
   onTransformEnd,
   onMouseOut,
   onMouseOver,
@@ -58,7 +56,6 @@ const SymbolCard = ({
   const scale = useScale();
   const [textHeight, setTextHeight] = useState(0);
   const handleMouseDown = useAppStore.use.handleMouseDown();
-  const handleDragEnd = useAppStore.use.handleDragEnd();
 
   useEffect(() => {
     if (background) {
@@ -103,10 +100,7 @@ const SymbolCard = ({
       x={x}
       y={y}
       draggable
-      onDragEnd={(e) => {
-        handleDragEnd(e, symbol.id, scale);
-        onDragEnd?.(e);
-      }}
+      onDragEnd={() => {}}
       onMouseOver={onMouseOver}
       onMouseOut={onMouseOut}
       onTransformEnd={(e) => onTransformEnd?.(e, symbol.id, scale)}

@@ -41,11 +41,7 @@ export interface ElementsSlice {
     scale: Scale,
   ) => void;
   handleAddSymbolEnd: () => void;
-  handleDragEnd: (
-    evt: Konva.KonvaEventObject<DragEvent>,
-    id: string,
-    scale: Scale,
-  ) => void;
+  handleDragEnd: (moved: Konva.Node[]) => void;
   handleDeleteSelectedSymbol: () => void;
   setFontData: <T extends keyof FontData>(
     property: T,
@@ -199,20 +195,30 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
         "elements/handleAddSymbolEnd",
       );
     },
-    handleDragEnd: (evt, id, { A4ToWidth }) =>
+    handleDragEnd: (moved) =>
       set(
-        ({ elements }) => ({
-          elements: elements.map((symbol) => {
-            if (symbol.id === id) {
-              return {
-                ...symbol,
-                x: evt.target.x() * A4ToWidth,
-                y: evt.target.y() * A4ToWidth,
+        ({ elements }) => {
+          const { A4ToWidth } = SizeHelper.calculateScale(
+            SizeHelper.caluclatePageDimensions(get().isLandscape)[0],
+            get().isLandscape,
+          );
+
+          const newElements = [...elements];
+
+          for (const node of moved) {
+            const index = newElements.findIndex((r) => r.id === node.id());
+
+            if (index !== -1) {
+              newElements[index] = {
+                ...newElements[index],
+                x: node.x() * A4ToWidth,
+                y: node.y() * A4ToWidth,
               };
             }
-            return symbol;
-          }),
-        }),
+          }
+
+          return { elements: newElements };
+        },
         undefined,
         "elements/handleDragEnd",
       ),
