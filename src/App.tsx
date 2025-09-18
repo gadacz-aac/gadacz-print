@@ -12,10 +12,12 @@ import { useAppStore } from "./store/store";
 import Whiteboard from "./Whiteboard";
 import usePageSize from "./hooks/usePageSize";
 import ContextMenu from "./components/context_menu/context_menu";
+import { useTranslation } from "react-i18next";
 import { APP_CONTAINER_ID } from "./helpers/helpers";
 import { PointerTool } from "./consts/tools";
 
 const App = () => {
+  const { t } = useTranslation();
   const setSelectedIds = useAppStore.use.setSelectedIds();
   const setTool = useAppStore.use.setTool();
   const handleCopyElements = useAppStore.use.copySelected();
@@ -31,6 +33,20 @@ const App = () => {
   const stageRef = useRef<Konva.Stage>(null);
 
   const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = t("confirmLeave");
+      return t("confirmLeave");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [t]);
 
   useEffect(() => {
     containerRef?.current?.focus();
@@ -132,9 +148,7 @@ const App = () => {
         className={styles.container}
       >
         <div className={styles.toolbar} style={{ translate: sidebarWidth / 2 }}>
-          <Toolbar
-            onDownload={() => download(pageWidth, pageHeight, stageRef)}
-          />
+          <Toolbar />
         </div>
 
         <PredefinedLayoutsModal />
@@ -142,7 +156,7 @@ const App = () => {
         <ContextMenu />
 
         <div className={styles.sidebar} style={{ width: sidebarWidth }}>
-          <Sidebar />
+          <Sidebar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
         </div>
       </div>
     </ErrorBoundary>

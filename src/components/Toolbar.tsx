@@ -1,22 +1,16 @@
-import { MdDownload, MdFileOpen, MdSave } from "react-icons/md";
 import styles from "./Toolbar.module.css";
 import { tools } from "../consts/tools";
 import { LanguagePicker } from "./LanguagePicker";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { extension } from "../consts/extension";
 import { useAppStore } from "../store/store";
+import { MdRedo, MdUndo } from "react-icons/md";
 
-type ToolbarProps = {
-  onDownload: () => void;
-};
-
-const Toolbar = ({ onDownload }: ToolbarProps) => {
+const Toolbar = () => {
   const { t } = useTranslation();
   const currentTool = useAppStore.use.tool();
   const setTool = useAppStore.use.setTool();
-  const open = useAppStore.use.open();
-  const save = useAppStore.use.save();
+  const { undo, redo } = useAppStore.temporal.getState();
 
   return (
     <div className={styles.toolbar}>
@@ -36,25 +30,13 @@ const Toolbar = ({ onDownload }: ToolbarProps) => {
       ))}
       <hr />
 
-      <button title={t("Open")}>
-        <label style={{ display: "inherit" }}>
-          <input
-            style={{ display: "none" }}
-            type="file"
-            onChange={open}
-            accept={extension}
-          />
-          <MdFileOpen />
-        </label>
+      <button title={t("Undo")} onClick={() => undo()}>
+        <MdUndo />
       </button>
 
-      <button title={t("Save")} onClick={save}>
-        <MdSave />
+      <button title={t("Redo")} onClick={() => redo()}>
+        <MdRedo />
       </button>
-      <button title={t("Download")} onClick={onDownload}>
-        <MdDownload />
-      </button>
-
       <hr />
       <LanguagePicker />
     </div>

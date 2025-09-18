@@ -1,11 +1,13 @@
 {
+  "New": "Nowy",
+  "File": "Plik",
   "Selection": "Zaznaczenie",
   "Add Symbol": "Dodaj symbol",
   "Insert layout": "Wstaw układ",
   "New page": "Nowa strona",
   "Open": "Otwórz",
   "Save": "Zapisz",
-  "Download": "Pobierz",
+  "Download": "Eksportuj jako PDF",
   "Invalid file": "Nieprawidłowy plik",
   "No file was selected": "Nie wybrano pliku",
   "Text": "Tekst",
@@ -60,5 +62,8 @@
     "copy": "Kopiuj",
     "showDetails": "Pokaż szczegóły",
     "hideDetails": "Ukryj szczegóły"
-  }
+  },
+  "Undo": "Cofnij",
+  "Redo": "Ponów",
+  "confirmLeave": "Czy na pewno chcesz opuścić stronę? Niezapisane zmiany mogą zostać utracone."
 }

@@ -16,7 +16,8 @@ interface Resources {
       "Select All": "Select All"
     },
     "Display Text Over Image": "Display the text over image",
-    "Download": "Download",
+    "Download": "Export as PDF",
+    "File": "File",
     "Font Size": "Font Size",
     "Font Style": {
       "Bold": "Bold",
@@ -36,6 +37,7 @@ interface Resources {
     "Layout": "Layout",
     "Letter Spacing": "Letter Spacing",
     "Line Height": "Line Height",
+    "New": "New",
     "New page": "New page",
     "No file was selected": "No file was selected",
     "No result found": "No result found",
@@ -43,6 +45,7 @@ interface Resources {
     "Open": "Open",
     "Or select a local file": "Or select a local file",
     "Padding": "Padding",
+    "Redo": "Redo",
     "Save": "Save",
     "Search for an image": "Search for an image",
     "Select a Predefined Layout": "Select a Predefined Layout",
@@ -51,7 +54,9 @@ interface Resources {
     "Stroke Width": "Stroke Width",
     "Text": "Text",
     "Typography": "Typography",
+    "Undo": "Undo",
     "Width": "Width",
+    "confirmLeave": "Are you sure you want to leave? Changes you made may not be saved.",
     "error": {
       "copy": "Copy",
       "hideDetails": "Hide Details",

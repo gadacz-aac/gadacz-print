@@ -1,11 +1,13 @@
 {
+  "New": "New",
+  "File": "File",
   "Selection": "Selection",
   "Add Symbol": "Add Symbol",
   "Insert layout": "Insert layout",
   "New page": "New page",
   "Open": "Open",
   "Save": "Save",
-  "Download": "Download",
+  "Download": "Export as PDF",
   "Invalid file": "Invalid file",
   "No file was selected": "No file was selected",
   "Text": "Text",
@@ -61,5 +63,8 @@
     "rebooting": "Attempting to reboot the system...",
     "retry": "Retry",
     "copy": "Copy"
-  }
+  },
+  "Undo": "Undo",
+  "Redo": "Redo",
+  "confirmLeave": "Are you sure you want to leave? Changes you made may not be saved."
 }

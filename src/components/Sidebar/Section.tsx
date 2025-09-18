@@ -7,7 +7,7 @@ export default function Section({
   children,
   grid = false,
 }: {
-  title: string;
+  title?: string;
   children: ReactNode;
   grid?: boolean;
 }) {
@@ -17,7 +17,7 @@ export default function Section({
         [styles.sectionGrid]: grid,
       })}
     >
-      <h4 className={styles.sectionHeader}>{title}</h4>
+      {title && <h4 className={styles.sectionHeader}>{title}</h4>}
       <div>{children}</div>
     </div>
   );

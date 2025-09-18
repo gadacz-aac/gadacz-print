@@ -20,6 +20,7 @@ import {
 import { KeyCode } from "../../consts/key_codes.ts";
 import Select from "./Select.tsx";
 import FontPicker from "./FontPicker.tsx";
+import { extension } from "../../consts/extension";
 import { useAppStore } from "../../store/store.ts";
 import useSelected from "../../hooks/useSelectedSymbols.ts";
 import useStyle from "../../hooks/useStyle.ts";
@@ -29,6 +30,7 @@ import Aligment from "./Aligment.tsx";
 import Switch from "../Switch/Switch.tsx";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import GapSection from "./GapSection.tsx";
+import { MdMoreHoriz } from "react-icons/md";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -131,6 +133,7 @@ function Input({
   placeholder,
   onChange,
   onBlur,
+  className,
 }: {
   label?: string;
   allowEmpty?: boolean;
@@ -139,6 +142,7 @@ function Input({
   placeholder?: string;
   onChange?: (val: string) => void;
   onBlur?: (val: string) => void;
+  className?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
@@ -230,7 +234,7 @@ function Input({
         onChange={handleChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className={styles.searchInput}
+        className={clsx(styles.searchInput, className)}
       />
     </label>
   );
@@ -261,6 +265,91 @@ const ColorSquare = ({
   );
 };
 
+type SidebarProps = {
+  onDownload: () => void;
+};
+
+function FileMenu({
+  onDownload,
+  open,
+  save,
+  onOpen,
+  onClose,
+}: SidebarProps & {
+  open: (e: ChangeEvent<HTMLInputElement>) => void;
+  save: () => void;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useClickOutside(ref, () => {
+    setIsOpen(false);
+    onClose();
+  });
+
+  return (
+    <div ref={ref} className={styles.fileMenu}>
+      <button
+        onClick={() => {
+          setIsOpen(!isOpen);
+
+          if (isOpen) {
+            onClose();
+          } else {
+            onOpen();
+          }
+        }}
+        className={styles.fileMenuButton}
+      >
+        <MdMoreHoriz />
+      </button>
+      {isOpen && (
+        <div className={styles.fileMenuContent}>
+          <div
+            className={styles.fileMenuItem}
+            onClick={() => {
+              window.open(window.location.href, "_blank");
+              setIsOpen(false);
+            }}
+          >
+            {t("New")}
+          </div>
+          <label className={styles.fileMenuItem}>
+            <input
+              style={{ display: "none" }}
+              type="file"
+              onChange={open}
+              accept={extension}
+            />
+            {t("Open")}
+          </label>
+          <div
+            className={styles.fileMenuItem}
+            onClick={() => {
+              save();
+              setIsOpen(false);
+            }}
+          >
+            {t("Save")}
+          </div>
+          <div
+            className={styles.fileMenuItem}
+            onClick={() => {
+              onDownload();
+              setIsOpen(false);
+            }}
+          >
+            {t("Download")}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const aacColors = [
   AacColors.nounOrange,
   AacColors.verbGreen,
@@ -276,13 +365,19 @@ const aacColors = [
 
 const strokeWidths = [1, 2, 3];
 
-const Sidebar = () => {
+const Sidebar = ({ onDownload }: SidebarProps) => {
+  const [showScrollbars, setShowScrollbar] = useState(true);
+
   const selected = useSelected();
   const brushData = useAppStore.use.brushData();
   const fontData = useAppStore.use.fontData();
   const styleSelected = useAppStore.use.styleSelected();
   const setBrushData = useAppStore.use.setBrushData();
   const setFontData = useAppStore.use.setFontData();
+  const fileName = useAppStore.use.fileName();
+  const setFileName = useAppStore.use.setFileName();
+  const open = useAppStore.use.open();
+  const save = useAppStore.use.save();
 
   const areOnlySymbolsSelected = selected.every(
     ({ name }) => name === "symbol",
@@ -352,10 +447,32 @@ const Sidebar = () => {
 
   return (
     <OverlayScrollbarsComponent
-      options={{ scrollbars: { autoHide: "move" } }}
+      options={{
+        scrollbars: {
+          visibility: showScrollbars ? "visible" : "hidden",
+          autoHide: "move",
+        },
+      }}
       element="div"
       className={styles.sidebar}
     >
+      <Section>
+        <div className={styles.fileSection}>
+          <Input
+            defaultValue={fileName}
+            onBlur={(e) => setFileName(e)}
+            className={styles.hiddenInput}
+          />
+          <FileMenu
+            onOpen={() => setShowScrollbar(false)}
+            onClose={() => setShowScrollbar(true)}
+            onDownload={onDownload}
+            open={open}
+            save={save}
+          />
+        </div>
+      </Section>
+
       <ImagePicker />
 
       <Section title={t("Text")}>

@@ -9,6 +9,8 @@ import { PageBreakName } from "../components/PageBackground";
 import SizeHelper from "../helpers/sizing";
 
 export interface FileSlice {
+  fileName: string;
+  setFileName: (fileName: string) => void;
   numberOfPages: number;
   insertPageBreak: () => void;
   removePage: () => void;
@@ -22,6 +24,8 @@ export interface FileSlice {
 }
 
 export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
+  fileName: "Untitiled",
+  setFileName: (fileName: string) => set(() => ({ fileName })),
   numberOfPages: 1,
   insertPageBreak: () => {
     set(({ numberOfPages }) => ({
@@ -80,7 +84,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       "href",
       "data:text/plain;charset=utf-8," + encodeURIComponent(text),
     );
-    element.setAttribute("download", `board${extension}`);
+    element.setAttribute("download", `${get().fileName}${extension}`);
 
     element.style.display = "none";
     document.body.appendChild(element);
@@ -152,7 +156,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       }
     }
 
-    pdf.save(`canvas.${extension}`);
+    pdf.save(`${get().fileName}.pdf`);
     hideTemporarly.forEach((e) => e.show());
   },
 });
