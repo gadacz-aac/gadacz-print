@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "cp index.dev.html index.html && vite",
-    "build": "cp index.prod.html index.html && tsc -b && vite build",
+    "build": "npm run build:react && npm run build:docs && npm run move:docs",
+    "build:react": "cp index.prod.html index.html && tsc -b && vite build",
+    "build:docs": "cd docs && npm run build",
+    "move:docs": "cp -r ./docs/doc_build ./dist",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-i18next-types": "npx i18next-resources-for-ts interface -i ./public/locales/en -o ./src/@types/resources.d.ts"
