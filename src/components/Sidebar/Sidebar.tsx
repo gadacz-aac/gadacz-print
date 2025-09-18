@@ -31,6 +31,7 @@ import Switch from "../Switch/Switch.tsx";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import GapSection from "./GapSection.tsx";
 import { MdMoreHoriz } from "react-icons/md";
+import { fileNameTranslated } from "../../helpers/helpers.ts";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -344,6 +345,14 @@ function FileMenu({
           >
             {t("Download")}
           </div>
+
+          <hr className="separator" />
+
+          <div className={styles.fileMenuItem}>
+            <a href="/docs" target="_blank">
+              {t("Help")}
+            </a>
+          </div>
         </div>
       )}
     </div>
@@ -374,7 +383,7 @@ const Sidebar = ({ onDownload }: SidebarProps) => {
   const styleSelected = useAppStore.use.styleSelected();
   const setBrushData = useAppStore.use.setBrushData();
   const setFontData = useAppStore.use.setFontData();
-  const fileName = useAppStore.use.fileName();
+  const fileName = fileNameTranslated(useAppStore.use.fileName());
   const setFileName = useAppStore.use.setFileName();
   const open = useAppStore.use.open();
   const save = useAppStore.use.save();

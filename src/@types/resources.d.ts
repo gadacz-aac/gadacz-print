@@ -31,6 +31,7 @@ interface Resources {
       "vertical": "Gap (vertical)"
     },
     "Height": "Height",
+    "Help": "Need help?",
     "Image": "Image",
     "Insert layout": "Insert layout",
     "Invalid file": "Invalid file",
@@ -55,6 +56,7 @@ interface Resources {
     "Text": "Text",
     "Typography": "Typography",
     "Undo": "Undo",
+    "Untitled": "Untitled",
     "Width": "Width",
     "confirmLeave": "Are you sure you want to leave? Changes you made may not be saved.",
     "error": {

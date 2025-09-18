@@ -40,11 +40,3 @@
 .contextMenuItemShotcut {
     font-size: 12px;
 }
-
-.separator {
-    border: none;
-    height: 1px;
-    background: #e0e0e066;
-    width: 90%;
-    margin-block: 2px;
-}

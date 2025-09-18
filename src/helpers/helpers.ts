@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 export const APP_CONTAINER_ID = "APP_CONTAINER_ID";
 
 export const focusMainContainer = () => {
@@ -10,3 +12,7 @@ export const isEmpty = (dupa: string | Array<unknown>) => {
 
   return dupa.trim().length === 0;
 };
+
+export const fileNameTranslated = (fileName: string) =>
+  fileName.trim() === "" ? t("Untitled") : fileName;
+

@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import type Konva from "konva";
 import { PageBreakName } from "../components/PageBackground";
 import SizeHelper from "../helpers/sizing";
+import { fileNameTranslated } from "../helpers/helpers";
 
 export interface FileSlice {
   fileName: string;
@@ -24,7 +25,7 @@ export interface FileSlice {
 }
 
 export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
-  fileName: "Untitiled",
+  fileName: "",
   setFileName: (fileName: string) => set(() => ({ fileName })),
   numberOfPages: 1,
   insertPageBreak: () => {
@@ -84,7 +85,10 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       "href",
       "data:text/plain;charset=utf-8," + encodeURIComponent(text),
     );
-    element.setAttribute("download", `${get().fileName}${extension}`);
+    element.setAttribute(
+      "download",
+      `${fileNameTranslated(get().fileName)}${extension}`,
+    );
 
     element.style.display = "none";
     document.body.appendChild(element);
@@ -156,7 +160,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       }
     }
 
-    pdf.save(`${get().fileName}.pdf`);
+    pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);
     hideTemporarly.forEach((e) => e.show());
   },
 });
