@@ -9,6 +9,8 @@ import { PageBreakName } from "../components/PageBackground";
 import SizeHelper from "../helpers/sizing";
 import { fileNameTranslated } from "../helpers/helpers";
 
+const BOARD_FILE_VERSION = 1;
+
 export interface FileSlice {
   fileName: string;
   setFileName: (fileName: string) => void;
@@ -76,6 +78,8 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
   },
   save: () => {
     const text = JSON.stringify({
+      version: BOARD_FILE_VERSION,
+      isLandscape: get().isLandscape,
       elements: get().elements,
       numberOfPages: get().numberOfPages,
     });
@@ -110,9 +114,14 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       try {
         const state = await JSON.parse(text);
 
+        if (state.version !== BOARD_FILE_VERSION) {
+          return;
+        }
+
         set(() => ({
           elements: state["elements"],
           numberOfPages: state["numberOfPages"],
+          isLandscape: state["isLandscape"],
         }));
       } catch {
         return alert(t("Text"));
@@ -126,10 +135,14 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
     reader.readAsText(evt.target.files![0]);
   },
   download: (pageWidth, pageHeight, stageRef) => {
-    const A4Width = A4.landscape.width;
-    const A4Height = A4.landscape.height;
+    const isLandscape = get().isLandscape;
 
-    const pdf = new jsPDF("l", "px", [A4Width, A4Height]);
+    const orientation = isLandscape ? "landscape" : "portrait";
+
+    const A4Width = A4[orientation].width;
+    const A4Height = A4[orientation].height;
+
+    const pdf = new jsPDF(orientation, "px", [A4Width, A4Height]);
 
     const stage = stageRef.current;
     if (!stage) return;
@@ -156,7 +169,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       );
 
       if (i !== get().numberOfPages - 1) {
-        pdf.addPage([A4Width, A4Height], "l");
+        pdf.addPage([A4Width, A4Height], orientation);
       }
     }
 

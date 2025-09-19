@@ -113,8 +113,8 @@ const SymbolCard = ({
         width={width}
         height={height}
         fill={symbol.backgroundColor}
-        cornerRadius={symbol.borderRadius}
-        strokeWidth={symbol.strokeWidth}
+        cornerRadius={symbol.borderRadius * scale.WidthToA4}
+        strokeWidth={symbol.strokeWidth * scale.WidthToA4}
         stroke={symbol.stroke}
         strokeScaleEnabled={false}
       />

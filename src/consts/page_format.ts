@@ -14,7 +14,7 @@ class PageFormat {
     this.shorter = shorter;
   }
 
-  public get portait(): PageDimension {
+  public get portrait(): PageDimension {
     return { width: this.shorter, height: this.longer };
   }
 

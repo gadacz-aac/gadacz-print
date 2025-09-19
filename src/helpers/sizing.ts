@@ -26,7 +26,7 @@ export default class SizeHelper {
   }
 
   static calculateScale(width: number, landscape: boolean) {
-    const orientation = landscape ? "landscape" : "portait";
+    const orientation = landscape ? "landscape" : "portrait";
 
     const A4ToWidth = A4[orientation].width / width;
     const WidthToA4 = width / A4[orientation].width;
