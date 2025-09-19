@@ -3,7 +3,6 @@
 
   position: relative;
   display: flex;
-  gap: 20px;
   padding: var(--padding);
   height: 100vh;
   box-sizing: border-box;
@@ -22,7 +21,12 @@
   z-index: 1;
 }
 
+.whiteboard {
+  margin-inline: auto;
+}
+
 .sidebar {
   height: 100%;
   box-sizing: border-box;
+  margin-right: auto;
 }

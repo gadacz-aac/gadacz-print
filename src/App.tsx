@@ -152,11 +152,15 @@ const App = () => {
         </div>
 
         <PredefinedLayoutsModal />
-        <Whiteboard stageRef={stageRef} />
+        <div className={styles.whiteboard}>
+          <Whiteboard stageRef={stageRef} />
+        </div>
         <ContextMenu />
 
         <div className={styles.sidebar} style={{ width: sidebarWidth }}>
-          <Sidebar onDownload={() => download(pageWidth, pageHeight, stageRef)} />
+          <Sidebar
+            onDownload={() => download(pageWidth, pageHeight, stageRef)}
+          />
         </div>
       </div>
     </ErrorBoundary>

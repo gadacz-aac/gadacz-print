@@ -353,7 +353,13 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
   }
 
   return (
-    <OverlayScrollbarsComponent options={{ scrollbars: { autoHide: "move" } }}>
+    <OverlayScrollbarsComponent
+      style={{
+        height: "100%",
+        overflowY: "auto",
+      }}
+      options={{ scrollbars: { autoHide: "move" } }}
+    >
       <Stage
         ref={stageRef}
         width={pageWidth}
