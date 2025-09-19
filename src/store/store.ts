@@ -16,13 +16,15 @@ import { createFileSlice, type FileSlice } from "./file_slice";
 import { createSelectionSlice, type SelectionSlice } from "./selection_slice";
 import { createToolSlice, type ToolSlice } from "./tool_slice";
 import { shallow } from "zustand/shallow";
+import { createSnackbarSlice, type SnackbarSlice } from "./snackbar_slice";
 
 export type AppStore = ElementsSlice &
   SelectionSlice &
   ToolSlice &
   CopySlice &
   FileSlice &
-  ContextMenuSlice;
+  ContextMenuSlice &
+  SnackbarSlice;
 
 export type AppStateCreator<T> = StateCreator<
   AppStore,
@@ -41,6 +43,7 @@ export const appStore = createStore<AppStore>()(
         ...createCopySlice(...a),
         ...createFileSlice(...a),
         ...createContextMenuSlice(...a),
+        ...createSnackbarSlice(...a),
       }),
       {
         partialize: (state) => ({

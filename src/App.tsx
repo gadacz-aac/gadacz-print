@@ -15,6 +15,7 @@ import ContextMenu from "./components/context_menu/context_menu";
 import { useTranslation } from "react-i18next";
 import { APP_CONTAINER_ID } from "./helpers/helpers";
 import { PointerTool } from "./consts/tools";
+import Snackbar from "./components/Snackbar/Snackbar";
 
 const App = () => {
   const { t } = useTranslation();
@@ -28,6 +29,8 @@ const App = () => {
     useAppStore.use.handleDeleteSelectedSymbol();
   const download = useAppStore.use.download();
   const { undo, redo } = useAppStore.temporal.getState();
+  const snackbar = useAppStore.use.snackbar();
+  const hideSnackbar = useAppStore.use.hideSnackbar();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
@@ -162,6 +165,9 @@ const App = () => {
             onDownload={() => download(pageWidth, pageHeight, stageRef)}
           />
         </div>
+        {snackbar.open && snackbar.message && (
+          <Snackbar message={snackbar.message} onClose={hideSnackbar} />
+        )}
       </div>
     </ErrorBoundary>
   );

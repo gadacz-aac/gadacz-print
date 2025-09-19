@@ -19,6 +19,11 @@ export interface FileSlice {
   removePage: () => void;
   save: () => void;
   open: (evt: ChangeEvent<HTMLInputElement>) => void;
+  download2: (
+    pageWidth: number,
+    pageHeight: number,
+    stageRef: RefObject<Konva.Stage | null>,
+  ) => void;
   download: (
     pageWidth: number,
     pageHeight: number,
@@ -134,6 +139,67 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
 
     reader.readAsText(evt.target.files![0]);
   },
+  download2: async (pageWidth, pageHeight, stageRef) => {
+    const isLandscape = get().isLandscape;
+
+    const orientation = isLandscape ? "landscape" : "portrait";
+
+    const A4Width = A4[orientation].width;
+    const A4Height = A4[orientation].height;
+
+    const pdf = new jsPDF(orientation, "px", [A4Width, A4Height]);
+
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const hideTemporarly = [
+      ...stage.find(`.${PageBreakName}`),
+      ...stage.find("Transformer"),
+    ];
+    hideTemporarly.forEach((e) => e.hide());
+
+    const dupa = stage.toCanvas().cloneNode();
+
+    document.body.append(dupa);
+
+    const offset = (
+      stage.toCanvas().cloneNode() as HTMLCanvasElement
+    ).transferControlToOffscreen();
+
+    // const pixelRatio = Math.min(10_000 / pageWidth, 10_000 / pageHeight);
+
+    console.time();
+    for (let i = 0; i < get().numberOfPages; i++) {
+      const w = new Worker(
+        new URL("/src/worker/download_worker.js", import.meta.url),
+      );
+
+      const message = new Promise((resolve) => {
+        w.onmessage = async (e) => {
+          pdf.addImage(e.data.dataUrl, 0, 0, A4Width, A4Height);
+          resolve(e.data.dataUrl);
+        };
+      });
+
+      w.postMessage({ canvas: offset, pageHeight, pageWidth, pageIndex: i }, [
+        offset,
+      ]);
+
+      const image = new Image();
+      image.src = (await message) as string;
+
+      const win = window.open("");
+      win!.document.write(image.outerHTML);
+
+      if (i !== get().numberOfPages - 1) {
+        pdf.addPage([A4Width, A4Height], orientation);
+      }
+    }
+
+    console.timeEnd();
+    pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);
+    hideTemporarly.forEach((e) => e.show());
+  },
   download: (pageWidth, pageHeight, stageRef) => {
     const isLandscape = get().isLandscape;
 
@@ -153,10 +219,18 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
     ];
     hideTemporarly.forEach((e) => e.hide());
 
+    for (let i = 0; i < get().numberOfPages - 1; i++) {
+      pdf.addPage([A4Width, A4Height], orientation);
+    }
+
+    const pixelRatio = Math.min(A4Width / pageWidth, A4Height / pageHeight) * 4;
+
+    console.log(pixelRatio);
+
     for (let i = 0; i < get().numberOfPages; i++) {
       pdf.addImage(
         stage.toDataURL({
-          pixelRatio: 2,
+          pixelRatio,
           x: 0,
           y: i * pageHeight,
           width: pageWidth,
@@ -167,10 +241,6 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
         A4Width,
         A4Height,
       );
-
-      if (i !== get().numberOfPages - 1) {
-        pdf.addPage([A4Width, A4Height], orientation);
-      }
     }
 
     pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);

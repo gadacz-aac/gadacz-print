@@ -286,6 +286,8 @@ function FileMenu({
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
 
+  const showSnackbar = useAppStore.use.showSnackbar();
+
   useClickOutside(ref, () => {
     setIsOpen(false);
     onClose();
@@ -339,8 +341,9 @@ function FileMenu({
           <div
             className={styles.fileMenuItem}
             onClick={() => {
-              onDownload();
               setIsOpen(false);
+              showSnackbar("Exporting file...");
+              setTimeout(onDownload);
             }}
           >
             {t("Download")}
