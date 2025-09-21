@@ -1,6 +1,7 @@
 import { t } from "i18next";
 
 export const APP_CONTAINER_ID = "APP_CONTAINER_ID";
+export const FILE_INPUT_ID = "FILE_INPUT_ID";
 
 export const focusMainContainer = () => {
   console.log(document.querySelector<HTMLElement>("#" + APP_CONTAINER_ID));
@@ -15,4 +16,3 @@ export const isEmpty = (dupa: string | Array<unknown>) => {
 
 export const fileNameTranslated = (fileName: string) =>
   fileName.trim() === "" ? t("Untitled") : fileName;
-

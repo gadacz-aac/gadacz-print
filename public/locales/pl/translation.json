@@ -63,6 +63,10 @@
     "showDetails": "Pokaż szczegóły",
     "hideDetails": "Ukryj szczegóły"
   },
+  "Snackbar": {
+    "fileExport": "Eksportujemy plik",
+    "fileOpen": "Nie udało się otworzyć okna wyboru pliku"
+  },
   "Help": "Potrzebujesz pomocy?",
   "Untitled": "Bez nazwy",
   "Undo": "Cofnij",

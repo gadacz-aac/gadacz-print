@@ -66,6 +66,10 @@
     "retry": "Retry",
     "copy": "Copy"
   },
+  "Snackbar": {
+    "fileExport": "Exporting file",
+    "fileOpen": "File dialog could not be opened"
+  },
   "Undo": "Undo",
   "Redo": "Redo",
   "confirmLeave": "Are you sure you want to leave? Changes you made may not be saved."

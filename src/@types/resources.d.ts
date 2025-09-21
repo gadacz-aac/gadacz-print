@@ -51,6 +51,10 @@ interface Resources {
     "Search for an image": "Search for an image",
     "Select a Predefined Layout": "Select a Predefined Layout",
     "Selection": "Selection",
+    "Snackbar": {
+      "fileExport": "Exporting file",
+      "fileOpen": "File dialog could not be opened"
+    },
     "Stroke": "Stroke",
     "Stroke Width": "Stroke Width",
     "Text": "Text",

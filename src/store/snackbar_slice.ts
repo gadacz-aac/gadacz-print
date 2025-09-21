@@ -5,7 +5,7 @@ export interface SnackbarSlice {
     message: string | null;
     open: boolean;
   };
-  showSnackbar: (message: string) => void;
+  showSnackbar: (message: string, timeout?: number) => void;
   hideSnackbar: () => void;
 }
 
@@ -14,11 +14,16 @@ export const createSnackbarSlice: StateCreator<
   [],
   [],
   SnackbarSlice
-> = (set) => ({
+> = (set, get) => ({
   snackbar: {
     message: null,
     open: false,
   },
-  showSnackbar: (message) => set(() => ({ snackbar: { message, open: true } })),
+  showSnackbar: (message, timeout) => {
+    if (timeout) {
+      setTimeout(() => get().hideSnackbar(), timeout);
+    }
+    set(() => ({ snackbar: { message, open: true } }));
+  },
   hideSnackbar: () => set(() => ({ snackbar: { message: null, open: false } })),
 });

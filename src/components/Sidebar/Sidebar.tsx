@@ -20,7 +20,6 @@ import {
 import { KeyCode } from "../../consts/key_codes.ts";
 import Select from "./Select.tsx";
 import FontPicker from "./FontPicker.tsx";
-import { extension } from "../../consts/extension";
 import { useAppStore } from "../../store/store.ts";
 import useSelected from "../../hooks/useSelectedSymbols.ts";
 import useStyle from "../../hooks/useStyle.ts";
@@ -30,8 +29,8 @@ import Aligment from "./Aligment.tsx";
 import Switch from "../Switch/Switch.tsx";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import GapSection from "./GapSection.tsx";
-import { MdMoreHoriz } from "react-icons/md";
 import { fileNameTranslated } from "../../helpers/helpers.ts";
+import FileMenu from "./FileMenu.tsx";
 
 type ColorGridProps = {
   isActive: (c: string) => boolean;
@@ -266,102 +265,6 @@ const ColorSquare = ({
   );
 };
 
-type SidebarProps = {
-  onDownload: () => void;
-};
-
-function FileMenu({
-  onDownload,
-  open,
-  save,
-  onOpen,
-  onClose,
-}: SidebarProps & {
-  open: (e: ChangeEvent<HTMLInputElement>) => void;
-  save: () => void;
-  onOpen: () => void;
-  onClose: () => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { t } = useTranslation();
-  const ref = useRef<HTMLDivElement>(null);
-
-  const showSnackbar = useAppStore.use.showSnackbar();
-
-  useClickOutside(ref, () => {
-    setIsOpen(false);
-    onClose();
-  });
-
-  return (
-    <div ref={ref} className={styles.fileMenu}>
-      <button
-        onClick={() => {
-          setIsOpen(!isOpen);
-
-          if (isOpen) {
-            onClose();
-          } else {
-            onOpen();
-          }
-        }}
-        className={styles.fileMenuButton}
-      >
-        <MdMoreHoriz />
-      </button>
-      {isOpen && (
-        <div className={styles.fileMenuContent}>
-          <div
-            className={styles.fileMenuItem}
-            onClick={() => {
-              window.open(window.location.href, "_blank");
-              setIsOpen(false);
-            }}
-          >
-            {t("New")}
-          </div>
-          <label className={styles.fileMenuItem}>
-            <input
-              style={{ display: "none" }}
-              type="file"
-              onChange={open}
-              accept={extension}
-            />
-            {t("Open")}
-          </label>
-          <div
-            className={styles.fileMenuItem}
-            onClick={() => {
-              save();
-              setIsOpen(false);
-            }}
-          >
-            {t("Save")}
-          </div>
-          <div
-            className={styles.fileMenuItem}
-            onClick={() => {
-              setIsOpen(false);
-              showSnackbar("Exporting file...");
-              setTimeout(onDownload);
-            }}
-          >
-            {t("Download")}
-          </div>
-
-          <hr className="separator" />
-
-          <div className={styles.fileMenuItem}>
-            <a href="/docs" target="_blank">
-              {t("Help")}
-            </a>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 const aacColors = [
   AacColors.nounOrange,
   AacColors.verbGreen,
@@ -377,7 +280,7 @@ const aacColors = [
 
 const strokeWidths = [1, 2, 3];
 
-const Sidebar = ({ onDownload }: SidebarProps) => {
+const Sidebar = ({ download }: { download: () => void }) => {
   const [showScrollbars, setShowScrollbar] = useState(true);
 
   const selected = useSelected();
@@ -388,8 +291,6 @@ const Sidebar = ({ onDownload }: SidebarProps) => {
   const setFontData = useAppStore.use.setFontData();
   const fileName = fileNameTranslated(useAppStore.use.fileName());
   const setFileName = useAppStore.use.setFileName();
-  const open = useAppStore.use.open();
-  const save = useAppStore.use.save();
 
   const areOnlySymbolsSelected = selected.every(
     ({ name }) => name === "symbol",
@@ -478,9 +379,7 @@ const Sidebar = ({ onDownload }: SidebarProps) => {
           <FileMenu
             onOpen={() => setShowScrollbar(false)}
             onClose={() => setShowScrollbar(true)}
-            onDownload={onDownload}
-            open={open}
-            save={save}
+            download={download}
           />
         </div>
       </Section>

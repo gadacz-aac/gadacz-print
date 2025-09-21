@@ -13,9 +13,10 @@ import Whiteboard from "./Whiteboard";
 import usePageSize from "./hooks/usePageSize";
 import ContextMenu from "./components/context_menu/context_menu";
 import { useTranslation } from "react-i18next";
-import { APP_CONTAINER_ID } from "./helpers/helpers";
+import { APP_CONTAINER_ID, FILE_INPUT_ID } from "./helpers/helpers";
 import { PointerTool } from "./consts/tools";
 import Snackbar from "./components/Snackbar/Snackbar";
+import { extension } from "./consts/extension";
 
 const App = () => {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
-  const [pageWidth, pageHeight, sidebarWidth] = usePageSize();
+  const [, , sidebarWidth] = usePageSize();
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -85,20 +86,40 @@ const App = () => {
 
     if (evt.ctrlKey) {
       switch (evt.key) {
+        case KeyCode.A:
+          selectAll();
+          evt.preventDefault();
+          break;
         case KeyCode.C:
           handleCopyElements();
+          evt.preventDefault();
+          break;
+        case KeyCode.D:
+          duplicate();
+          evt.preventDefault();
+          break;
+        case KeyCode.E:
+          download(stageRef);
+          evt.preventDefault();
+          break;
+        case KeyCode.N:
+          window.open(window.location.href, "_blank");
+          evt.preventDefault();
+          break;
+        case KeyCode.S:
+          useAppStore.getState().save();
+          evt.preventDefault();
+          break;
+        case KeyCode.O:
+          useAppStore.getState().open();
           evt.preventDefault();
           break;
         case KeyCode.V:
           handlePasteElements();
           evt.preventDefault();
           break;
-        case KeyCode.A:
-          selectAll();
-          evt.preventDefault();
-          break;
-        case KeyCode.D:
-          duplicate();
+        case KeyCode.Y:
+          redo();
           evt.preventDefault();
           break;
         case KeyCode.Z:
@@ -107,10 +128,6 @@ const App = () => {
           } else {
             undo();
           }
-          evt.preventDefault();
-          break;
-        case KeyCode.Y:
-          redo();
           evt.preventDefault();
           break;
         default:
@@ -161,13 +178,18 @@ const App = () => {
         <ContextMenu />
 
         <div className={styles.sidebar} style={{ width: sidebarWidth }}>
-          <Sidebar
-            onDownload={() => download(pageWidth, pageHeight, stageRef)}
-          />
+          <Sidebar download={() => download(stageRef)} />
         </div>
         {snackbar.open && snackbar.message && (
           <Snackbar message={snackbar.message} onClose={hideSnackbar} />
         )}
+
+        <input
+          id={FILE_INPUT_ID}
+          style={{ display: "none" }}
+          type="file"
+          accept={extension}
+        />
       </div>
     </ErrorBoundary>
   );

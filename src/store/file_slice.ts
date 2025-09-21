@@ -7,7 +7,7 @@ import jsPDF from "jspdf";
 import type Konva from "konva";
 import { PageBreakName } from "../components/PageBackground";
 import SizeHelper from "../helpers/sizing";
-import { fileNameTranslated } from "../helpers/helpers";
+import { FILE_INPUT_ID, fileNameTranslated } from "../helpers/helpers";
 
 const BOARD_FILE_VERSION = 1;
 
@@ -18,17 +18,8 @@ export interface FileSlice {
   insertPageBreak: () => void;
   removePage: () => void;
   save: () => void;
-  open: (evt: ChangeEvent<HTMLInputElement>) => void;
-  download2: (
-    pageWidth: number,
-    pageHeight: number,
-    stageRef: RefObject<Konva.Stage | null>,
-  ) => void;
-  download: (
-    pageWidth: number,
-    pageHeight: number,
-    stageRef: RefObject<Konva.Stage | null>,
-  ) => void;
+  open: (evt?: ChangeEvent<HTMLInputElement> | Event) => void;
+  download: (stageRef: RefObject<Konva.Stage | null>) => void;
 }
 
 export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
@@ -106,7 +97,27 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
 
     document.body.removeChild(element);
   },
-  open: (evt: ChangeEvent<HTMLInputElement>) => {
+  open: (evt?) => {
+    if (evt === undefined) {
+      try {
+        document
+          .getElementById(FILE_INPUT_ID)
+          ?.addEventListener("change", (evt) => get().open(evt));
+
+        if (!navigator.userActivation.isActive) {
+          throw Error("");
+        }
+
+        document.getElementById(FILE_INPUT_ID)?.click();
+      } catch {
+        get().showSnackbar(t("Snackbar.fileOpen"), 3000);
+      }
+
+      return;
+    }
+
+    const target = evt.target as HTMLInputElement;
+
     evt.preventDefault();
     const reader = new FileReader();
     reader.onload = async (evt) => {
@@ -133,117 +144,64 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       }
     };
 
-    if (!evt.target.files) {
+    if (!target.files) {
       alert(t("No file was selected"));
     }
 
-    reader.readAsText(evt.target.files![0]);
+    reader.readAsText(target.files![0]);
   },
-  download2: async (pageWidth, pageHeight, stageRef) => {
-    const isLandscape = get().isLandscape;
+  download: (stageRef) => {
+    get().showSnackbar(t("Snackbar.fileExport"));
+    setTimeout(() => {
+      const isLandscape = get().isLandscape;
+      const [pageWidth, pageHeight] =
+        SizeHelper.caluclatePageDimensions(isLandscape);
 
-    const orientation = isLandscape ? "landscape" : "portrait";
+      const orientation = isLandscape ? "landscape" : "portrait";
 
-    const A4Width = A4[orientation].width;
-    const A4Height = A4[orientation].height;
+      const A4Width = A4[orientation].width;
+      const A4Height = A4[orientation].height;
 
-    const pdf = new jsPDF(orientation, "px", [A4Width, A4Height]);
+      const pdf = new jsPDF(orientation, "px", [A4Width, A4Height]);
 
-    const stage = stageRef.current;
-    if (!stage) return;
+      const stage = stageRef.current;
+      if (!stage) return;
 
-    const hideTemporarly = [
-      ...stage.find(`.${PageBreakName}`),
-      ...stage.find("Transformer"),
-    ];
-    hideTemporarly.forEach((e) => e.hide());
+      const hideTemporarly = [
+        ...stage.find(`.${PageBreakName}`),
+        ...stage.find("Transformer"),
+      ];
+      hideTemporarly.forEach((e) => e.hide());
 
-    const dupa = stage.toCanvas().cloneNode();
-
-    document.body.append(dupa);
-
-    const offset = (
-      stage.toCanvas().cloneNode() as HTMLCanvasElement
-    ).transferControlToOffscreen();
-
-    // const pixelRatio = Math.min(10_000 / pageWidth, 10_000 / pageHeight);
-
-    console.time();
-    for (let i = 0; i < get().numberOfPages; i++) {
-      const w = new Worker(
-        new URL("/src/worker/download_worker.js", import.meta.url),
-      );
-
-      const message = new Promise((resolve) => {
-        w.onmessage = async (e) => {
-          pdf.addImage(e.data.dataUrl, 0, 0, A4Width, A4Height);
-          resolve(e.data.dataUrl);
-        };
-      });
-
-      w.postMessage({ canvas: offset, pageHeight, pageWidth, pageIndex: i }, [
-        offset,
-      ]);
-
-      const image = new Image();
-      image.src = (await message) as string;
-
-      const win = window.open("");
-      win!.document.write(image.outerHTML);
-
-      if (i !== get().numberOfPages - 1) {
+      for (let i = 0; i < get().numberOfPages - 1; i++) {
         pdf.addPage([A4Width, A4Height], orientation);
       }
-    }
 
-    console.timeEnd();
-    pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);
-    hideTemporarly.forEach((e) => e.show());
-  },
-  download: (pageWidth, pageHeight, stageRef) => {
-    const isLandscape = get().isLandscape;
+      const pixelRatio =
+        Math.min(A4Width / pageWidth, A4Height / pageHeight) * 4;
 
-    const orientation = isLandscape ? "landscape" : "portrait";
+      console.log(pixelRatio);
 
-    const A4Width = A4[orientation].width;
-    const A4Height = A4[orientation].height;
+      for (let i = 0; i < get().numberOfPages; i++) {
+        pdf.addImage(
+          stage.toDataURL({
+            pixelRatio,
+            x: 0,
+            y: i * pageHeight,
+            width: pageWidth,
+            height: pageHeight,
+          }),
+          0,
+          0,
+          A4Width,
+          A4Height,
+        );
+      }
 
-    const pdf = new jsPDF(orientation, "px", [A4Width, A4Height]);
+      pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);
+      hideTemporarly.forEach((e) => e.show());
 
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const hideTemporarly = [
-      ...stage.find(`.${PageBreakName}`),
-      ...stage.find("Transformer"),
-    ];
-    hideTemporarly.forEach((e) => e.hide());
-
-    for (let i = 0; i < get().numberOfPages - 1; i++) {
-      pdf.addPage([A4Width, A4Height], orientation);
-    }
-
-    const pixelRatio = Math.min(A4Width / pageWidth, A4Height / pageHeight) * 4;
-
-    console.log(pixelRatio);
-
-    for (let i = 0; i < get().numberOfPages; i++) {
-      pdf.addImage(
-        stage.toDataURL({
-          pixelRatio,
-          x: 0,
-          y: i * pageHeight,
-          width: pageWidth,
-          height: pageHeight,
-        }),
-        0,
-        0,
-        A4Width,
-        A4Height,
-      );
-    }
-
-    pdf.save(`${fileNameTranslated(get().fileName)}.pdf`);
-    hideTemporarly.forEach((e) => e.show());
+      setTimeout(() => get().hideSnackbar());
+    });
   },
 });
