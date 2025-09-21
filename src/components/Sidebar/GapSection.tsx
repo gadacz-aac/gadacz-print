@@ -17,14 +17,15 @@ export default function GapSection() {
       <Input
         label={t("Gap.horizontal")}
         defaultValue={gap.rowGap ?? 0}
+        isEmpty={typeof gap.rowGap === "undefined"}
         onBlur={(e) => handleGapChange({ x: Number(e) })}
       />
       <Input
         label={t("Gap.vertical")}
+        isEmpty={typeof gap.columnGap === "undefined"}
         defaultValue={gap.columnGap ?? 0}
         onBlur={(e) => handleGapChange({ y: Number(e) })}
       />
     </>
   );
 }
-

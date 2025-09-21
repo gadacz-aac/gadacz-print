@@ -12,6 +12,7 @@ import styles from "./Sidebar.module.css";
 
 export default function Input({
   label,
+  isEmpty = false,
   defaultValue,
   allowEmpty = false,
   allowFloats = false,
@@ -20,6 +21,7 @@ export default function Input({
   onBlur,
 }: {
   label?: string;
+  isEmpty?: boolean;
   allowEmpty?: boolean;
   allowFloats?: boolean;
   defaultValue: string | number | undefined;
@@ -48,8 +50,8 @@ export default function Input({
   );
 
   useEffect(() => {
-    setValue(convert(defaultValue));
-  }, [defaultValue, convert]);
+    setValue(convert(isEmpty ? undefined : defaultValue));
+  }, [defaultValue, isEmpty, convert]);
 
   function assertIsValid(value: string) {
     return typeof defaultValue === "number" && Number.isNaN(Number(value));

@@ -172,16 +172,55 @@ const Whiteboard = ({ stageRef }: WhiteboardProps) => {
 
     horizontal.push(pageHeight * (numberOfPages + 1));
 
+    const shapes = [...stage.find(".symbol"), ...stage.find(".text")].filter(
+      (guideItem) => !skipShapes.includes(guideItem),
+    );
+
     // and we snap over edges and center of each object on the canvas
-    [...stage.find(".symbol"), ...stage.find(".text")].forEach((guideItem) => {
-      if (skipShapes.includes(guideItem)) {
-        return;
-      }
+    shapes.forEach((guideItem) => {
       const box = guideItem.getClientRect();
       // and we can snap to all edges of shapes
       vertical.push(box.x, box.x + box.width, box.x + box.width / 2);
       horizontal.push(box.y, box.y + box.height, box.y + box.height / 2);
     });
+
+    if (shapes.length > 1) {
+      for (let i = 0; i < shapes.length; i++) {
+        for (let j = 0; j < shapes.length; j++) {
+          if (i === j) continue;
+
+          const box1 = shapes[i].getClientRect();
+          const box2 = shapes[j].getClientRect();
+
+          const isHorizontallyAligned =
+            box1.y < box2.y + box2.height && box1.y + box1.height > box2.y;
+          const isVerticallyAligned =
+            box1.x < box2.x + box2.width && box1.x + box1.width > box2.x;
+
+          if (isHorizontallyAligned) {
+            const hGap = box2.x - (box1.x + box1.width);
+            if (hGap > 0) {
+              // equal spacing
+              vertical.push(box2.x + box2.width + hGap);
+              vertical.push(box1.x - hGap);
+              // middle position
+              vertical.push((box1.x + box1.width + box2.x) / 2);
+            }
+          }
+
+          if (isVerticallyAligned) {
+            const vGap = box2.y - (box1.y + box1.height);
+            if (vGap > 0) {
+              // equal spacing
+              horizontal.push(box2.y + box2.height + vGap);
+              horizontal.push(box1.y - vGap);
+              // middle position
+              horizontal.push((box1.y + box1.height + box2.y) / 2);
+            }
+          }
+        }
+      }
+    }
 
     return {
       vertical: vertical,
