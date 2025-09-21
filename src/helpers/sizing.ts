@@ -4,25 +4,23 @@ export default class SizeHelper {
   static padding = 10;
   static gap = 20;
 
-  static caluclatePageDimensions(landscape: boolean) {
+  static calculatePageDimensions(landscape: boolean): [number, number, number] {
     const sidebar = 200;
-    const width = window.innerWidth - this.padding * 2 - this.gap - sidebar;
+    const availWidth =
+      window.innerWidth - this.padding * 2 - this.gap - sidebar;
+    const availHeight = window.innerHeight - this.padding * 2;
 
-    if (landscape) {
-      const maxHeight = width * PageAspectRatio;
+    const ratio = landscape ? PageAspectRatio : 1 / PageAspectRatio;
 
-      const diff = window.innerHeight - this.padding * 2 - maxHeight;
+    let width = availWidth;
+    let height = width * ratio;
 
-      if (diff < 0) {
-        const height = maxHeight + diff;
-
-        return [height / PageAspectRatio, height, sidebar];
-      }
-
-      return [width, maxHeight, sidebar];
+    if (height > availHeight) {
+      height = availHeight;
+      width = height / ratio;
     }
 
-    return [width * PageAspectRatio, width, sidebar];
+    return [width, height, sidebar];
   }
 
   static calculateScale(width: number, landscape: boolean) {
