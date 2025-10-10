@@ -48,7 +48,7 @@ export const createContextMenuSlice: AppStateCreator<ContextMenuSlice> = (
 
     const pageNumber = Math.floor(
       pointerPosition.y /
-        SizeHelper.caluclatePageDimensions(get().isLandscape)[1],
+        SizeHelper.calculatePageDimensions(get().isLandscape)[1],
     );
 
     set(() => ({

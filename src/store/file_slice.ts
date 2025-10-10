@@ -36,7 +36,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
       if (contextMenuPos.pageNumber === undefined) return {};
       if (numberOfPages === 1) return {};
 
-      const [width, height] = SizeHelper.caluclatePageDimensions(
+      const [width, height] = SizeHelper.calculatePageDimensions(
         get().isLandscape,
       );
       const scale = SizeHelper.calculateScale(width, get().isLandscape);
@@ -155,7 +155,7 @@ export const createFileSlice: AppStateCreator<FileSlice> = (set, get) => ({
     setTimeout(() => {
       const isLandscape = get().isLandscape;
       const [pageWidth, pageHeight] =
-        SizeHelper.caluclatePageDimensions(isLandscape);
+        SizeHelper.calculatePageDimensions(isLandscape);
 
       const orientation = isLandscape ? "landscape" : "portrait";
 

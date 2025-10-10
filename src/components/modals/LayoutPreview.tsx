@@ -6,10 +6,16 @@ interface LayoutPreviewProps {
   layout: CommunicationSymbol[];
   width: number;
   height: number;
+  isLandscape: boolean;
 }
 
-const LayoutPreview = ({ layout, width, height }: LayoutPreviewProps) => {
-  const scale = width / A4.landscape.width;
+const LayoutPreview = ({
+  layout,
+  width,
+  height,
+  isLandscape,
+}: LayoutPreviewProps) => {
+  const scale = width / A4[isLandscape ? "landscape" : "portrait"].width;
 
   return (
     <Stage width={width} height={height}>

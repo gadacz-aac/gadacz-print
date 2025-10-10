@@ -199,7 +199,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       set(
         ({ elements }) => {
           const { A4ToWidth } = SizeHelper.calculateScale(
-            SizeHelper.caluclatePageDimensions(get().isLandscape)[0],
+            SizeHelper.calculatePageDimensions(get().isLandscape)[0],
             get().isLandscape,
           );
 
@@ -290,7 +290,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
       set(
         ({ elements }) => {
           const { A4ToWidth } = SizeHelper.calculateScale(
-            SizeHelper.caluclatePageDimensions(get().isLandscape)[0],
+            SizeHelper.calculatePageDimensions(get().isLandscape)[0],
             get().isLandscape,
           );
 
@@ -407,7 +407,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
     },
     insertLayout: (layout) => {
       const pageNumber = get().layoutModalData.insertOnPage ?? 0;
-      const [width, height] = SizeHelper.caluclatePageDimensions(
+      const [width, height] = SizeHelper.calculatePageDimensions(
         get().isLandscape,
       );
       const scale = SizeHelper.calculateScale(width, get().isLandscape);
@@ -425,7 +425,7 @@ export const createElementsSlice: AppStateCreator<ElementsSlice> = (
           const _isLandscape = !isLandscape;
 
           const [width, height] =
-            SizeHelper.caluclatePageDimensions(_isLandscape);
+            SizeHelper.calculatePageDimensions(_isLandscape);
           const scale = SizeHelper.calculateScale(width, _isLandscape);
 
           return {

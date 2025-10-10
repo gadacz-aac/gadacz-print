@@ -8,7 +8,7 @@ export default function usePageSize() {
   const isLandscape = useAppStore.use.isLandscape();
   useLayoutEffect(() => {
     function updateSize() {
-      setSize(SizeHelper.caluclatePageDimensions(isLandscape));
+      setSize(SizeHelper.calculatePageDimensions(isLandscape));
     }
     window.addEventListener("resize", updateSize);
     updateSize();
